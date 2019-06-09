@@ -41,15 +41,6 @@
   float: right;
 }
 
-/* adjust no underline hack... */
-.ant-menu-item:not(.ant-menu-item-selected) {
-  border-bottom: none !important;
-}
-
-.ant-menu-item.no-underline.ant-menu-item-selected a {
-  color: initial !important;
-}
-
 .menu__mobile-button {
   float: right;
   height: 32px;
@@ -89,4 +80,21 @@
   .menu__logo a {
     padding: 10px 20px;
   }
+}
+
+/* adjust underline and link color & hover color hack... */
+.ant-menu-item:not(.ant-menu-item-selected) {
+  border-bottom: none !important;
+}
+
+.ant-menu-item.no-underline.ant-menu-item-selected {
+  border-bottom: none !important;
+}
+
+.ant-menu-item.no-underline.ant-menu-item-selected a {
+  color: initial !important;
+}
+
+.ant-menu-item.no-underline.ant-menu-item-active:hover a {
+  color: #1890ff !important;
 }
