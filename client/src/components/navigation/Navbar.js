@@ -7,6 +7,7 @@ import './navbar.css';
 
 function Navbar() {
   const [visible, setVisible] = useState(false);
+  const [activeSide, setActiveSide] = useState('left');
 
   const showDrawer = () => {
     setVisible(true);
@@ -23,10 +24,10 @@ function Navbar() {
       </div>
       <div className='menu__container'>
         <div className='menu_left'>
-          <LeftMenu mode='horizontal' />
+          <LeftMenu mode='horizontal' activeSide={activeSide} setActiveSide={setActiveSide} />
         </div>
         <div className='menu_rigth'>
-          <RightMenu mode='horizontal' />
+          <RightMenu mode='horizontal' activeSide={activeSide} setActiveSide={setActiveSide} />
         </div>
         <Button className='menu__mobile-button' type='primary' onClick={showDrawer}>
           <Icon type='align-right' />
