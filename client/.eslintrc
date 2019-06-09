@@ -1,0 +1,37 @@
+{
+  "extends": ["react-app", "prettier", "prettier/react"],
+  "plugins": ["prettier"],
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true,
+    "jest": true
+  },
+  "rules": {
+    "no-console": 0,
+    "quotes": [
+      2,
+      "single",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
+    ],
+    "prettier/prettier": [
+      "warn",
+      {
+        "trailingComma": "es5",
+        "singleQuote": true,
+        "jsxSingleQuote": true,
+        "printWidth": 120
+      }
+    ],
+    "jsx-a11y/href-no-hash": 0,
+    "jsx-a11y/anchor-is-valid": [
+      "warn",
+      {
+        "aspects": ["invalidHref"]
+      }
+    ]
+  }
+}
