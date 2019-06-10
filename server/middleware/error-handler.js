@@ -33,8 +33,7 @@ module.exports = app => {
     res.status(e.error.status_code);
 
     if (config.isDevelopmentMode()) {
-      // return res.json({ success: false, ..._.omit(e.error, ['data.expose']) });
-      return res.json({ success: false, ..._.omit(e.error, ['data']) });
+      return res.json({ success: false, ..._.omit(e.error, ['data.expose', 'data.stack']) });
     }
 
     if (config.isProductionMode()) {

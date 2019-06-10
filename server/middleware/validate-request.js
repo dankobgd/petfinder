@@ -1,4 +1,4 @@
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const createError = require('http-errors');
 
 const defaultOptions = {
@@ -14,9 +14,8 @@ function validationCallback(req, res, next, options) {
   return (err, value) => {
     if (err) {
       const src = [...new Set(err.details.map(d => d.path[0]))];
+      const keys = [...new Set(err.details.map(d => `${d.path[0]}.${d.context.key}`))];
       const source = src.length > 1 ? src : src[0];
-
-      const keys = err.details.map(d => `${d.path[0]}.${d.context.key}`);
 
       const details = err.details.map(d => ({
         message: d.message.replace(/["]/gi, ''),
@@ -26,6 +25,7 @@ function validationCallback(req, res, next, options) {
 
       return next(
         createError(422, 'Payload validation failed', {
+          name: err.name,
           validation: {
             source,
             keys,
