@@ -36,7 +36,7 @@ function validationCallback(req, res, next, options) {
     }
 
     const extendObject = {};
-    extendObject.body = value;
+    extendObject.body = value.body;
     Object.assign(req, extendObject);
     next();
   };
