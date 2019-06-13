@@ -21,7 +21,6 @@ function requireJWT(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, config.auth.jwtSecret);
-
     req.user = decoded;
     next();
   } catch (err) {

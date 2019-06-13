@@ -1,6 +1,6 @@
-const UserService = require('./userService');
+const { User } = require('../../models');
 
 exports.info = async (req, res, next) => {
-  const user = await UserService.getOne(req.user.sub);
-  res.json(UserService.toAuthJSON(user));
+  const user = await User.findById(req.user.sub);
+  res.json(user);
 };
