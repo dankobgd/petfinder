@@ -1,18 +1,25 @@
 import React from 'react';
 import { Link } from '@reach/router';
 import { Form, Icon, Input, Button, Card, Divider, Col, Row, Typography } from 'antd';
-import './auth-form.css';
+import { useDispatch } from 'react-redux';
+import { userLogin } from '../../redux/auth/authActions';
 
 const { Title, Text } = Typography;
 
 function LoginForm(props) {
-  const { getFieldDecorator } = props.form;
+  const { getFieldDecorator, validateFieldsAndScroll } = props.form;
+
+  const dispatch = useDispatch();
 
   const handleSubmit = e => {
     e.preventDefault();
-    props.form.validateFields((err, values) => {
+    validateFieldsAndScroll((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        try {
+          dispatch(userLogin(values));
+        } catch (err) {
+          console.error(err);
+        }
       }
     });
   };

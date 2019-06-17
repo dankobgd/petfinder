@@ -6,7 +6,7 @@ function requireJWT(req, res, next) {
   const authHeader = req.headers.authorization || req.headers['x-access-token'];
 
   if (!authHeader) {
-    return next(createErorr(401, 'No authorization headers provided, access denied'));
+    return next(createErorr(401, 'No authorization header provided, access denied'));
   }
 
   const [authScheme, token] = authHeader.split(' ');

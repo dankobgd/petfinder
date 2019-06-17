@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
-import { Form, Input, Tooltip, Icon, Button, Card, Divider, Row, Col, Typography } from 'antd';
 import { Link } from '@reach/router';
+import { Form, Input, Tooltip, Icon, Button, Card, Divider, Row, Col, Typography } from 'antd';
+import { useDispatch } from 'react-redux';
+import { userSignup } from '../../redux/auth/authActions';
 
 const { Title, Text } = Typography;
 
 function SignupForm(props) {
   const [confirmDirty, setConfirmDirty] = useState(false);
+  const { getFieldDecorator, validateFields, getFieldValue, validateFieldsAndScroll } = props.form;
 
-  const { form } = props;
-  const { getFieldDecorator, validateFields, getFieldValue, validateFieldsAndScroll } = form;
+  const dispatch = useDispatch();
 
   const handleSubmit = e => {
     e.preventDefault();
     validateFieldsAndScroll((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        try {
+          dispatch(userSignup(values));
+        } catch (err) {
+          console.error(err);
+        }
       }
     });
   };

@@ -135,8 +135,6 @@ function getEnvironmentConfig(env) {
   }
 }
 
-// :TOD - validate .env with joi or maybe ajv in future
-
 // Export merged config
 const cfg = getEnvironmentConfig(baseConfig.app.env);
 module.exports = merge(baseConfig, cfg);

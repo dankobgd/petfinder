@@ -8,7 +8,7 @@ module.exports = {
         iss: 'petfinder',
         sub: user.id,
         iat: new Date().getTime(),
-        epx: new Date().setDate(new Date().getDate() + 1),
+        exp: new Date().setDate(new Date().getDate() + 1),
       },
       config.auth.jwtSecret
     );

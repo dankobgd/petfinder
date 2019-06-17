@@ -1,11 +1,16 @@
 import React from 'react';
 import { Link } from '@reach/router';
 import { Menu, Icon } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { userLogout } from '../../redux/auth/authActions';
 
 function RightMenu({ mode, activeSide, setActiveSide }) {
   const underlineClass = activeSide === 'left' ? 'no-underline' : null;
 
-  return (
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+
+  const authMenuItems = (
     <Menu mode={mode}>
       <Menu.Item key='signup' onClick={() => setActiveSide('right')} className={underlineClass}>
         <Link to='signup'>
@@ -21,6 +26,23 @@ function RightMenu({ mode, activeSide, setActiveSide }) {
       </Menu.Item>
     </Menu>
   );
+
+  const logoutMenuItem = (
+    <Menu mode={mode}>
+      <Menu.Item key='logout' onClick={() => dispatch(userLogout())} className={underlineClass}>
+        <Link to='/'>
+          <Icon type='logout' />
+          Logout
+        </Link>
+      </Menu.Item>
+    </Menu>
+  );
+
+  if (isAuthenticated) {
+    return logoutMenuItem;
+  } else {
+    return authMenuItems;
+  }
 }
 
 export default RightMenu;

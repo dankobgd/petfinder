@@ -46,9 +46,7 @@ module.exports = knex => {
       .insert(user)
       .timeout(base.timeout);
 
-    return knex('users')
-      .where({ id: insertedId[0] })
-      .first();
+    return base.findOne({ id: insertedId[0] });
   };
 
   const verify = async (email, password) => {
@@ -66,7 +64,9 @@ module.exports = knex => {
       return Promise.reject(new Error('Invalid credentials'));
     }
 
-    return Promise.resolve(user);
+    const userWithoutPw = { ...user };
+    delete userWithoutPw.password;
+    return Promise.resolve(userWithoutPw);
   };
 
   return {
