@@ -1,6 +1,6 @@
 const { User } = require('../../models');
 
-exports.info = async (req, res, next) => {
-  const user = await User.findById(req.user.sub);
-  res.json(user);
+exports.getCurrentUser = async (req, res, next) => {
+  const currentUser = await User.findOne({ id: req.user.sub });
+  res.json({ user: currentUser });
 };

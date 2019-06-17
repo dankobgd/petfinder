@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Router } from '@reach/router';
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import { loadUser } from './redux/auth/authActions';
+import { loadCurrentUserRequest } from './redux/auth/authActions';
 
 import Home from './screens/Home';
 import NotFound from './screens/NotFound';
@@ -12,7 +12,7 @@ import Navbar from './components/navigation/Navbar';
 
 function App() {
   useEffect(() => {
-    store.dispatch(loadUser());
+    store.dispatch(loadCurrentUserRequest());
   }, []);
 
   return (

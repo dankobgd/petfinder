@@ -23,16 +23,11 @@ function validationCallback(req, res, next, options) {
         context: d.context,
       }));
 
-      return next(
-        createError(422, 'Payload validation failed', {
-          name: err.name,
-          validation: {
-            source,
-            keys,
-            details,
-          },
-        })
-      );
+      const validationError = createError.UnprocessableEntity('Payload validation error');
+      const errInfo = { source, keys, details };
+      validationError.name = err.name;
+      validationError.validation = errInfo;
+      return next(validationError);
     }
 
     const extendObject = {};
@@ -45,7 +40,7 @@ function validationCallback(req, res, next, options) {
 function middleware(schema, options = defaultOptions) {
   return (req, res, next) => {
     if (!schema) {
-      next(createError(500, 'No validation schema provided'));
+      return next(createError.InternalServerError('No validation schema provided'));
     }
 
     const toValidate = {};

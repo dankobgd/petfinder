@@ -6,25 +6,25 @@ function requireJWT(req, res, next) {
   const authHeader = req.headers.authorization || req.headers['x-access-token'];
 
   if (!authHeader) {
-    return next(createErorr(401, 'No authorization header provided, access denied'));
+    return next(createErorr.Unauthorized('Unauthorized access, no authorization header provided'));
   }
 
-  const [authScheme, token] = authHeader.split(' ');
+  const [authScheme, accessToken] = authHeader.split(' ');
 
   if (authScheme.trim() !== 'Bearer') {
-    return next(createErorr(401, 'Invalid authentication scheme type'));
+    return next(createErorr.Unauthorized('Invalid authentication scheme type'));
   }
 
-  if (!token) {
-    return next(createErorr(401, 'No authorization token provided, access denied'));
+  if (!accessToken) {
+    return next(createErorr.Unauthorized('Unauthorized access, no authorization token provided'));
   }
 
   try {
-    const decoded = jwt.verify(token, config.auth.jwtSecret);
+    const decoded = jwt.verify(accessToken, config.auth.jwtSecret);
     req.user = decoded;
     next();
   } catch (err) {
-    return next(createErorr(401, 'Invalid authorization token'));
+    return next(createErorr.Unauthorized('Invalid authorization token'));
   }
 }
 

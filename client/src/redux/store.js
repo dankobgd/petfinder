@@ -4,9 +4,7 @@ import rootReducer from './rootReducer';
 
 const initialState = {};
 
-const middleWare = [thunk];
-
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(rootReducer, initialState, composeEnhancers(applyMiddleware(...middleWare)));
+const store = createStore(rootReducer, initialState, composeEnhancers(applyMiddleware(thunk)));
 
 export default store;

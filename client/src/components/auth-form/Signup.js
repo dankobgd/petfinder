@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from '@reach/router';
 import { Form, Input, Tooltip, Icon, Button, Card, Divider, Row, Col, Typography } from 'antd';
 import { useDispatch } from 'react-redux';
-import { userSignup } from '../../redux/auth/authActions';
+import { userSignupRequest } from '../../redux/auth/authActions';
 
 const { Title, Text } = Typography;
 
@@ -17,7 +17,7 @@ function SignupForm(props) {
     validateFieldsAndScroll((err, values) => {
       if (!err) {
         try {
-          dispatch(userSignup(values));
+          dispatch(userSignupRequest(values));
         } catch (err) {
           console.error(err);
         }

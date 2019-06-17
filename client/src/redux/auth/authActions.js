@@ -2,50 +2,56 @@ import * as t from './authTypes';
 import { getErrors } from '../error/errorActions';
 import apiClient from '../../utils/apiClient';
 
-export const loadUser = () => async dispatch => {
+export const loadCurrentUserRequest = () => async dispatch => {
   dispatch({ type: t.USER_LOADING });
 
   try {
-    const response = await apiClient.get('/user');
+    const res = await apiClient.get('/user/current');
 
     dispatch({
       type: t.USER_LOADED,
-      payload: { user: response.data },
+      payload: { user: res.user },
     });
   } catch (err) {
-    dispatch(getErrors(err.data, err.status));
+    dispatch(getErrors(err));
     dispatch({ type: t.AUTH_ERROR });
   }
 };
 
-export const userSignup = credentials => async dispatch => {
+export const userSignupRequest = credentials => async dispatch => {
   try {
     const res = await apiClient.post('auth/signup', { data: credentials });
 
     dispatch({
       type: t.REGISTER_SUCCESS,
-      payload: res,
+      payload: {
+        accessToken: res.accessToken,
+        user: res.user,
+      },
     });
   } catch (err) {
-    dispatch(getErrors(err.data, err.status));
+    dispatch(getErrors(err));
     dispatch({ type: t.REGISTER_FAIL });
   }
 };
 
-export const userLogin = credentials => async dispatch => {
+export const userLoginRequest = credentials => async dispatch => {
   try {
     const res = await apiClient.post('auth/login', { data: credentials });
 
     dispatch({
       type: t.LOGIN_SUCCESS,
-      payload: res,
+      payload: {
+        accessToken: res.accessToken,
+        user: res.user,
+      },
     });
   } catch (err) {
-    dispatch(getErrors(err.data, err.status));
+    dispatch(getErrors(err));
     dispatch({ type: t.LOGIN_FAIL });
   }
 };
 
-export const userLogout = () => dispatch => {
+export const userLogoutRequest = () => dispatch => {
   dispatch({ type: t.LOGOUT_SUCCESS });
 };

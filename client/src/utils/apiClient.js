@@ -31,8 +31,7 @@ function request(method, url, config = {}, options = {}) {
         url: formatURL(url),
         params,
         data,
-        // headers,
-        headers: { ...headers },
+        headers,
         maxContentLength,
       })
       .then(res => resolve(onSuccess(res)))

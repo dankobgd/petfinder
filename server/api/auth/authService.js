@@ -5,7 +5,7 @@ module.exports = {
   signJWT(user) {
     return jwt.sign(
       {
-        iss: 'petfinder',
+        iss: config.app.title,
         sub: user.id,
         iat: new Date().getTime(),
         exp: new Date().setDate(new Date().getDate() + 1),

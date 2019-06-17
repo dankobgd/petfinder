@@ -1,7 +1,7 @@
 import * as t from './authTypes';
 
 const initialState = {
-  token: localStorage.getItem('access_token'),
+  accessToken: localStorage.getItem('access_token'),
   isAuthenticated: false,
   isLoading: false,
   user: null,
@@ -22,7 +22,7 @@ const reducer = (state = initialState, action) => {
         user: action.payload.user,
       };
     case (t.LOGIN_SUCCESS, t.REGISTER_SUCCESS):
-      localStorage.setItem('access_token', action.payload.token);
+      localStorage.setItem('access_token', action.payload.accessToken);
       return {
         ...state,
         ...action.payload,
@@ -33,10 +33,10 @@ const reducer = (state = initialState, action) => {
       localStorage.removeItem('access_token');
       return {
         ...state,
-        token: null,
-        user: null,
+        accessToken: null,
         isAuthenticated: false,
         isLoading: false,
+        user: null,
       };
     default:
       return state;

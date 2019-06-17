@@ -4,6 +4,6 @@ const mw = require('../../middleware');
 
 const { requireJWT } = mw.authGard;
 
-router.get('/', requireJWT, UserController.info);
+router.get('/current', requireJWT, UserController.getCurrentUser);
 
 module.exports = router;

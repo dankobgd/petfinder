@@ -1,8 +1,8 @@
 import * as t from './errorTypes';
 
-export const getErrors = (message, status, id = null) => ({
+export const getErrors = error => ({
   type: t.GET_ERRORS,
-  payload: { message, status, id },
+  payload: { error },
 });
 
 export const clearErrors = () => ({

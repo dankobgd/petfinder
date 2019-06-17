@@ -1,11 +1,11 @@
-const _ = require('lodash');
+const omit = require('lodash/omit');
 const createError = require('http-errors');
 const logger = require('../services/logger')(module);
 const config = require('../config');
 
 module.exports = app => {
   app.use((req, res, next) => {
-    next(createError(404, 'Not Found'));
+    next(createError.NotFound());
   });
 
   app.use((err, req, res, next) => {
@@ -29,15 +29,15 @@ module.exports = app => {
       },
     };
 
-    logger.error('Error occurred', e);
-    res.status(e.error.status_code);
+    logger.error(err);
+    res.status(statusCode);
 
     if (config.isDevelopmentMode()) {
-      return res.json({ success: false, ..._.omit(e.error, ['data.expose', 'data.stack']) });
+      return res.json({ success: false, ...omit(e.error, ['data.expose', 'data.stack']) });
     }
 
     if (config.isProductionMode()) {
-      return res.json({ success: false, ..._.omit(e.error, ['data']) });
+      return res.json({ success: false, ...omit(e.error, ['data']) });
     }
   });
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from '@reach/router';
 import { Form, Icon, Input, Button, Card, Divider, Col, Row, Typography } from 'antd';
 import { useDispatch } from 'react-redux';
-import { userLogin } from '../../redux/auth/authActions';
+import { userLoginRequest } from '../../redux/auth/authActions';
 
 const { Title, Text } = Typography;
 
@@ -16,7 +16,7 @@ function LoginForm(props) {
     validateFieldsAndScroll((err, values) => {
       if (!err) {
         try {
-          dispatch(userLogin(values));
+          dispatch(userLoginRequest(values));
         } catch (err) {
           console.error(err);
         }
