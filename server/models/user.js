@@ -61,7 +61,7 @@ module.exports = knex => {
 
     const isMatch = await verifyHash(password, user.password);
     if (!isMatch) {
-      return Promise.reject(new Error('Invalid credentials'));
+      return Promise.reject(new Error('Invalid password'));
     }
 
     const userWithoutPw = { ...user };

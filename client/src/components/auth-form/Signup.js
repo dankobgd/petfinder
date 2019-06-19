@@ -10,7 +10,14 @@ function SignupForm(props) {
   const dispatch = useDispatch();
   const [confirmDirty, setConfirmDirty] = useState(false);
   const [clearServerError, setClearServerError] = useState(false);
-  const { getFieldDecorator, validateFields, getFieldValue, validateFieldsAndScroll, setFields } = props.form;
+  const {
+    getFieldDecorator,
+    validateFields,
+    getFieldValue,
+    getFieldsValue,
+    validateFieldsAndScroll,
+    setFields,
+  } = props.form;
   const authErr = useSelector(state => state.error);
 
   const handleSubmit = e => {
@@ -30,7 +37,7 @@ function SignupForm(props) {
 
         authErr.data.validation.details.forEach(errObj => {
           errorsMap[errObj.context.label] = {
-            value: getFieldValue([errObj.context.label]),
+            value: getFieldsValue()[errObj.context.label],
             errors: [new Error(errObj.message)],
           };
         });
@@ -45,7 +52,7 @@ function SignupForm(props) {
         });
       }
     }
-  }, [authErr, authErr.status, clearServerError, getFieldValue, setFields]);
+  }, [authErr, authErr.status, clearServerError, getFieldValue, getFieldsValue, setFields]);
 
   const handleConfirmBlur = e => {
     const { value } = e.target;

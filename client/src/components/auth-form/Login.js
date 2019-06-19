@@ -9,7 +9,7 @@ const { Title, Text } = Typography;
 function LoginForm(props) {
   const dispatch = useDispatch();
   const [clearServerError, setClearServerError] = useState(false);
-  const { getFieldDecorator, validateFieldsAndScroll, getFieldValue, setFields } = props.form;
+  const { getFieldDecorator, validateFieldsAndScroll, getFieldValue, getFieldsValue, setFields } = props.form;
   const authErr = useSelector(state => state.error);
 
   const handleSubmit = e => {
@@ -29,7 +29,7 @@ function LoginForm(props) {
 
         authErr.data.validation.details.forEach(errObj => {
           errorsMap[errObj.context.label] = {
-            value: getFieldValue([errObj.context.label]),
+            value: getFieldsValue()[errObj.context.label],
             errors: [new Error(errObj.message)],
           };
         });
@@ -53,7 +53,7 @@ function LoginForm(props) {
         }
       }
     }
-  }, [authErr, authErr.status, clearServerError, getFieldValue, setFields]);
+  }, [authErr, authErr.status, clearServerError, getFieldValue, getFieldsValue, setFields]);
 
   return (
     <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>
