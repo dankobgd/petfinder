@@ -1,29 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from '@reach/router';
 import { Form, Input, Tooltip, Icon, Button, Card, Divider, Row, Col, Typography } from 'antd';
-import { useDispatch } from 'react-redux';
-import { userSignupRequest } from '../../redux/auth/authActions';
+import { useSelector, useDispatch } from 'react-redux';
+import { authActions } from '../../redux/auth';
 
 const { Title, Text } = Typography;
 
 function SignupForm(props) {
-  const [confirmDirty, setConfirmDirty] = useState(false);
-  const { getFieldDecorator, validateFields, getFieldValue, validateFieldsAndScroll } = props.form;
-
   const dispatch = useDispatch();
+  const [confirmDirty, setConfirmDirty] = useState(false);
+  const [clearServerError, setClearServerError] = useState(false);
+  const { getFieldDecorator, validateFields, getFieldValue, validateFieldsAndScroll, setFields } = props.form;
+  const authErr = useSelector(state => state.error);
 
   const handleSubmit = e => {
     e.preventDefault();
-    validateFieldsAndScroll((err, values) => {
-      if (!err) {
-        try {
-          dispatch(userSignupRequest(values));
-        } catch (err) {
-          console.error(err);
-        }
+    validateFieldsAndScroll((error, values) => {
+      if (!error) {
+        dispatch(authActions.userSignupRequest(values));
+        setClearServerError(true);
       }
     });
   };
+
+  useEffect(() => {
+    if (clearServerError) {
+      if (authErr.status === 422) {
+        let errorsMap = {};
+
+        authErr.data.validation.details.forEach(errObj => {
+          errorsMap[errObj.context.label] = {
+            value: getFieldValue([errObj.context.label]),
+            errors: [new Error(errObj.message)],
+          };
+        });
+
+        setFields(errorsMap);
+      } else if (authErr.message.startsWith('Email')) {
+        setFields({
+          email: {
+            value: getFieldValue('email'),
+            errors: [new Error(authErr.message)],
+          },
+        });
+      }
+    }
+  }, [authErr, authErr.status, clearServerError, getFieldValue, setFields]);
 
   const handleConfirmBlur = e => {
     const { value } = e.target;

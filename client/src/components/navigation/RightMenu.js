@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from '@reach/router';
 import { Menu, Icon } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { userLogoutRequest } from '../../redux/auth/authActions';
+import { authActions } from '../../redux/auth';
 
 function RightMenu({ mode, activeSide, setActiveSide }) {
   const underlineClass = activeSide === 'left' ? 'no-underline' : null;
@@ -29,7 +29,7 @@ function RightMenu({ mode, activeSide, setActiveSide }) {
 
   const logoutMenuItem = (
     <Menu mode={mode}>
-      <Menu.Item key='logout' onClick={() => dispatch(userLogoutRequest())} className={underlineClass}>
+      <Menu.Item key='logout' onClick={() => dispatch(authActions.userLogoutRequest())} className={underlineClass}>
         <Link to='/'>
           <Icon type='logout' />
           Logout

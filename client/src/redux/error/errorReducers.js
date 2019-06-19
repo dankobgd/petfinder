@@ -15,7 +15,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         message: action.payload.error.data.message,
         type: action.payload.error.data.type,
-        details: action.payload.error.data.details,
+        data: action.payload.error.data.data,
         status: action.payload.error.status,
         statusText: action.payload.error.statusText,
       };
@@ -25,7 +25,7 @@ const reducer = (state = initialState, action) => {
         type: '',
         statusText: '',
         status: null,
-        details: {},
+        data: {},
       };
     default:
       return state;

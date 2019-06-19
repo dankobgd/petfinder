@@ -1,28 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from '@reach/router';
 import { Form, Icon, Input, Button, Card, Divider, Col, Row, Typography } from 'antd';
-import { useDispatch } from 'react-redux';
-import { userLoginRequest } from '../../redux/auth/authActions';
+import { useSelector, useDispatch } from 'react-redux';
+import { authActions } from '../../redux/auth';
 
 const { Title, Text } = Typography;
 
 function LoginForm(props) {
-  const { getFieldDecorator, validateFieldsAndScroll } = props.form;
-
   const dispatch = useDispatch();
+  const [clearServerError, setClearServerError] = useState(false);
+  const { getFieldDecorator, validateFieldsAndScroll, getFieldValue, setFields } = props.form;
+  const authErr = useSelector(state => state.error);
 
   const handleSubmit = e => {
     e.preventDefault();
-    validateFieldsAndScroll((err, values) => {
-      if (!err) {
-        try {
-          dispatch(userLoginRequest(values));
-        } catch (err) {
-          console.error(err);
-        }
+    validateFieldsAndScroll((error, values) => {
+      if (!error) {
+        dispatch(authActions.userLoginRequest(values));
+        setClearServerError(true);
       }
     });
   };
+
+  useEffect(() => {
+    if (clearServerError) {
+      if (authErr.status === 422) {
+        let errorsMap = {};
+
+        authErr.data.validation.details.forEach(errObj => {
+          errorsMap[errObj.context.label] = {
+            value: getFieldValue([errObj.context.label]),
+            errors: [new Error(errObj.message)],
+          };
+        });
+
+        setFields(errorsMap);
+      } else if (authErr.status === 400) {
+        if (authErr.message.startsWith('User')) {
+          setFields({
+            email: {
+              value: getFieldValue('email'),
+              errors: [new Error(authErr.message)],
+            },
+          });
+        } else {
+          setFields({
+            password: {
+              value: getFieldValue('password'),
+              errors: [new Error(authErr.message)],
+            },
+          });
+        }
+      }
+    }
+  }, [authErr, authErr.status, clearServerError, getFieldValue, setFields]);
 
   return (
     <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>

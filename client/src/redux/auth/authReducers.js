@@ -14,23 +14,26 @@ const reducer = (state = initialState, action) => {
         ...state,
         isLoading: true,
       };
-    case t.USER_LOADED:
+    case t.SET_CURRENT_USER:
       return {
         ...state,
         isLoading: false,
         isAuthenticated: true,
         user: action.payload.user,
       };
-    case (t.LOGIN_SUCCESS, t.REGISTER_SUCCESS):
-      localStorage.setItem('access_token', action.payload.accessToken);
+    case t.SIGNUP_SUCCESS:
+    case t.LOGIN_SUCCESS:
       return {
         ...state,
-        ...action.payload,
+        accessToken: action.payload.accessToken,
+        user: action.payload.user,
         isLoading: false,
         isAuthenticated: true,
       };
-    case (t.AUTH_ERROR, t.REGISTER_FAIL, t.LOGIN_FAIL, t.LOGOUT_SUCCESS):
-      localStorage.removeItem('access_token');
+    case t.AUTH_ERROR:
+    case t.SIGNUP_FAILURE:
+    case t.LOGIN_FAILURE:
+    case t.LOGOUT_SUCCESS:
       return {
         ...state,
         accessToken: null,
