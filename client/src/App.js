@@ -4,13 +4,14 @@ import { Provider } from 'react-redux';
 import store from './redux/store';
 import { authActions } from './redux/auth';
 
+import Toasts from './components/toast/Toasts';
+import Navbar from './components/navigation/Navbar';
 import Home from './screens/Home';
 import NotFound from './screens/NotFound';
 import Signup from './components/auth-form/Signup';
 import Login from './components/auth-form/Login';
 import ForgotPassword from './screens/ForgotPassword';
 import ResetPassword from './screens/ResetPassword';
-import Navbar from './components/navigation/Navbar';
 
 function App() {
   useEffect(() => {
@@ -21,6 +22,8 @@ function App() {
     <Provider store={store}>
       <div className='app'>
         <Navbar />
+        <Toasts />
+
         <Router>
           <Home path='/' />
           <Signup path='signup' />

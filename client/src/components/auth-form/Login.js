@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from '@reach/router';
+import { Link, navigate } from '@reach/router';
 import { Form, Icon, Input, Button, Card, Divider, Col, Row, Typography } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../../redux/auth';
+import { toastActions } from '../../redux/toast';
 
 const { Title, Text } = Typography;
 
@@ -18,8 +19,10 @@ function LoginForm(props) {
     e.preventDefault();
     validateFieldsAndScroll((error, values) => {
       if (!error) {
-        dispatch(authActions.userLoginRequest(values));
+        navigate('/');
         setShowServerError(true);
+        dispatch(authActions.userLoginRequest(values));
+        dispatch(toastActions.addToast({ type: 'success', msg: 'You logged in successfully' }));
       }
     });
   };

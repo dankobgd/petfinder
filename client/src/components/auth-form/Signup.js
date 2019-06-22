@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from '@reach/router';
+import { Link, navigate } from '@reach/router';
 import { Form, Input, Tooltip, Icon, Button, Card, Divider, Row, Col, Typography } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../../redux/auth';
+import { toastActions } from '../../redux/toast';
 
 const { Title, Text } = Typography;
 
@@ -17,7 +18,7 @@ function SignupForm(props) {
   } = props.form;
 
   const [confirmDirty, setConfirmDirty] = useState(false);
-  const [clearServerError, setClearServerError] = useState(false);
+  const [showServerError, setShowServerError] = useState(false);
 
   const dispatch = useDispatch();
   const authErr = useSelector(state => state.error);
@@ -26,14 +27,16 @@ function SignupForm(props) {
     e.preventDefault();
     validateFieldsAndScroll((error, values) => {
       if (!error) {
+        navigate('/');
+        setShowServerError(true);
         dispatch(authActions.userSignupRequest(values));
-        setClearServerError(true);
+        dispatch(toastActions.addToast({ type: 'success', msg: 'You register successfully' }));
       }
     });
   };
 
   useEffect(() => {
-    if (clearServerError) {
+    if (showServerError) {
       if (authErr.status === 422) {
         let errorsMap = {};
 
@@ -54,7 +57,7 @@ function SignupForm(props) {
         });
       }
     }
-  }, [authErr, authErr.status, clearServerError, getFieldValue, getFieldsValue, setFields]);
+  }, [authErr, authErr.status, getFieldValue, getFieldsValue, setFields, showServerError]);
 
   const handleConfirmBlur = e => {
     const { value } = e.target;
