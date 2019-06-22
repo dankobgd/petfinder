@@ -2,57 +2,40 @@ import * as t from './authTypes';
 import { errorActions } from '../error';
 import apiClient from '../../utils/apiClient';
 
-const userLoading = () => ({
-  type: t.USER_LOADING,
-});
-
-const authError = () => ({
-  type: t.AUTH_ERROR,
-});
-
-const signupError = () => ({
-  type: t.SIGNUP_FAILURE,
-});
-const loginError = () => ({
-  type: t.LOGIN_FAILURE,
-});
-
-const setCurrentUser = user => ({
-  type: t.SET_CURRENT_USER,
-  payload: { user },
-});
-
-const signup = user => ({
-  type: t.SIGNUP_SUCCESS,
-  payload: { user },
-});
-
-const login = user => ({
-  type: t.LOGIN_SUCCESS,
-  payload: { user },
-});
-
 export const setCurrentUserRequest = () => async dispatch => {
-  dispatch(userLoading());
+  dispatch({ type: t.USER_LOADING });
 
-  try {
-    const res = await apiClient.get('user/current');
-    dispatch(setCurrentUser(res.user));
-  } catch (err) {
-    dispatch(errorActions.getErrors(err));
-    dispatch(authError());
-    localStorage.removeItem('access_token');
+  const accessToken = localStorage.getItem('access_token');
+  if (accessToken) {
+    try {
+      const res = await apiClient.get('auth/current-user');
+      dispatch({
+        type: t.SET_CURRENT_USER,
+        payload: {
+          user: res.user,
+        },
+      });
+    } catch (err) {
+      dispatch(errorActions.getErrors(err));
+      dispatch({ type: t.AUTH_ERROR });
+      localStorage.removeItem('access_token');
+    }
   }
 };
 
 export const userSignupRequest = credentials => async dispatch => {
   try {
     const res = await apiClient.post('auth/signup', { data: credentials });
-    dispatch(signup(res));
+    dispatch({
+      type: t.SIGNUP_SUCCESS,
+      payload: {
+        user: res,
+      },
+    });
     localStorage.setItem('access_token', res.accessToken);
   } catch (err) {
-    dispatch(errorActions.getErrors(err, 'validation'));
-    dispatch(signupError());
+    dispatch(errorActions.getErrors(err));
+    dispatch({ type: t.SIGNUP_FAILURE });
     localStorage.removeItem('access_token');
   }
 };
@@ -60,11 +43,16 @@ export const userSignupRequest = credentials => async dispatch => {
 export const userLoginRequest = credentials => async dispatch => {
   try {
     const res = await apiClient.post('auth/login', { data: credentials });
-    dispatch(login(res));
+    dispatch({
+      type: t.LOGIN_SUCCESS,
+      payload: {
+        user: res,
+      },
+    });
     localStorage.setItem('access_token', res.accessToken);
   } catch (err) {
     dispatch(errorActions.getErrors(err));
-    dispatch(loginError());
+    dispatch({ type: t.LOGIN_FAILURE });
     localStorage.removeItem('access_token');
   }
 };
@@ -72,4 +60,31 @@ export const userLoginRequest = credentials => async dispatch => {
 export const userLogoutRequest = () => dispatch => {
   dispatch({ type: t.LOGOUT_SUCCESS });
   localStorage.removeItem('access_token');
+};
+
+export const forgotPasswordRequest = credentials => async dispatch => {
+  try {
+    await apiClient.post('auth/password-forgot', { data: credentials });
+    dispatch({ type: t.FORGOT_PASSWORD_SUCCESS });
+  } catch (err) {
+    dispatch(errorActions.getErrors(err));
+  }
+};
+
+export const resetPasswordRequest = credentials => async dispatch => {
+  try {
+    await apiClient.post('auth/password-reset', { data: credentials });
+    dispatch({ type: t.RESET_PASSWORD_SUCCESS });
+  } catch (err) {
+    dispatch(errorActions.getErrors(err));
+  }
+};
+
+export const validateResetToken = resetToken => async dispatch => {
+  try {
+    await apiClient.post('auth/validate-reset-token', { data: { resetToken } });
+    dispatch({ type: t.VALIDATE_TOKEN_SUCCESS });
+  } catch (err) {
+    dispatch(errorActions.getErrors(err));
+  }
 };

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mailer = require('../../services/mailer');
 const config = require('../../config');
 
 module.exports = {
@@ -12,5 +13,9 @@ module.exports = {
       },
       config.auth.jwtSecret
     );
+  },
+
+  sendResetPasswordEmail(data) {
+    return mailer.send('reset-password', data);
   },
 };

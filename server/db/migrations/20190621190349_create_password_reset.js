@@ -5,8 +5,8 @@ exports.up = knex =>
       .references('id')
       .inTable('users')
       .notNullable();
-    t.datetime('token');
-    t.datetime('expires');
+    t.string('token');
+    t.timestamp('expires');
   });
 
 exports.down = knex => knex.schema.dropTable('password_reset');

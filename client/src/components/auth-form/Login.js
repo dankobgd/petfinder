@@ -7,9 +7,11 @@ import { authActions } from '../../redux/auth';
 const { Title, Text } = Typography;
 
 function LoginForm(props) {
+  const { getFieldDecorator, getFieldValue, getFieldsValue, setFields, validateFieldsAndScroll } = props.form;
+
+  const [showServerError, setShowServerError] = useState(false);
+
   const dispatch = useDispatch();
-  const [clearServerError, setClearServerError] = useState(false);
-  const { getFieldDecorator, validateFieldsAndScroll, getFieldValue, getFieldsValue, setFields } = props.form;
   const authErr = useSelector(state => state.error);
 
   const handleSubmit = e => {
@@ -17,13 +19,13 @@ function LoginForm(props) {
     validateFieldsAndScroll((error, values) => {
       if (!error) {
         dispatch(authActions.userLoginRequest(values));
-        setClearServerError(true);
+        setShowServerError(true);
       }
     });
   };
 
   useEffect(() => {
-    if (clearServerError) {
+    if (showServerError) {
       if (authErr.status === 422) {
         let errorsMap = {};
 
@@ -53,7 +55,7 @@ function LoginForm(props) {
         }
       }
     }
-  }, [authErr, authErr.status, clearServerError, getFieldValue, getFieldsValue, setFields]);
+  }, [authErr, authErr.status, showServerError, getFieldValue, getFieldsValue, setFields]);
 
   return (
     <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>

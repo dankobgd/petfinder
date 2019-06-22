@@ -7,17 +7,19 @@ import { authActions } from '../../redux/auth';
 const { Title, Text } = Typography;
 
 function SignupForm(props) {
-  const dispatch = useDispatch();
-  const [confirmDirty, setConfirmDirty] = useState(false);
-  const [clearServerError, setClearServerError] = useState(false);
   const {
     getFieldDecorator,
-    validateFields,
     getFieldValue,
     getFieldsValue,
-    validateFieldsAndScroll,
     setFields,
+    validateFieldsAndScroll,
+    validateFields,
   } = props.form;
+
+  const [confirmDirty, setConfirmDirty] = useState(false);
+  const [clearServerError, setClearServerError] = useState(false);
+
+  const dispatch = useDispatch();
   const authErr = useSelector(state => state.error);
 
   const handleSubmit = e => {
@@ -96,7 +98,10 @@ function SignupForm(props) {
               hasFeedback
             >
               {getFieldDecorator('username', {
-                rules: [{ required: true, message: 'Please input your username!', whitespace: true }],
+                rules: [
+                  { required: true, message: 'Please input your username!', whitespace: true },
+                  { min: 3, message: 'Minimum 3 characters required' },
+                ],
               })(<Input prefix={<Icon type='user' style={{ fontSize: 13 }} />} placeholder='Username' size='large' />)}
             </Form.Item>
 

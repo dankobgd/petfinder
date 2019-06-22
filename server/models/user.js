@@ -69,9 +69,20 @@ module.exports = knex => {
     return Promise.resolve(userWithoutPw);
   };
 
+  const updatePassword = async (id, props) => {
+    const hashed = await hashPassword(props.password);
+    const data = {
+      ...props,
+      password: hashed,
+    };
+
+    return base.update(id, data);
+  };
+
   return {
     ...base,
     create,
     verify,
+    updatePassword,
   };
 };

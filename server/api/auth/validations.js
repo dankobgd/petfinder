@@ -34,7 +34,30 @@ const loginSchema = {
   }),
 };
 
+const forgotPasswordSchema = {
+  body: Joi.object().keys({
+    email: Joi.string()
+      .email()
+      .required(),
+  }),
+};
+
+const resetPasswordSchema = {
+  body: Joi.object().keys({
+    resetToken: Joi.string().required(),
+    password: Joi.string()
+      .min(3)
+      .max(25)
+      .required(),
+    confirmPassword: Joi.string()
+      .valid(Joi.ref('password'))
+      .required(),
+  }),
+};
+
 module.exports = {
   signupSchema,
   loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 };
