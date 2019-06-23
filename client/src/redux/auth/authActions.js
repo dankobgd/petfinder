@@ -4,7 +4,6 @@ import apiClient from '../../utils/apiClient';
 
 export const setCurrentUserRequest = () => async dispatch => {
   dispatch({ type: t.USER_LOADING });
-
   const accessToken = localStorage.getItem('access_token');
   if (accessToken) {
     try {
@@ -33,13 +32,14 @@ export const userSignupRequest = credentials => async dispatch => {
       },
     });
     localStorage.setItem('access_token', res.accessToken);
+    return res;
   } catch (err) {
     dispatch(errorActions.getErrors(err));
     dispatch({ type: t.SIGNUP_FAILURE });
     localStorage.removeItem('access_token');
+    throw err;
   }
 };
-
 export const userLoginRequest = credentials => async dispatch => {
   try {
     const res = await apiClient.post('auth/login', { data: credentials });
@@ -50,10 +50,12 @@ export const userLoginRequest = credentials => async dispatch => {
       },
     });
     localStorage.setItem('access_token', res.accessToken);
+    return res;
   } catch (err) {
     dispatch(errorActions.getErrors(err));
     dispatch({ type: t.LOGIN_FAILURE });
     localStorage.removeItem('access_token');
+    throw err;
   }
 };
 
@@ -66,8 +68,10 @@ export const forgotPasswordRequest = credentials => async dispatch => {
   try {
     await apiClient.post('auth/password-forgot', { data: credentials });
     dispatch({ type: t.FORGOT_PASSWORD_SUCCESS });
+    return Promise.resolve();
   } catch (err) {
     dispatch(errorActions.getErrors(err));
+    return Promise.reject(err);
   }
 };
 
@@ -75,8 +79,10 @@ export const resetPasswordRequest = credentials => async dispatch => {
   try {
     await apiClient.post('auth/password-reset', { data: credentials });
     dispatch({ type: t.RESET_PASSWORD_SUCCESS });
+    return Promise.resolve();
   } catch (err) {
     dispatch(errorActions.getErrors(err));
+    return Promise.reject(err);
   }
 };
 

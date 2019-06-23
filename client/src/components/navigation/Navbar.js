@@ -18,7 +18,7 @@ function Navbar() {
   };
 
   return (
-    <nav className='menu'>
+    <nav className='menu' style={{ overflow: 'hidden' }}>
       <div className='menu__logo'>
         <Link to='/'>Petfinder</Link>
       </div>

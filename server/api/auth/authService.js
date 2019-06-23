@@ -18,4 +18,8 @@ module.exports = {
   sendResetPasswordEmail(data) {
     return mailer.send('reset-password', data);
   },
+
+  sendPasswordChangedEmail(data) {
+    return mailer.send('reset-password-completed', data);
+  },
 };

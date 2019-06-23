@@ -81,9 +81,16 @@ exports.passwordReset = async (req, res, next) => {
   try {
     const tokenData = await PasswordReset.validateToken(resetToken);
     await PasswordReset.destroy(tokenData.id);
-    await User.updatePassword(tokenData.user_id, { password });
+    const user = await User.updatePassword(tokenData.user_id, { password });
 
-    res.status(200).json({ message: 'Password has been reset successfully' });
+    const emailCtx = {
+      to: user.email,
+      subject: 'password changed',
+      username: user.username,
+    };
+
+    await AuthService.sendPasswordChangedEmail(emailCtx);
+    res.status(200).json({ message: 'Password has been changed successfully' });
   } catch (err) {
     return next(createError.BadRequest(err.message));
   }

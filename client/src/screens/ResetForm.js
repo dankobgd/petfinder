@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { navigate } from '@reach/router';
 import { authActions } from '../redux/auth';
-import { errorActions } from '../redux/error';
-import { Form, Icon, Input, Col, Row, Divider, Tooltip, Button, Card, Typography } from 'antd';
+import { toastActions } from '../redux/toast';
+import { Form, Icon, Input, Col, Row, Divider, Tooltip, Button, Card, Typography, Alert } from 'antd';
 
 const { Title } = Typography;
 
@@ -18,9 +19,10 @@ function ResetPasswordForm(props) {
 
   const { resetToken } = props;
 
+  const [showEmailSentSuccess, setShowEmailSentSuccess] = useState(false);
   const [showServerError, setShowServerError] = useState(false);
   const [confirmDirty, setConfirmDirty] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
   const authErr = useSelector(state => state.error);
@@ -53,12 +55,19 @@ function ResetPasswordForm(props) {
 
   const handleSubmit = e => {
     e.preventDefault();
-    validateFieldsAndScroll(async (err, values) => {
-      if (!err) {
-        await dispatch(authActions.resetPasswordRequest({ ...values, resetToken }));
-        dispatch(errorActions.clearErrors());
-        setShowServerError(true);
-        setSuccess(true);
+    validateFieldsAndScroll(async (formErrors, formData) => {
+      if (!formErrors) {
+        try {
+          setLoading(true);
+          await dispatch(authActions.resetPasswordRequest({ ...formData, resetToken }));
+          dispatch(toastActions.addToast({ type: 'success', msg: 'Your password has been changed' }));
+          setShowEmailSentSuccess(true);
+          navigate('/login');
+          setLoading(false);
+        } catch (err) {
+          setShowServerError(true);
+          setLoading(false);
+        }
       }
     });
   };
@@ -86,151 +95,80 @@ function ResetPasswordForm(props) {
   return (
     <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>
       <Col xs={24} sm={20} md={16} lg={12} xl={8}>
-        {success ? (
-          <div>PASSWORD WAS SUCCESSFULLY RESET</div>
-        ) : (
-          <Card>
-            <Title level={2} style={{ textAlign: 'center' }}>
-              Reset Password
-            </Title>
-            <Divider />
+        {showEmailSentSuccess ? (
+          <Alert message='Success' description='Email has been sent' type='success' showIcon closable />
+        ) : null}
+        {showServerError ? <Alert message='Error' description='Email not sent' type='error' showIcon closable /> : null}
 
-            <Form layout='vertical' onSubmit={handleSubmit} hideRequiredMark={true}>
-              <Form.Item
-                label={
-                  <span>
-                    Password&nbsp;
-                    <Tooltip title='Your new password'>
-                      <Icon type='question-circle-o' />
-                    </Tooltip>
-                  </span>
-                }
-                hasFeedback
-              >
-                {getFieldDecorator('password', {
-                  rules: [
-                    {
-                      required: true,
-                      message: 'Please input your password!',
-                    },
-                    {
-                      validator: validateToNextPassword,
-                    },
-                  ],
-                })(
-                  <Input.Password
-                    prefix={<Icon type='lock' style={{ fontSize: 13 }} />}
-                    type='password'
-                    placeholder='Password'
-                    size='large'
-                  />
-                )}
-              </Form.Item>
+        <Card>
+          <Title level={2} style={{ textAlign: 'center' }}>
+            Reset Password
+          </Title>
+          <Divider />
 
-              <Form.Item label='Confirm Password' hasFeedback>
-                {getFieldDecorator('confirmPassword', {
-                  rules: [
-                    {
-                      required: true,
-                      message: 'Please confirm your password!',
-                    },
-                    {
-                      validator: compareToFirstPassword,
-                    },
-                  ],
-                })(
-                  <Input.Password
-                    prefix={<Icon type='lock' style={{ fontSize: 13 }} />}
-                    type='password'
-                    placeholder='Confirm Password'
-                    size='large'
-                    onBlur={handleConfirmBlur}
-                  />
-                )}
-              </Form.Item>
+          <Form layout='vertical' onSubmit={handleSubmit} hideRequiredMark={true}>
+            <Form.Item
+              label={
+                <span>
+                  Password&nbsp;
+                  <Tooltip title='Your new password'>
+                    <Icon type='question-circle-o' />
+                  </Tooltip>
+                </span>
+              }
+              hasFeedback
+            >
+              {getFieldDecorator('password', {
+                rules: [
+                  {
+                    required: true,
+                    message: 'Please input your password!',
+                  },
+                  {
+                    validator: validateToNextPassword,
+                  },
+                ],
+              })(
+                <Input.Password
+                  prefix={<Icon type='lock' style={{ fontSize: 13 }} />}
+                  type='password'
+                  placeholder='Password'
+                  size='large'
+                />
+              )}
+            </Form.Item>
 
-              <Form.Item>
-                <Button type='primary' htmlType='submit'>
-                  Submit
-                </Button>
-              </Form.Item>
-            </Form>
-          </Card>
-        )}
+            <Form.Item label='Confirm Password' hasFeedback>
+              {getFieldDecorator('confirmPassword', {
+                rules: [
+                  {
+                    required: true,
+                    message: 'Please confirm your password!',
+                  },
+                  {
+                    validator: compareToFirstPassword,
+                  },
+                ],
+              })(
+                <Input.Password
+                  prefix={<Icon type='lock' style={{ fontSize: 13 }} />}
+                  type='password'
+                  placeholder='Confirm Password'
+                  size='large'
+                  onBlur={handleConfirmBlur}
+                />
+              )}
+            </Form.Item>
+
+            <Form.Item>
+              <Button type='primary' htmlType='submit' loading={loading}>
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
       </Col>
     </Row>
-
-    // <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>
-    //   <Col xs={24} sm={20} md={16} lg={12} xl={8}>
-    //     <Card>
-    //       <Title level={2} style={{ textAlign: 'center' }}>
-    //         Reset Password
-    //       </Title>
-    //       <Divider />
-
-    //       <Form layout='vertical' onSubmit={handleSubmit} hideRequiredMark={true}>
-    //         <Form.Item
-    //           label={
-    //             <span>
-    //               Password&nbsp;
-    //               <Tooltip title='Your new password'>
-    //                 <Icon type='question-circle-o' />
-    //               </Tooltip>
-    //             </span>
-    //           }
-    //           hasFeedback
-    //         >
-    //           {getFieldDecorator('password', {
-    //             rules: [
-    //               {
-    //                 required: true,
-    //                 message: 'Please input your password!',
-    //               },
-    //               {
-    //                 validator: validateToNextPassword,
-    //               },
-    //             ],
-    //           })(
-    //             <Input.Password
-    //               prefix={<Icon type='lock' style={{ fontSize: 13 }} />}
-    //               type='password'
-    //               placeholder='Password'
-    //               size='large'
-    //             />
-    //           )}
-    //         </Form.Item>
-
-    //         <Form.Item label='Confirm Password' hasFeedback>
-    //           {getFieldDecorator('confirmPassword', {
-    //             rules: [
-    //               {
-    //                 required: true,
-    //                 message: 'Please confirm your password!',
-    //               },
-    //               {
-    //                 validator: compareToFirstPassword,
-    //               },
-    //             ],
-    //           })(
-    //             <Input.Password
-    //               prefix={<Icon type='lock' style={{ fontSize: 13 }} />}
-    //               type='password'
-    //               placeholder='Confirm Password'
-    //               size='large'
-    //               onBlur={handleConfirmBlur}
-    //             />
-    //           )}
-    //         </Form.Item>
-
-    //         <Form.Item>
-    //           <Button type='primary' htmlType='submit'>
-    //             Submit
-    //           </Button>
-    //         </Form.Item>
-    //       </Form>
-    //     </Card>
-    //   </Col>
-    // </Row>
   );
 }
 

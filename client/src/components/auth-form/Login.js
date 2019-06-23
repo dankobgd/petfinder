@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, navigate } from '@reach/router';
-import { Form, Icon, Input, Button, Card, Divider, Col, Row, Typography } from 'antd';
+import { Form, Icon, Input, Button, Card, Divider, Col, Row, Typography, Alert } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../../redux/auth';
 import { toastActions } from '../../redux/toast';
-
-const { Title, Text } = Typography;
 
 function LoginForm(props) {
   const { getFieldDecorator, getFieldValue, getFieldsValue, setFields, validateFieldsAndScroll } = props.form;
@@ -17,12 +15,15 @@ function LoginForm(props) {
 
   const handleSubmit = e => {
     e.preventDefault();
-    validateFieldsAndScroll((error, values) => {
-      if (!error) {
-        navigate('/');
-        setShowServerError(true);
-        dispatch(authActions.userLoginRequest(values));
-        dispatch(toastActions.addToast({ type: 'success', msg: 'You logged in successfully' }));
+    validateFieldsAndScroll(async (formErrors, formData) => {
+      if (!formErrors) {
+        try {
+          await dispatch(authActions.userLoginRequest(formData));
+          dispatch(toastActions.addToast({ type: 'success', msg: 'You logged in successfully' }));
+          navigate('/');
+        } catch (err) {
+          setShowServerError(true);
+        }
       }
     });
   };
@@ -63,10 +64,14 @@ function LoginForm(props) {
   return (
     <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>
       <Col xs={24} sm={20} md={16} lg={12} xl={8}>
+        {showServerError ? (
+          <Alert message='Error' description='Authentication Error' type='error' showIcon closable />
+        ) : null}
+
         <Card>
-          <Title level={2} style={{ textAlign: 'center' }}>
+          <Typography.Title level={2} style={{ textAlign: 'center' }}>
             Login
-          </Title>
+          </Typography.Title>
           <Divider />
 
           <Form layout={'vertical'} onSubmit={handleSubmit} hideRequiredMark={true} className='login-form'>
@@ -99,19 +104,19 @@ function LoginForm(props) {
             </Form.Item>
 
             <Form.Item>
-              <Button type='primary' size='large' htmlType='submit' className='login-form-button'>
+              <Button type='primary' size='large' htmlType='submit'>
                 Log in
               </Button>
 
               <div style={{ marginTop: '2rem' }}>
-                <Text type='secondary'>
+                <Typography.Text type='secondary'>
                   Don't have an account? <Link to='/signup'>Create one now</Link>
-                </Text>
+                </Typography.Text>
               </div>
 
-              <Text type='secondary'>
+              <Typography.Text type='secondary'>
                 Forgot password? <Link to='/password-forgot'>Reser your password</Link>
-              </Text>
+              </Typography.Text>
             </Form.Item>
           </Form>
         </Card>
@@ -120,6 +125,4 @@ function LoginForm(props) {
   );
 }
 
-const Login = Form.create({ name: 'login' })(LoginForm);
-
-export default Login;
+export default Form.create()(LoginForm);

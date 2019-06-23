@@ -76,7 +76,8 @@ module.exports = knex => {
       password: hashed,
     };
 
-    return base.update(id, data);
+    await base.update(id, data);
+    return base.findOne({ id });
   };
 
   return {

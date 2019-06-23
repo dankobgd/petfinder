@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, navigate } from '@reach/router';
-import { Form, Input, Tooltip, Icon, Button, Card, Divider, Row, Col, Typography } from 'antd';
+import { Form, Input, Tooltip, Icon, Button, Card, Divider, Row, Col, Typography, Alert } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../../redux/auth';
 import { toastActions } from '../../redux/toast';
-
-const { Title, Text } = Typography;
 
 function SignupForm(props) {
   const {
@@ -25,12 +23,15 @@ function SignupForm(props) {
 
   const handleSubmit = e => {
     e.preventDefault();
-    validateFieldsAndScroll((error, values) => {
-      if (!error) {
-        navigate('/');
-        setShowServerError(true);
-        dispatch(authActions.userSignupRequest(values));
-        dispatch(toastActions.addToast({ type: 'success', msg: 'You register successfully' }));
+    validateFieldsAndScroll(async (formErrors, formData) => {
+      if (!formErrors) {
+        try {
+          await dispatch(authActions.userSignupRequest(formData));
+          dispatch(toastActions.addToast({ type: 'success', msg: 'You register successfully' }));
+          navigate('/');
+        } catch (err) {
+          setShowServerError(true);
+        }
       }
     });
   };
@@ -82,10 +83,14 @@ function SignupForm(props) {
   return (
     <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>
       <Col xs={24} sm={20} md={16} lg={12} xl={8}>
+        {showServerError ? (
+          <Alert message='Error' description='Authentication Error' type='error' showIcon closable />
+        ) : null}
+
         <Card>
-          <Title level={2} style={{ textAlign: 'center' }}>
+          <Typography.Title level={2} style={{ textAlign: 'center' }}>
             Signup
-          </Title>
+          </Typography.Title>
           <Divider />
 
           <Form layout={'vertical'} onSubmit={handleSubmit} hideRequiredMark={true}>
@@ -103,7 +108,7 @@ function SignupForm(props) {
               {getFieldDecorator('username', {
                 rules: [
                   { required: true, message: 'Please input your username!', whitespace: true },
-                  { min: 3, message: 'Minimum 3 characters required' },
+                  { min: 2, message: 'Minimum 3 characters required' },
                 ],
               })(<Input prefix={<Icon type='user' style={{ fontSize: 13 }} />} placeholder='Username' size='large' />)}
             </Form.Item>
@@ -172,9 +177,9 @@ function SignupForm(props) {
               </Button>
 
               <div style={{ marginTop: '2rem' }}>
-                <Text type='secondary'>
+                <Typography.Text type='secondary'>
                   Already have an account? <Link to='/login'>Login now</Link>
-                </Text>
+                </Typography.Text>
               </div>
             </Form.Item>
           </Form>
@@ -184,6 +189,4 @@ function SignupForm(props) {
   );
 }
 
-const Signup = Form.create({ name: 'signup' })(SignupForm);
-
-export default Signup;
+export default Form.create()(SignupForm);

@@ -1,12 +1,25 @@
-import React from 'react';
+import { message } from 'antd';
 
 function Toast({ msg, type, removeToast }) {
-  return (
-    <li style={{ backgroundColor: 'purple' }}>
-      <p style={{ color: type === 'success' ? 'green' : 'red' }}>{msg}</p>
-      <button onClick={removeToast}>x</button>
-    </li>
-  );
+  message.config({
+    top: 80,
+    duration: 3,
+  });
+
+  const onClose = () => removeToast();
+
+  switch (type) {
+    case 'success':
+      message.success(msg, onClose);
+      break;
+    case 'error':
+      message.error(msg, onClose);
+      break;
+    default:
+      message.info(msg, onClose);
+  }
+
+  return null;
 }
 
 export default Toast;
