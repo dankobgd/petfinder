@@ -72,7 +72,7 @@ function ForgotPasswordForm(props) {
           </Title>
           <Divider />
 
-          <Form layout='vertical' onSubmit={handleSubmit} hideRequiredMark={true}>
+          <Form layout='vertical' onSubmit={handleSubmit}>
             <Form.Item
               hasFeedback
               label={

@@ -74,7 +74,7 @@ function LoginForm(props) {
           </Typography.Title>
           <Divider />
 
-          <Form layout={'vertical'} onSubmit={handleSubmit} hideRequiredMark={true} className='login-form'>
+          <Form layout={'vertical'} onSubmit={handleSubmit} className='login-form'>
             <Form.Item label='E-mail' hasFeedback>
               {getFieldDecorator('email', {
                 rules: [

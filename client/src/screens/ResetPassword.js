@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ResetForm from './ResetForm';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../redux/auth';
-import { Alert, Row, Col, Spin, Icon } from 'antd';
+import { Alert, Row, Col, Spin } from 'antd';
 
 function ResetPassword({ resetToken }) {
   const [loading, setLoading] = useState(true);

@@ -93,7 +93,7 @@ function SignupForm(props) {
           </Typography.Title>
           <Divider />
 
-          <Form layout={'vertical'} onSubmit={handleSubmit} hideRequiredMark={true}>
+          <Form layout={'vertical'} onSubmit={handleSubmit}>
             <Form.Item
               label={
                 <span>

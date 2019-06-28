@@ -12,6 +12,8 @@ import Signup from './components/auth-form/Signup';
 import Login from './components/auth-form/Login';
 import ForgotPassword from './screens/ForgotPassword';
 import ResetPassword from './screens/ResetPassword';
+import AddPet from './screens/add/AddPet';
+import PrivateRoute from './components/route/Private';
 
 function App() {
   useEffect(() => {
@@ -28,6 +30,7 @@ function App() {
           <Home path='/' />
           <Signup path='signup' />
           <Login path='login' />
+          <PrivateRoute path='add' component={AddPet} />
           <ForgotPassword path='password-forgot' />
           <ResetPassword path='password-reset/:resetToken' />
           <NotFound default />

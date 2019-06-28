@@ -1,7 +1,7 @@
 const createError = require('http-errors');
 const AuthService = require('./authService');
 const { User, PasswordReset } = require('../../models');
-const generateToken = require('../../utils//generateToken');
+const generateToken = require('../../utils/generateToken');
 const config = require('../../config');
 
 // User signup
