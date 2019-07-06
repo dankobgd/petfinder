@@ -1,23 +1,52 @@
 import React from 'react';
-import { Button, Icon, message } from 'antd';
+import { Typography, List } from 'antd';
+import { PreviousStep, SuccessSubmitButton } from './StepperButton';
+import apiClient from '../../utils/apiClient';
 
-function ConfirmAdd(props) {
+function ConfirmAdd({ formFields, current, prevStep }) {
+  const data = Object.entries(formFields)
+    .map(([name, obj]) => ({
+      name,
+      value: obj.value,
+    }))
+    .filter(elm => elm.name !== 'onChange' && elm.name !== 'images');
+
+  const formData = new FormData();
+  data.forEach(elm => formData.append(`${elm.name}`, elm.value));
+  formData.append('images', formFields.images.value[0].originFileObj);
+
+  const onSubmit = () => {
+    apiClient
+      .post('animals/create', { data: formData })
+      .then(success => {
+        console.log('server_success: ', success);
+        console.log('formState: ', formFields);
+      })
+      .catch(err => console.log('server_err: ', err));
+  };
+
   return (
     <div>
       <div>Success, do you wish to add a new pet for adoption</div>
-      <div>
-        {props.current === 2 && (
-          <Button style={{ float: 'right' }} type='primary' onClick={() => message.success('Processing complete!')}>
-            Add pet for adoption
-          </Button>
+
+      <List
+        size='small'
+        bordered
+        dataSource={data}
+        renderItem={item => (
+          <>
+            {item.value && item.value.length && (
+              <List.Item>
+                <Typography.Text strong>{item.name} - </Typography.Text>
+                <Typography.Text>{item.value}</Typography.Text>
+              </List.Item>
+            )}
+          </>
         )}
-        {props.current > 0 && (
-          <Button style={{ float: 'left' }} onClick={() => props.prevStep()}>
-            <Icon type='left' />
-            Previous
-          </Button>
-        )}
-      </div>
+      />
+
+      <PreviousStep current={current} onClick={prevStep} />
+      <SuccessSubmitButton onClick={() => onSubmit()} />
     </div>
   );
 }

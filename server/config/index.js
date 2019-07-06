@@ -79,8 +79,14 @@ const baseConfig = {
   },
 
   file: {
-    uploadLimit: 2 * 1024 * 1024, // 2MB
-    allowedMimeTypes: ['jpg', 'jpeg', 'png', 'gif', 'bmp'],
+    uploadLimit: 1024 * 1024 * 10, // 10MB
+    allowedMimeTypes: /jpg|jpeg|png|bmp|gif/,
+  },
+
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
 
   analytics: {

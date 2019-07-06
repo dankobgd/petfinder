@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const AnimalService = require('./animalsService');
 const { Animal } = require('../../models');
+const { uploadFile } = require('../../services/cloudinary');
 
 // Get all animals
 exports.getAnimals = async (req, res, next) => {
@@ -14,8 +15,18 @@ exports.getAnimal = async (req, res, next) => {
 
 // Create animal
 exports.createAnimal = async (req, res, next) => {
-  console.log(req.body);
-  res.status(200).json({ animals: req.body });
+  const { type, gender, age, primaryBreed } = req.body;
+  const file = req.files[0];
+
+  const data = {
+    file,
+    meta: {
+      tags: [type, gender, age, primaryBreed],
+    },
+  };
+
+  const imageData = await AnimalService.uploadPetImage(data);
+  res.status(200).json(imageData);
 };
 
 // Update animal

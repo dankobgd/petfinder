@@ -1,12 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const apiRoutes = require('./api/routes');
+const { initCloudinaryConfig } = require('./services/cloudinary');
 const mw = require('./middleware');
 
 require('./utils/express-async-errors.js');
 
 const app = express();
 
+initCloudinaryConfig();
 mw.requestLogger(app);
 
 app.use(cors());

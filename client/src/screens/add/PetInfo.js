@@ -1,35 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Select, Button, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Tooltip, Row, Col } from 'antd';
+import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Tooltip, Row, Col } from 'antd';
+import { NextStep } from './StepperButton';
+import { dogBreeds, catBreeds } from './breedsData';
 
 const { Option } = Select;
 
 const vGap = { marginBottom: 8 };
 
-function PetInfo(props) {
+function PetInfoForm(props) {
   const { getFieldDecorator, getFieldValue, validateFields } = props.form;
 
   const [breedRequired, setBreedRequired] = useState(true);
   const [unknownBreedToggled, setUnknownBreedToggled] = useState(false);
 
-  const handleChange = () => {
+  const handleUnknownBreedToggle = () => {
     setBreedRequired(prev => !prev);
     setUnknownBreedToggled(true);
   };
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    validateFields((err, values) => {
-      if (!err) {
-        console.log('Received values of form: ', values);
-      }
-    });
-  };
-
   const normFile = e => {
-    console.log('Upload event:', e);
-    if (Array.isArray(e)) {
-      return e;
-    }
+    if (Array.isArray(e)) return e;
     return e && e.fileList;
   };
 
@@ -45,20 +35,20 @@ function PetInfo(props) {
         Add a pet for adoption
       </Typography.Title>
 
-      <Form layout={'vertical'} onSubmit={handleSubmit}>
+      <Form layout={'vertical'}>
         <Typography.Title level={4} style={{ marginTop: '2rem' }}>
           Basic Information
         </Typography.Title>
 
         <Form.Item style={vGap} label='Name' hasFeedback>
           {getFieldDecorator('name', {
-            rules: [{ required: true, message: 'Please input name' }],
+            rules: [{ _required: true, message: 'Please input name' }],
           })(<Input prefix={<Icon type='fire' />} placeholder='Name' />)}
         </Form.Item>
 
         <Form.Item style={vGap} label='Type'>
           {getFieldDecorator('type', {
-            rules: [{ required: true, message: 'Enter animal type' }],
+            rules: [{ _required: true, message: 'Enter animal type' }],
           })(
             <Radio.Group buttonStyle='solid'>
               <Radio.Button value='cat'>Cat</Radio.Button>
@@ -66,39 +56,38 @@ function PetInfo(props) {
               <Radio.Button value='rabbit'>Rabbit</Radio.Button>
               <Radio.Button value='bird'>Bird</Radio.Button>
               <Radio.Button value='fish'>Fish</Radio.Button>
-              <Radio.Button value='small_furry'>Small & Furry</Radio.Button>
+            </Radio.Group>
+          )}
+        </Form.Item>
+
+        <Form.Item style={vGap} label='Gender'>
+          {getFieldDecorator('gender', {
+            rules: [{ _required: true, message: 'Enter animal gender' }],
+          })(
+            <Radio.Group buttonStyle='solid'>
+              <Radio.Button value='male'>male</Radio.Button>
+              <Radio.Button value='female'>female</Radio.Button>
+            </Radio.Group>
+          )}
+        </Form.Item>
+
+        <Form.Item style={vGap} label='Age'>
+          {getFieldDecorator('age', {
+            rules: [{ _required: true, message: 'Enter animal age' }],
+          })(
+            <Radio.Group buttonStyle='solid'>
+              <Radio.Button value='baby'>baby</Radio.Button>
+              <Radio.Button value='young'>young</Radio.Button>
+              <Radio.Button value='adult'>adult</Radio.Button>
+              <Radio.Button value='senior'>senior</Radio.Button>
             </Radio.Group>
           )}
         </Form.Item>
 
         <Form.Item style={vGap} label='Species' hasFeedback>
           {getFieldDecorator('species', {
-            rules: [{ required: true, message: 'Please input animal species' }],
+            rules: [{ _required: true, message: 'Please input animal species' }],
           })(<Input prefix={<Icon type='fire' />} placeholder='Species' />)}
-        </Form.Item>
-
-        <Form.Item style={vGap} label='Gender' hasFeedback>
-          {getFieldDecorator('gender', {
-            rules: [{ required: true, message: 'Enter coat length' }],
-          })(
-            <Select placeholder='Select gender'>
-              <Option value='male'>male</Option>
-              <Option value='female'>female</Option>
-            </Select>
-          )}
-        </Form.Item>
-
-        <Form.Item label='Age' hasFeedback>
-          {getFieldDecorator('age', {
-            rules: [{ required: true, message: 'Enter age' }],
-          })(
-            <Select placeholder='Animal age'>
-              <Option value='baby'>baby</Option>
-              <Option value='young'>young</Option>
-              <Option value='adult'>adult</Option>
-              <Option value='senior'>senior</Option>
-            </Select>
-          )}
         </Form.Item>
 
         <Typography.Title level={4} style={{ marginTop: '2rem' }}>
@@ -145,12 +134,58 @@ function PetInfo(props) {
 
         <Form.Item style={vGap} label='Primary Breed' hasFeedback>
           {getFieldDecorator('primaryBreed', {
-            rules: [{ required: breedRequired, message: 'Please input primary breed' }],
-          })(<Input prefix={<Icon type='fire' />} placeholder='Primary breed' />)}
+            rules: [{ _required: breedRequired, message: 'Please input primary breed' }],
+          })(
+            <Select
+              showSearch
+              placeholder='Select primary breed'
+              optionFilterProp='children'
+              filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+            >
+              {getFieldValue('type') === 'dog'
+                ? dogBreeds.map(dog => (
+                    <Option key={dog} value={dog}>
+                      {dog}
+                    </Option>
+                  ))
+                : getFieldValue('type') === 'cat'
+                ? catBreeds.map(cat => (
+                    <Option key={cat} value={cat}>
+                      {cat}
+                    </Option>
+                  ))
+                : null}
+            </Select>
+          )}
         </Form.Item>
+
         <Form.Item style={vGap} label='Secondary Breed' hasFeedback>
-          {getFieldDecorator('secondaryBreed')(<Input prefix={<Icon type='fire' />} placeholder='Secondary breed' />)}
+          {getFieldDecorator('secondaryBreed', {
+            rules: [{ _required: breedRequired, message: 'Please input secondary breed' }],
+          })(
+            <Select
+              showSearch
+              placeholder='Select secondary breed'
+              optionFilterProp='children'
+              filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+            >
+              {getFieldValue('type') === 'dog'
+                ? dogBreeds.map(dog => (
+                    <Option key={dog} value={dog}>
+                      {dog}
+                    </Option>
+                  ))
+                : getFieldValue('type') === 'cat'
+                ? catBreeds.map(cat => (
+                    <Option key={cat} value={cat}>
+                      {cat}
+                    </Option>
+                  ))
+                : null}
+            </Select>
+          )}
         </Form.Item>
+
         <Row>
           <Col span={12}>
             <Form.Item style={vGap}>
@@ -165,7 +200,7 @@ function PetInfo(props) {
             <Form.Item style={vGap}>
               {getFieldDecorator('unknownBreed')(
                 <Checkbox.Group>
-                  <Checkbox value='unknownBreed' checked={breedRequired} onChange={handleChange}>
+                  <Checkbox value='unknownBreed' checked={breedRequired} onChange={handleUnknownBreedToggle}>
                     Unknown breed
                   </Checkbox>
                 </Checkbox.Group>
@@ -176,7 +211,7 @@ function PetInfo(props) {
 
         <Form.Item style={vGap} label='Coat Length' hasFeedback>
           {getFieldDecorator('coatLength', {
-            rules: [{ required: true, message: 'Enter coat length' }],
+            rules: [{ _required: true, message: 'Enter coat length' }],
           })(
             <Select placeholder='Select coat length'>
               <Option value='hairless'>hairless</Option>
@@ -191,7 +226,7 @@ function PetInfo(props) {
 
         <Form.Item style={vGap} label='Size when grown' hasFeedback>
           {getFieldDecorator('size', {
-            rules: [{ required: true, message: 'Enter size' }],
+            rules: [{ _required: true, message: 'Enter size' }],
           })(
             <Select placeholder='Animal size'>
               <Option value='small'>small</Option>
@@ -214,7 +249,7 @@ function PetInfo(props) {
           }
         >
           {getFieldDecorator('colors', {
-            rules: [{ required: true, message: 'Please select animal colors', type: 'array' }],
+            rules: [{ _required: true, message: 'Please select animal colors', type: 'array' }],
           })(
             <Select mode='multiple' placeholder='Select animal colors'>
               <Option value='black'>black</Option>
@@ -238,24 +273,24 @@ function PetInfo(props) {
         {getFieldValue('microchip') === 'yes' ? (
           <>
             <Form.Item style={vGap} label='Chip ID' hasFeedback>
-              {getFieldDecorator('microchipId', {
-                rules: [{ required: true, message: 'Please input chip ID' }],
+              {getFieldDecorator('chipId', {
+                rules: [{ _required: true, message: 'Please input chip ID' }],
               })(<Input prefix={<Icon type='fire' />} placeholder='Microchip ID' />)}
             </Form.Item>
             <Form.Item style={vGap} label='Chip Brand' hasFeedback>
-              {getFieldDecorator('microchipBrand', {
-                rules: [{ required: true, message: 'Please input chip brand' }],
+              {getFieldDecorator('chipBrand', {
+                rules: [{ _required: true, message: 'Please input chip brand' }],
               })(<Input prefix={<Icon type='fire' />} placeholder='Microchip Brand' />)}
             </Form.Item>
             <Form.Item style={vGap} label='Chip location' hasFeedback>
-              {getFieldDecorator('microchipLocation', {
-                rules: [{ required: true, message: 'Please input chip location' }],
-              })(<Input prefix={<Icon type='fire' />} placeholder='Microchip location' />)}
+              {getFieldDecorator('chipLocation')(
+                <Input prefix={<Icon type='fire' />} placeholder='Microchip location' />
+              )}
             </Form.Item>
             <Form.Item style={vGap} label='Chip Description' hasFeedback>
-              {getFieldDecorator('microchipDescription', {
-                rules: [{ required: true, message: 'Please input chip description' }],
-              })(<Input prefix={<Icon type='fire' />} placeholder='Microchip description' />)}
+              {getFieldDecorator('chipDescription')(
+                <Input prefix={<Icon type='fire' />} placeholder='Microchip description' />
+              )}
             </Form.Item>
           </>
         ) : null}
@@ -266,23 +301,29 @@ function PetInfo(props) {
 
         <Form.Item style={vGap} label='Description' hasFeedback>
           {getFieldDecorator('description', {
-            rules: [{ required: true, message: 'Please input description' }],
+            rules: [{ _required: true, message: 'Please input description' }],
           })(<Input.TextArea rows={4} prefix={<Icon type='fire' />} placeholder='Description' />)}
         </Form.Item>
 
         <Form.Item style={vGap} label='Add Tags'>
           {getFieldDecorator('tags', {
-            rules: [{ required: true, message: 'Please add animal tags', type: 'array' }],
+            rules: [{ _required: true, message: 'Please add animal tags', type: 'array' }],
           })(<Select mode='tags' placeholder='Add tags'></Select>)}
         </Form.Item>
 
-        <Form.Item label='Pet image'>
+        <Form.Item label='Pet images'>
           <div className='dropbox'>
-            {getFieldDecorator('imageUrl', {
+            {getFieldDecorator('images', {
               valuePropName: 'fileList',
               getValueFromEvent: normFile,
+              rules: [
+                {
+                  required: true,
+                  message: 'Please upload picture(s)',
+                },
+              ],
             })(
-              <Upload.Dragger name='files' action='/animals/create'>
+              <Upload.Dragger onPreview={() => null} beforeUpload={() => false} multiple={true}>
                 <p className='ant-upload-drag-icon'>
                   <Icon type='inbox' />
                 </p>
@@ -293,15 +334,31 @@ function PetInfo(props) {
           </div>
         </Form.Item>
 
-        {props.current < 2 && (
-          <Button style={{ float: 'right' }} type='primary' onClick={() => props.nextStep()}>
-            Next
-            <Icon type='right' />
-          </Button>
-        )}
+        <NextStep current={props.current} onClick={props.nextStep} />
       </Form>
     </Card>
   );
 }
 
-export default Form.create({ name: 'PetInfo' })(PetInfo);
+const onFieldsChange = (props, changedFields) => {
+  props.onChange(changedFields);
+};
+
+const mapPropsToFields = props => {
+  let fields = {};
+  Object.keys(props).forEach(key => {
+    fields[key] = Form.createFormField({
+      ...props[key],
+      value: props[key].value,
+    });
+  });
+  return fields;
+};
+
+const PetInfo = Form.create({
+  name: 'step_1_petinfo',
+  onFieldsChange,
+  mapPropsToFields,
+})(PetInfoForm);
+
+export default PetInfo;
