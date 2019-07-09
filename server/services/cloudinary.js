@@ -8,24 +8,15 @@ exports.initCloudinaryConfig = () =>
     api_secret: config.cloudinary.apiSecret,
   });
 
-exports.uploadFile = (file, options = {}) =>
+exports.cloudinaryUpload = (buffer, uploadOptions = {}) =>
   new Promise((resolve, reject) => {
-    const nameWithoutExt = file.filename.replace(/\.[^/.]+$/, '');
+    cloudinary.uploader
+      .upload_stream(uploadOptions, (err, imageData) => {
+        if (err) {
+          return reject(err);
+        }
 
-    const defaults = {
-      public_id: nameWithoutExt,
-    };
-
-    const mergedOptions = {
-      ...defaults,
-      ...options,
-    };
-
-    cloudinary.uploader.upload(file.path, mergedOptions, (error, result) => {
-      if (error) {
-        return reject(error);
-      }
-
-      resolve(result);
-    });
+        resolve(imageData);
+      })
+      .end(buffer);
   });

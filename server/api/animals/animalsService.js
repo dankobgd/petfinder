@@ -1,5 +1,5 @@
 const googleMaps = require('@google/maps');
-const { uploadFile } = require('../../services/cloudinary');
+const { cloudinaryUpload } = require('../../services/cloudinary');
 const config = require('../../config');
 
 const googleMapsClient = googleMaps.createClient({
@@ -9,10 +9,17 @@ const googleMapsClient = googleMaps.createClient({
 
 module.exports = {
   async uploadPetImage(file) {
-    const opts = {
+    const { originalname, buffer } = file;
+
+    // trim file extension
+    const filename = originalname.replace(/\.[^/.]+$/, '');
+
+    const cloudinaryOpts = {
       folder: 'petfinder/pet_images',
+      public_id: `${Date.now()}-${filename}`,
     };
-    return uploadFile(file, opts);
+
+    return cloudinaryUpload(buffer, cloudinaryOpts);
   },
 
   async getCoordsFromAddress(address) {

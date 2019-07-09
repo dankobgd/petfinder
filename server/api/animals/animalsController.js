@@ -15,20 +15,16 @@ exports.getAnimal = async (req, res, next) => {
 
 // Create animal
 exports.createAnimal = async (req, res, next) => {
-  const imagePromises = req.files.map(file => AnimalService.uploadPetImage(file));
-  const imagesData = await Promise.all(imagePromises);
-  res.status(200).json(imagesData);
+  const fileUploadPromises = req.files.map(file => AnimalService.uploadPetImage(file));
+  const imageData = await Promise.all(fileUploadPromises);
 
   try {
-    const results = await AnimalService.getCoordsFromAddress(req.body.address);
+    const results = await AnimalService.getCoordsFromAddress(req.body.address.trim());
     const { lat, lng } = results[0].geometry.location;
-    res.json({ lat, lng });
+    res.json({ body: req.body, imageData, location: { lat, lng } });
   } catch (err) {
     console.log(err);
   }
-
-  const imgPaths = req.files.map(file => file.path);
-  await cleanupUploadFiles(imgPaths);
 };
 
 // Update animal
