@@ -9,20 +9,23 @@ function ConfirmAdd({ formFields, current, prevStep }) {
       name,
       value: obj.value,
     }))
-    .filter(elm => elm.name !== 'onChange' && elm.name !== 'images');
+    .filter(elm => elm.name !== 'onChange' && elm.name !== 'profileImage' && elm.name !== 'galleryImages');
 
   const formData = new FormData();
+
   data.forEach(elm => formData.append(`${elm.name}`, elm.value));
-  formData.append('images', formFields.images.value[0].originFileObj);
+  formData.append('profileImage', formFields.profileImage.value[0].originFileObj);
+  formFields.galleryImages.value.map(val => formData.append('galleryImages', val.originFileObj));
 
   const onSubmit = () => {
     apiClient
       .post('animals/create', { data: formData })
       .then(success => {
-        console.log('server_success: ', success);
-        console.log('formState: ', formFields);
+        console.log(success);
       })
-      .catch(err => console.log('server_err: ', err));
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   return (

@@ -1,4 +1,3 @@
-const { promises: fs } = require('fs');
 const cloudinary = require('cloudinary').v2;
 const config = require('../config');
 
@@ -22,17 +21,11 @@ exports.uploadFile = (file, options = {}) =>
       ...options,
     };
 
-    cloudinary.uploader.upload(file.path, mergedOptions, async (error, result) => {
+    cloudinary.uploader.upload(file.path, mergedOptions, (error, result) => {
       if (error) {
         return reject(error);
       }
 
-      try {
-        fs.unlink(file.path);
-      } catch (err) {
-        console.error(err);
-      }
-
-      return resolve(result);
+      resolve(result);
     });
   });

@@ -89,9 +89,7 @@ const baseConfig = {
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
 
-  analytics: {
-    google: 'xxx-xxx',
-  },
+  geocodingApiKey: process.env.GEOCODING_API_KEY,
 };
 
 // Development configuration

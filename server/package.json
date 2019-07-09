@@ -19,6 +19,7 @@
   "author": "Danko Petrovic <dankopetrovic.bgd@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "@google/maps": "^0.5.5",
     "@hapi/joi": "^15.0.3",
     "@sendgrid/mail": "^6.4.0",
     "bcryptjs": "^2.4.3",

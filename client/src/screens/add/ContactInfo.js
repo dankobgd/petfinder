@@ -16,31 +16,31 @@ function ContactInfoForm(props) {
       <Form ayout={'vertical'}>
         <Form.Item style={vGap} label='Phone' hasFeedback>
           {getFieldDecorator('phone', {
-            rules: [{ _required: true, message: 'Please input phone' }],
+            rules: [{ required: true, message: 'Please input phone' }],
           })(<Input prefix={<Icon type='phone' />} placeholder='Phone' />)}
         </Form.Item>
 
         <Form.Item style={vGap} label='Email' hasFeedback>
           {getFieldDecorator('email', {
-            rules: [{ type: 'email', message: 'invalid email' }, { _required: true, message: 'Please input email' }],
+            rules: [{ type: 'email', message: 'invalid email' }, { required: true, message: 'Please input email' }],
           })(<Input prefix={<Icon type='mail' />} placeholder='Email' />)}
         </Form.Item>
 
         <Form.Item style={vGap} label='Country' hasFeedback>
           {getFieldDecorator('country', {
-            rules: [{ _required: true, message: 'Please input country' }],
+            rules: [{ required: true, message: 'Please input country' }],
           })(<Input prefix={<Icon type='fire' />} placeholder='Country' />)}
         </Form.Item>
 
         <Form.Item style={vGap} label='City' hasFeedback>
           {getFieldDecorator('city', {
-            rules: [{ _required: true, message: 'Please input city' }],
+            rules: [{ required: true, message: 'Please input city' }],
           })(<Input prefix={<Icon type='fire' />} placeholder='City' />)}
         </Form.Item>
 
         <Form.Item label='Address' hasFeedback>
           {getFieldDecorator('address', {
-            rules: [{ _required: true, message: 'Please input address' }],
+            rules: [{ required: true, message: 'Please input address' }],
           })(<Input prefix={<Icon type='fire' />} placeholder='Address' />)}
         </Form.Item>
 

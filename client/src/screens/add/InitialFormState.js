@@ -26,6 +26,7 @@ export const initialFormState = {
     country: { value: undefined },
     city: { value: undefined },
     address: { value: undefined },
-    images: { value: [] },
+    profileImage: { value: [] },
+    galleryImages: { value: [] },
   },
 };

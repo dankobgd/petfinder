@@ -23,3 +23,18 @@ code {
 .ant-steps-horizontal {
   margin-bottom: 2rem;
 }
+/* antd images preview */
+.ant-upload-list.ant-upload-list-picture-card {
+  margin-top: 10px;
+}
+
+/* Radio button hasfeedback error */
+@media screen and (min-width: 400px) {
+  .custom-feedback
+    > div.ant-col.ant-form-item-control-wrapper
+    > div.ant-form-item-control.has-feedback.has-error
+    > span.ant-form-item-children
+    > span.ant-form-item-children-icon {
+    left: 100%;
+  }
+}
