@@ -25,8 +25,8 @@ const reducer = (state = initialState, action) => {
     case t.LOGIN_SUCCESS:
       return {
         ...state,
-        accessToken: action.payload.accessToken,
-        user: action.payload.user,
+        ...action.payload.accessToken,
+        ...action.payload.user,
         isLoading: false,
         isAuthenticated: true,
       };

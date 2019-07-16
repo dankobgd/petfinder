@@ -208,7 +208,7 @@ function PetInfoForm(props) {
           {getFieldDecorator('size', {
             rules: [{ required: true, message: 'Please select animal size' }],
           })(
-            <Radio.Group placeholder='Animal size'>
+            <Radio.Group placeholder='Animal size' buttonStyle='solid'>
               <Radio.Button value='small'>small</Radio.Button>
               <Radio.Button value='medium'>medium</Radio.Button>
               <Radio.Button value='large'>large</Radio.Button>

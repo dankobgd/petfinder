@@ -12,8 +12,8 @@ import Signup from './components/auth-form/Signup';
 import Login from './components/auth-form/Login';
 import ForgotPassword from './screens/ForgotPassword';
 import ResetPassword from './screens/ResetPassword';
-import AddPet from './screens/add/AddPet';
-import PrivateRoute from './components/route/Private';
+import Profile from './screens/profile/Profile';
+import { PrivateRoute, PublicRoute, GuestRoute } from './components/route/Auth';
 
 function App() {
   useEffect(() => {
@@ -27,12 +27,12 @@ function App() {
         <Toasts />
 
         <Router>
-          <Home path='/' />
-          <Signup path='signup' />
-          <Login path='login' />
-          <PrivateRoute path='add' component={AddPet} />
-          <ForgotPassword path='password-forgot' />
-          <ResetPassword path='password-reset/:resetToken' />
+          <PublicRoute path='/' component={Home} />
+          <GuestRoute path='signup' component={Signup} />
+          <GuestRoute path='login' component={Login} />
+          <PublicRoute path='password-forgot' component={ForgotPassword} />
+          <PublicRoute path='password-reset/:resetToken' component={ResetPassword} />
+          <PrivateRoute path='profile/*' component={Profile} />
           <NotFound default />
         </Router>
       </div>

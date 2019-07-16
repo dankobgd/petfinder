@@ -3,7 +3,7 @@ import { Link } from '@reach/router';
 import { Drawer, Button, Icon } from 'antd';
 import LeftMenu from './LeftMenu';
 import RightMenu from './RightMenu';
-import './navbar.css';
+import s from './styles.module.css';
 
 function Navbar() {
   const [visible, setVisible] = useState(false);
@@ -18,31 +18,37 @@ function Navbar() {
   };
 
   return (
-    <nav className='menu' style={{ overflow: 'hidden' }}>
-      <div className='menu__logo'>
-        <Link to='/'>Petfinder</Link>
-      </div>
-      <div className='menu__container'>
-        <div className='menu_left'>
-          <LeftMenu mode='horizontal' activeSide={activeSide} setActiveSide={setActiveSide} />
+    <nav className={s.navigation}>
+      <div className={s.nav_wrapper}>
+        <div className={s.logo}>
+          <Link to='/'>Petfinder</Link>
         </div>
-        <div className='menu_rigth'>
-          <RightMenu mode='horizontal' activeSide={activeSide} setActiveSide={setActiveSide} />
+
+        <div className={s.menu_outer}>
+          <div className={s.left_menu}>
+            <LeftMenu mode='horizontal' activeSide={activeSide} setActiveSide={setActiveSide} />
+          </div>
+          <div className={s.right_menu}>
+            <RightMenu mode='horizontal' activeSide={activeSide} setActiveSide={setActiveSide} />
+          </div>
+
+          <div className={s.hamburger}>
+            <Button onClick={showDrawer}>
+              <Icon type='align-right' />
+            </Button>
+          </div>
+          <Drawer
+            title='Menu'
+            placement='right'
+            className='menu_drawer'
+            closable={false}
+            onClose={onClose}
+            visible={visible}
+          >
+            <LeftMenu mode='inline' />
+            <RightMenu mode='inline' />
+          </Drawer>
         </div>
-        <Button className='menu__mobile-button' type='primary' onClick={showDrawer}>
-          <Icon type='align-right' />
-        </Button>
-        <Drawer
-          title='Menu'
-          placement='right'
-          className='menu_drawer'
-          closable={false}
-          onClose={onClose}
-          visible={visible}
-        >
-          <LeftMenu mode='inline' />
-          <RightMenu mode='inline' />
-        </Drawer>
       </div>
     </nav>
   );

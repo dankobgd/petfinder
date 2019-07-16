@@ -67,8 +67,8 @@ function AddPet(props) {
 
   return (
     <div>
-      <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>
-        <Col xs={24} sm={20} md={16} lg={12} xl={8}>
+      <Row type='flex' style={{ justifyContent: 'center' }}>
+        <Col sm={24} md={20} lg={14} xl={12}>
           <Steps size='small' current={current}>
             {steps.map(({ title, icon, content }) => (
               <Step key={title} title={title} icon={icon}>

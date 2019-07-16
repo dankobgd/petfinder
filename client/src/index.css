@@ -34,6 +34,11 @@ code {
     > div.ant-col.ant-form-item-control-wrapper
     > div.ant-form-item-control.has-feedback.has-error
     > span.ant-form-item-children
+    > span.ant-form-item-children-icon,
+  .custom-feedback
+    > div.ant-col.ant-form-item-control-wrapper
+    > div.ant-form-item-control.has-feedback.has-success
+    > span.ant-form-item-children
     > span.ant-form-item-children-icon {
     left: 100%;
   }
