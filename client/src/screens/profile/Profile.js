@@ -48,7 +48,7 @@ function Profile() {
             }
           >
             <Menu.Item key='account'>
-              <Link to='edit_account'>Edit Account</Link>
+              <Link to='account'>Account</Link>
             </Menu.Item>
             <Menu.Item key='password'>
               <Link to='change_password'>Change Password</Link>
@@ -75,7 +75,7 @@ function Profile() {
           <Router>
             <PrivateRoute path='add_pet' component={AddPet} />
             <PrivateRoute path='list_pets' component={() => <div>List view TODO...</div>} />
-            <PrivateRoute path='edit_account' component={EditAccount} />
+            <PrivateRoute path='account' component={EditAccount} />
             <PrivateRoute path='change_password' component={ChangePassword} />
           </Router>
         </Content>

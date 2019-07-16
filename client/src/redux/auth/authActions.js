@@ -94,3 +94,30 @@ export const validateResetToken = resetToken => async dispatch => {
     dispatch(errorActions.getErrors(err));
   }
 };
+
+// Update user account details
+export const updateUserAccount = accountData => async dispatch => {
+  try {
+    const formData = new FormData();
+    formData.append('username', accountData.username);
+    formData.append('email', accountData.email);
+    formData.append('avatar', accountData.avatar[0].originFileObj);
+    await apiClient.post('user/edit-account', { data: formData });
+    dispatch({ type: t.UPDATE_ACCOUNT_SUCCESS });
+  } catch (err) {
+    dispatch({ type: t.UPDATE_ACCOUNT_FAILURE });
+  }
+};
+
+// Change user password
+export const changeUserPassword = accountData => async dispatch => {
+  try {
+    await apiClient.post('user/change-password', { data: accountData });
+    dispatch({ type: t.CHANGE_PASSWORD_SUCCESS });
+    return Promise.resolve();
+  } catch (err) {
+    dispatch(errorActions.getErrors(err));
+    dispatch({ type: t.CHANGE_PASSWORD_FAILURE });
+    return Promise.reject(err);
+  }
+};

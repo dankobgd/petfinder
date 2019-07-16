@@ -2,8 +2,8 @@ exports.seed = async knex => {
   const users = [
     {
       username: 'test',
-      email: 'test@gmail.com',
-      password: '$2a$12$BDtrmN20PD3DclA7fmIUQ.OLEYA0UDP4vhytjocEfgNuGb2HwSveq',
+      email: 'test@test.com',
+      password: '$2a$12$Xrvbj13hyv2rBidkJVim5e4BDn3Gkd3RTrW3fffVgt/HlruPyEAw2',
     },
     {
       username: 'bob',

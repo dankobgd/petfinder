@@ -1,5 +1,5 @@
 exports.up = knex =>
-  knex.schema.createTable('attributes', t => {
+  knex.schema.createTable('colors', t => {
     t.increments('id').primary();
     t.integer('animal_id')
       .references('id')
@@ -16,4 +16,4 @@ exports.up = knex =>
     t.timestamp('deleted_at');
   });
 
-exports.down = knex => knex.schema.dropTable('attributes');
+exports.down = knex => knex.schema.dropTable('colors');

@@ -32,7 +32,7 @@ function App() {
           <GuestRoute path='login' component={Login} />
           <PublicRoute path='password-forgot' component={ForgotPassword} />
           <PublicRoute path='password-reset/:resetToken' component={ResetPassword} />
-          <PrivateRoute path='profile/*' component={Profile} />
+          {<PrivateRoute path='profile/*' component={Profile} />}
           <NotFound default />
         </Router>
       </div>

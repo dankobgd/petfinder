@@ -71,19 +71,36 @@ module.exports = knex => {
 
   const updatePassword = async (id, props) => {
     const hashed = await hashPassword(props.password);
-    const data = {
-      ...props,
-      password: hashed,
-    };
+    const data = { ...props, password: hashed };
 
-    await base.update(id, data);
-    return base.findOne({ id });
+    return base.update(id, data);
+  };
+
+  const verifyOldPassword = async (id, oldPassword) => {
+    const user = await knex('users')
+      .where({ id })
+      .first()
+      .timeout(base.timeout);
+
+    if (!user) {
+      return Promise.reject(new Error('User does not exist'));
+    }
+
+    const isMatch = await verifyHash(oldPassword, user.password);
+    if (!isMatch) {
+      return Promise.reject(new Error('Invalid old password'));
+    }
+
+    const userWithoutPw = { ...user };
+    delete userWithoutPw.password;
+    return Promise.resolve(userWithoutPw);
   };
 
   return {
     ...base,
     create,
     verify,
+    verifyOldPassword,
     updatePassword,
   };
 };

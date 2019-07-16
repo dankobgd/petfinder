@@ -4,6 +4,7 @@ exports.up = knex =>
     t.string('username').notNullable();
     t.string('email').notNullable();
     t.string('password').notNullable();
+    t.string('avatar');
     t.boolean('is_active')
       .notNullable()
       .defaultTo(true);

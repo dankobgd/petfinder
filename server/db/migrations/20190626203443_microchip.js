@@ -4,7 +4,7 @@ exports.up = knex =>
     t.integer('animal_id')
       .references('id')
       .inTable('animals');
-    t.string('id');
+    t.string('num');
     t.string('brand');
     t.string('description');
     t.string('location');

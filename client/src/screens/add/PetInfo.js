@@ -2,19 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Tooltip, Row, Col } from 'antd';
 import { NextStep } from './StepperButton';
 import { dogBreeds, catBreeds } from './breedsData';
+import getBase64 from '../../utils/getBase64';
 
 const { Option } = Select;
 
 const verticalGap = { marginBottom: 8 };
-
-function getBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
 
 function PetInfoForm(props) {
   const { getFieldDecorator, getFieldValue, validateFields } = props.form;

@@ -81,7 +81,8 @@ exports.passwordReset = async (req, res, next) => {
   try {
     const tokenData = await PasswordReset.validateToken(resetToken);
     await PasswordReset.destroy(tokenData.id);
-    const user = await User.updatePassword(tokenData.user_id, { password });
+    const id = await User.updatePassword(tokenData.user_id, { password });
+    const user = User.findOne({ id });
 
     const emailCtx = {
       to: user.email,
