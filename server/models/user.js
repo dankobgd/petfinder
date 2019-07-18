@@ -3,7 +3,7 @@ const createModel = require('../utils/create-model-skeleton');
 
 const name = 'User';
 const tableName = 'users';
-const selectableProps = ['id', 'username', 'email', 'is_active', 'updated_at', 'created_at', 'deleted_at'];
+const selectableProps = ['id', 'username', 'email', 'avatar', 'is_active', 'updated_at', 'created_at', 'deleted_at'];
 
 const hashPassword = pw =>
   new Promise((resolve, reject) => {

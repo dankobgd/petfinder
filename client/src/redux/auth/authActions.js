@@ -95,25 +95,53 @@ export const validateResetToken = resetToken => async dispatch => {
   }
 };
 
-// Update user account details
-export const updateUserAccount = accountData => async dispatch => {
+// Update user avatar image
+export const updateUserAvatar = userData => async dispatch => {
   try {
     const formData = new FormData();
-    formData.append('username', accountData.username);
-    formData.append('email', accountData.email);
-    formData.append('avatar', accountData.avatar[0].originFileObj);
-    await apiClient.post('user/edit-account', { data: formData });
-    dispatch({ type: t.UPDATE_ACCOUNT_SUCCESS });
+    formData.append('avatar', userData.avatar[0].originFileObj);
+    const res = await apiClient.post('user/edit-avatar', { data: formData });
+    dispatch({
+      type: t.UPDATE_AVATAR_SUCCESS,
+      payload: { avatar: res.url },
+    });
   } catch (err) {
+    dispatch({ type: t.UPDATE_AVATAR_FAILURE });
+  }
+};
+
+// Delete profile image
+export const deleteUserAvatar = avatarUrl => async dispatch => {
+  try {
+    await apiClient.del('user/delete-avatar', { data: { avatarUrl } });
+    dispatch({ type: t.DELETE_AVATAR_SUCCESS });
+  } catch (err) {
+    dispatch({ type: t.DELETE_AVATAR_FAILURE });
+  }
+};
+
+// Update user account details
+export const updateUserAccount = userData => async dispatch => {
+  try {
+    await apiClient.post('user/edit-account', { data: userData });
+    dispatch({
+      type: t.UPDATE_ACCOUNT_SUCCESS,
+      payload: {
+        username: userData.username,
+        email: userData.email,
+      },
+    });
+  } catch (err) {
+    dispatch(errorActions.getErrors(err));
     dispatch({ type: t.UPDATE_ACCOUNT_FAILURE });
   }
 };
 
 // Change user password
-export const changeUserPassword = accountData => async dispatch => {
+export const changeUserPassword = userData => async dispatch => {
   try {
-    await apiClient.post('user/change-password', { data: accountData });
-    dispatch({ type: t.CHANGE_PASSWORD_SUCCESS });
+    await apiClient.post('user/change-password', { data: userData });
+    dispatch({ type: t.CHANGE_PASSWORD_SUCCESS, payload: userData });
     return Promise.resolve();
   } catch (err) {
     dispatch(errorActions.getErrors(err));

@@ -1,15 +1,16 @@
 const Joi = require('@hapi/joi');
 
 const accountSchema = {
-  body: Joi.object().keys({
-    username: Joi.string().required(),
-    email: Joi.string()
-      .min(3)
-      .max(255)
-      .email()
-      .required(),
-    avatar: Joi.string().required(),
-  }),
+  body: Joi.object()
+    .keys({
+      username: Joi.string().required(),
+      email: Joi.string()
+        .min(3)
+        .max(255)
+        .email()
+        .required(),
+    })
+    .unknown(),
 };
 
 const passwordSchema = {

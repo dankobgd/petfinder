@@ -15,7 +15,7 @@ module.exports = {
     const filename = originalname.replace(/\.[^/.]+$/, '');
 
     const cloudinaryOpts = {
-      folder: 'petfinder/pet_images',
+      folder: 'petfinder/pets',
       public_id: `${Date.now()}-${filename}`,
     };
 

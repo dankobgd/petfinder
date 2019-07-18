@@ -41,6 +41,27 @@ const reducer = (state = initialState, action) => {
         isLoading: false,
         user: null,
       };
+    case t.UPDATE_AVATAR_SUCCESS:
+    case t.UPDATE_ACCOUNT_SUCCESS:
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          ...action.payload,
+        },
+      };
+    case t.DELETE_AVATAR_SUCCESS:
+      const withoutAvatar = Object.keys(state.user)
+        .filter(key => key !== 'avatar')
+        .reduce((result, cur) => {
+          result[cur] = state.user[cur];
+          return result;
+        }, {});
+
+      return {
+        ...state,
+        user: { ...withoutAvatar },
+      };
     default:
       return state;
   }

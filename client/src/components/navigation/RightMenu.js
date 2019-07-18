@@ -34,10 +34,12 @@ function RightMenu({ mode }) {
       <SubMenu
         key='sub'
         title={
-          <span className={s.profile_avatar}>
-            {user && <Typography.Text>{user.username}</Typography.Text>}
-            <Avatar size='large' icon='user' />
-          </span>
+          user && (
+            <span className={s.profile_avatar}>
+              {<Typography.Text>{user.username}</Typography.Text>}
+              {user.avatar ? <Avatar size='large' src={user.avatar} /> : <Avatar size='large' icon='user' />}
+            </span>
+          )
         }
       >
         <Menu.Item key='profile'>

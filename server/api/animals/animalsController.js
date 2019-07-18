@@ -23,7 +23,7 @@ exports.createAnimal = async (req, res, next) => {
     const { lat, lng } = results[0].geometry.location;
     res.json({ body: req.body, imageData, location: { lat, lng } });
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 

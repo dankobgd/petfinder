@@ -20,3 +20,13 @@ exports.cloudinaryUpload = (buffer, uploadOptions = {}) =>
       })
       .end(buffer);
   });
+
+exports.cloudinaryDelete = publicId =>
+  new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(publicId, (err, success) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(success);
+    });
+  });
