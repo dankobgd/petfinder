@@ -32,6 +32,7 @@ module.exports = {
   },
 
   async createPet(obj) {
+    console.log('payload: ', obj);
     const data = {};
 
     Object.entries(obj).forEach(([key, val]) => {
@@ -53,7 +54,10 @@ module.exports = {
       'good_with_dogs',
     ];
 
-    const provided = [...data.attributes.split(','), ...data.environment.split(',')];
+    const providedAttrs = data.attributes ? data.attributes.split(',') : [];
+    const providedEnv = data.environment ? data.environment.split(',') : [];
+    const provided = [...providedAttrs, ...providedEnv];
+
     const petAttributes = {};
 
     intersection(target, provided).forEach(item => {
@@ -103,6 +107,11 @@ module.exports = {
         location: data.chipLocation,
         description: data.chipDescription,
       });
+    }
+
+    if (obj.gallery.length) {
+      const p = obj.gallery.map(url => knex('microchip').insert({ animal_id: animalId[0], url }));
+      await Promise.all(p);
     }
   },
 };

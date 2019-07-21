@@ -17,17 +17,23 @@ exports.getAnimal = async (req, res, next) => {
 exports.createAnimal = async (req, res, next) => {
   try {
     const userId = req.user.sub;
-    const fileUploadPromises = req.files.map(file => AnimalService.uploadPetImage(file));
-    const imageData = await Promise.all(fileUploadPromises);
+    const profileImage = req.files.find(file => file.fieldname === 'profileImage');
+    const galleryImages = req.files.filter(file => file.fieldname === 'galleryImages');
+
+    const profileImageData = await AnimalService.uploadPetImage(profileImage);
+    const galleryImagesPromises = galleryImages.map(file => AnimalService.uploadPetImage(file));
+    const galleryImagesData = await Promise.all(galleryImagesPromises);
+    const galleryURIs = galleryImagesData.map(x => x.secure_url);
 
     const results = await AnimalService.getCoordsFromAddress(req.body.address.trim());
 
     const data = {
       ...req.body,
       user_id: userId,
-      imageUrl: imageData[0].secure_url,
+      imageUrl: profileImageData.secure_url,
       lat: results[0].lat,
       lng: results[0].lon,
+      gallery: galleryURIs,
     };
 
     await AnimalService.createPet(data);
