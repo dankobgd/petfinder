@@ -40,6 +40,7 @@ export const userSignupRequest = credentials => async dispatch => {
     throw err;
   }
 };
+
 export const userLoginRequest = credentials => async dispatch => {
   try {
     const res = await apiClient.post('auth/login', { data: credentials });

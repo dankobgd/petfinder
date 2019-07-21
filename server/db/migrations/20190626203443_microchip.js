@@ -4,17 +4,10 @@ exports.up = knex =>
     t.integer('animal_id')
       .references('id')
       .inTable('animals');
-    t.string('num');
+    t.string('number');
     t.string('brand');
     t.string('description');
     t.string('location');
-    t.timestamp('created_at')
-      .notNullable()
-      .defaultTo(knex.fn.now());
-    t.timestamp('updated_at')
-      .notNullable()
-      .defaultTo(knex.fn.now());
-    t.timestamp('deleted_at');
   });
 
 exports.down = knex => knex.schema.dropTable('microchip');

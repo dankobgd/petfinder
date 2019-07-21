@@ -7,13 +7,6 @@ exports.up = knex =>
     t.string('primary').notNullable();
     t.string('secondary');
     t.string('tertiary');
-    t.timestamp('created_at')
-      .notNullable()
-      .defaultTo(knex.fn.now());
-    t.timestamp('updated_at')
-      .notNullable()
-      .defaultTo(knex.fn.now());
-    t.timestamp('deleted_at');
   });
 
 exports.down = knex => knex.schema.dropTable('colors');

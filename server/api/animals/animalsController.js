@@ -15,13 +15,23 @@ exports.getAnimal = async (req, res, next) => {
 
 // Create animal
 exports.createAnimal = async (req, res, next) => {
-  const fileUploadPromises = req.files.map(file => AnimalService.uploadPetImage(file));
-  const imageData = await Promise.all(fileUploadPromises);
-
   try {
+    const userId = req.user.sub;
+    const fileUploadPromises = req.files.map(file => AnimalService.uploadPetImage(file));
+    const imageData = await Promise.all(fileUploadPromises);
+
     const results = await AnimalService.getCoordsFromAddress(req.body.address.trim());
-    const { lat, lng } = results[0].geometry.location;
-    res.json({ body: req.body, imageData, location: { lat, lng } });
+
+    const data = {
+      ...req.body,
+      user_id: userId,
+      imageUrl: imageData[0].secure_url,
+      lat: results[0].lat,
+      lng: results[0].lon,
+    };
+
+    await AnimalService.createPet(data);
+    res.json(data);
   } catch (err) {
     console.error(err);
   }

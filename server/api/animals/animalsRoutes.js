@@ -2,9 +2,11 @@ const router = require('express').Router();
 const AnimalsController = require('./animalsController');
 const mw = require('../../middleware');
 
+const { requireJWT } = mw.authGard;
+
 router.get('/', AnimalsController.getAnimals);
 router.get('/:id', AnimalsController.getAnimal);
-router.post('/create', mw.uploadFile.upload().any(), AnimalsController.createAnimal);
+router.post('/create', requireJWT, mw.uploadFile.upload().any(), AnimalsController.createAnimal);
 router.put('/update/:id', AnimalsController.updateAnimal);
 router.delete('/delete/:id', AnimalsController.deleteAnimal);
 

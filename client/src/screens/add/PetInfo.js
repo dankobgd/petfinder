@@ -267,9 +267,9 @@ function PetInfoForm(props) {
         <Form.Item label="Doesn't like to be with">
           {getFieldDecorator('environment')(
             <Checkbox.Group>
-              <Checkbox value='kids'>Kids</Checkbox>
-              <Checkbox value='cats'>Cats</Checkbox>
-              <Checkbox value='dogs'>Dogs</Checkbox>
+              <Checkbox value='good_with_kids'>Kids</Checkbox>
+              <Checkbox value='good_with_cats'>Cats</Checkbox>
+              <Checkbox value='good_with_dogs'>Dogs</Checkbox>
             </Checkbox.Group>
           )}
         </Form.Item>
