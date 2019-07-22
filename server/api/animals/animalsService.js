@@ -32,7 +32,6 @@ module.exports = {
   },
 
   async createPet(obj) {
-    console.log('payload: ', obj);
     const data = {};
 
     Object.entries(obj).forEach(([key, val]) => {
@@ -57,7 +56,6 @@ module.exports = {
     const providedAttrs = data.attributes ? data.attributes.split(',') : [];
     const providedEnv = data.environment ? data.environment.split(',') : [];
     const provided = [...providedAttrs, ...providedEnv];
-
     const petAttributes = {};
 
     intersection(target, provided).forEach(item => {
@@ -99,7 +97,7 @@ module.exports = {
       zip: '11000',
     });
 
-    if (data.attributes.includes('microchip')) {
+    if (data.attributes && data.attributes.includes('microchip')) {
       await knex('microchip').insert({
         animal_id: animalId[0],
         number: data.chipId,
@@ -109,8 +107,13 @@ module.exports = {
       });
     }
 
-    if (obj.gallery.length) {
-      const p = obj.gallery.map(url => knex('microchip').insert({ animal_id: animalId[0], url }));
+    if (obj.gallery && obj.gallery.length) {
+      const p = obj.gallery.map(url => knex('images').insert({ animal_id: animalId[0], url }));
+      await Promise.all(p);
+    }
+
+    if (obj.tags && obj.tags.length) {
+      const p = obj.tags.split(',').map(text => knex('tags').insert({ animal_id: animalId[0], text }));
       await Promise.all(p);
     }
   },
