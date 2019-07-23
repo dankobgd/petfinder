@@ -97,6 +97,9 @@ module.exports = {
       zip: '11000',
     });
 
+    const c = obj.colors.split(',').map(color => knex('colors').insert({ animal_id: animalId[0], color }));
+    await Promise.all(c);
+
     if (data.attributes && data.attributes.includes('microchip')) {
       await knex('microchip').insert({
         animal_id: animalId[0],

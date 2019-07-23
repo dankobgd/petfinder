@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Tooltip, Row, Col } from 'antd';
 import { NextStep } from './StepperButton';
-import { dogBreeds, catBreeds } from './breedsData';
+import { cats, dogs } from './_data';
 import getBase64 from '../../utils/getBase64';
 
 const { Option } = Select;
@@ -119,13 +119,13 @@ function PetInfoForm(props) {
               filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
               {getFieldValue('type') === 'dog'
-                ? dogBreeds.map(dog => (
+                ? dogs.breeds.map(dog => (
                     <Option key={dog} value={dog}>
                       {dog}
                     </Option>
                   ))
                 : getFieldValue('type') === 'cat'
-                ? catBreeds.map(cat => (
+                ? cats.breeds.map(cat => (
                     <Option key={cat} value={cat}>
                       {cat}
                     </Option>
@@ -144,13 +144,13 @@ function PetInfoForm(props) {
               filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
               {getFieldValue('type') === 'dog'
-                ? dogBreeds.map(dog => (
+                ? dogs.breeds.map(dog => (
                     <Option key={dog} value={dog}>
                       {dog}
                     </Option>
                   ))
                 : getFieldValue('type') === 'cat'
-                ? catBreeds.map(cat => (
+                ? cats.breeds.map(cat => (
                     <Option key={cat} value={cat}>
                       {cat}
                     </Option>
@@ -223,12 +223,26 @@ function PetInfoForm(props) {
           {getFieldDecorator('colors', {
             rules: [{ required: true, message: 'Please select animal colors', type: 'array' }],
           })(
-            <Select mode='multiple' placeholder='Select animal colors'>
-              <Option value='black'>black</Option>
-              <Option value='grey'>grey</Option>
-              <Option value='blue'>blue</Option>
-              <Option value='brown'>brown</Option>
-              <Option value='white'>white</Option>
+            <Select
+              mode='multiple'
+              showSearch
+              placeholder='Select animal colors'
+              optionFilterProp='children'
+              filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+            >
+              {getFieldValue('type') === 'dog'
+                ? dogs.colors.map(dog => (
+                    <Option key={dog} value={dog}>
+                      {dog}
+                    </Option>
+                  ))
+                : getFieldValue('type') === 'cat'
+                ? cats.colors.map(cat => (
+                    <Option key={cat} value={cat}>
+                      {cat}
+                    </Option>
+                  ))
+                : null}
             </Select>
           )}
         </Form.Item>
