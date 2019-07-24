@@ -120,4 +120,12 @@ module.exports = {
       await Promise.all(p);
     }
   },
+
+  getAnimals() {
+    return knex('animals');
+  },
+
+  getSingleAnimal(id) {
+    return knex('animals').where({ id });
+  },
 };

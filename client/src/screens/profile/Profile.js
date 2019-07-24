@@ -6,6 +6,8 @@ import { Router, Link } from '@reach/router';
 import AddPet from '../../screens/add/AddPet';
 import EditAccount from './EditAccount';
 import ChangePassword from './ChangePassword';
+import CreatedPets from './CreatedPets';
+import PetSingle from '../../components/pet/PetSingle';
 
 const { SubMenu } = Menu;
 const { Sider, Content } = Layout;
@@ -34,8 +36,11 @@ function Profile() {
             <Menu.Item key='add'>
               <Link to='add_pet'>Add Pet</Link>
             </Menu.Item>
-            <Menu.Item key='list'>
-              <Link to='list_pets'>List Pets</Link>
+            <Menu.Item key='created'>
+              <Link to='created'>Added By Me</Link>
+            </Menu.Item>
+            <Menu.Item key='following'>
+              <Link to='following'>Followed Pets</Link>
             </Menu.Item>
           </SubMenu>
           <SubMenu
@@ -74,7 +79,9 @@ function Profile() {
         >
           <Router>
             <PrivateRoute path='add_pet' component={AddPet} />
-            <PrivateRoute path='list_pets' component={() => <div>List view TODO...</div>} />
+            <PrivateRoute path='following' component={() => <div>Following</div>} />
+            <PrivateRoute path='created' component={CreatedPets} />
+            <PrivateRoute path='created/:id/:name' component={PetSingle} />
             <PrivateRoute path='account' component={EditAccount} />
             <PrivateRoute path='change_password' component={ChangePassword} />
           </Router>
