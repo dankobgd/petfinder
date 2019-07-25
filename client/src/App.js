@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Router } from '@reach/router';
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import { authActions } from './redux/auth';
+import { identityActions } from './redux/identity';
 
 import Toasts from './components/toast/Toasts';
 import Navbar from './components/navigation/Navbar';
@@ -17,7 +17,7 @@ import { PrivateRoute, PublicRoute, GuestRoute } from './components/route/Auth';
 
 function App() {
   useEffect(() => {
-    store.dispatch(authActions.setCurrentUserRequest());
+    store.dispatch(identityActions.setCurrentUserRequest());
   }, []);
 
   return (

@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Redirect } from '@reach/router';
 
 export function PrivateRoute({ component: Component, redirectUrl = 'login', ...rest }) {
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector(state => state.identity.isAuthenticated);
 
   return isAuthenticated ? (
     <Component {...rest} />
@@ -17,7 +17,7 @@ export function PublicRoute({ component: Component, ...rest }) {
 }
 
 export function GuestRoute({ component: Component, redirectUrl = '/', ...rest }) {
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector(state => state.identity.isAuthenticated);
 
   return isAuthenticated ? (
     <Redirect from={window.location.pathname} to={redirectUrl} noThrow />

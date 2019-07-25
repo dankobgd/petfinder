@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, navigate } from '@reach/router';
 import { Form, Input, Tooltip, Icon, Button, Card, Divider, Row, Col, Typography, Alert } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { authActions } from '../../redux/auth';
+import { identityActions } from '../../redux/identity';
 import { toastActions } from '../../redux/toast';
 
 function SignupForm(props) {
@@ -19,14 +19,14 @@ function SignupForm(props) {
   const [showServerError, setShowServerError] = useState(false);
 
   const dispatch = useDispatch();
-  const authErr = useSelector(state => state.error);
+  const UIError = useSelector(state => state.error);
 
   const handleSubmit = e => {
     e.preventDefault();
     validateFieldsAndScroll(async (formErrors, formData) => {
       if (!formErrors) {
         try {
-          await dispatch(authActions.userSignupRequest(formData));
+          await dispatch(identityActions.userSignupRequest(formData));
           dispatch(toastActions.addToast({ type: 'success', msg: 'You register successfully' }));
           navigate('/');
         } catch (err) {
@@ -38,10 +38,10 @@ function SignupForm(props) {
 
   useEffect(() => {
     if (showServerError) {
-      if (authErr.status === 422) {
+      if (UIError.status === 422) {
         let errorsMap = {};
 
-        authErr.data.validation.details.forEach(errObj => {
+        UIError.data.validation.details.forEach(errObj => {
           errorsMap[errObj.context.label] = {
             value: getFieldsValue()[errObj.context.label],
             errors: [new Error(errObj.message)],
@@ -49,16 +49,16 @@ function SignupForm(props) {
         });
 
         setFields(errorsMap);
-      } else if (authErr.message.startsWith('Email')) {
+      } else if (UIError.message.startsWith('Email')) {
         setFields({
           email: {
             value: getFieldValue('email'),
-            errors: [new Error(authErr.message)],
+            errors: [new Error(UIError.message)],
           },
         });
       }
     }
-  }, [authErr, authErr.status, getFieldValue, getFieldsValue, setFields, showServerError]);
+  }, [UIError, UIError.status, getFieldValue, getFieldsValue, setFields, showServerError]);
 
   const handleConfirmBlur = e => {
     const { value } = e.target;

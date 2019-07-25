@@ -10,5 +10,6 @@ router.post('/edit-avatar', requireJWT, fileUpload, UserController.updateAvatar)
 router.delete('/delete-avatar', requireJWT, UserController.deleteAvatar);
 router.post('/edit-account', requireJWT, mw.validate(accountSchema), UserController.updateAccount);
 router.post('/change-password', requireJWT, mw.validate(passwordSchema), UserController.changePassword);
+router.get('/pets', requireJWT, UserController.getUsersPets);
 
 module.exports = router;

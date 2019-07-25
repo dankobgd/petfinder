@@ -56,3 +56,15 @@ exports.changePassword = async (req, res, next) => {
     return next(createError.BadRequest(err.message));
   }
 };
+
+// Get user's created pets (adopted | adoptable)
+exports.getUsersPets = async (req, res, next) => {
+  const userId = req.user.sub;
+
+  try {
+    const pets = await UserService.getUsersPets(userId);
+    res.status(200).json({ pets });
+  } catch (err) {
+    return next(createError.BadRequest('Could not fetch pets'));
+  }
+};

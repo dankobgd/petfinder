@@ -1,17 +1,59 @@
-import React from 'react';
-import { Link } from '@reach/router';
-import PetCard from '../../components/pet/PetCard';
+import React, { useEffect } from 'react';
+import PetsList from '../../components/pet/PetsList';
+import { useSelector, useDispatch } from 'react-redux';
+import { identityActions } from '../../redux/identity';
+import { Tabs, Icon } from 'antd';
 
 function CreatedPets() {
-  const pets = [{ id: 1, name: 'aaa' }, { id: 2, name: 'bbb' }, { id: 3, name: 'ccc' }, { id: 4, name: 'ddd' }];
+  const dispatch = useDispatch();
+  const pets = useSelector(state => state.identity.pets);
+
+  const adopted = pets.filter(p => p.status === 'adopted');
+  const adoptable = pets.filter(p => p.status === 'adoptable');
+
+  useEffect(() => {
+    if (!pets.length) {
+      dispatch(identityActions.fetchUsersPets());
+    }
+  }, [dispatch, pets.length]);
 
   return (
     <div>
-      {pets.map(pet => (
-        <Link to={`${pet.id}/${pet.name}`}>
-          <PetCard />
-        </Link>
-      ))}
+      <Tabs defaultActiveKey='all'>
+        <Tabs.TabPane
+          tab={
+            <span>
+              <Icon type='fire' />
+              All
+            </span>
+          }
+          key='all'
+        >
+          <PetsList pets={pets} />
+        </Tabs.TabPane>
+        <Tabs.TabPane
+          tab={
+            <span>
+              <Icon type='fire' />
+              Adopted
+            </span>
+          }
+          key='adopted'
+        >
+          <PetsList pets={adopted} />
+        </Tabs.TabPane>
+        <Tabs.TabPane
+          tab={
+            <span>
+              <Icon type='fire' />
+              Adoptable
+            </span>
+          }
+          key='adoptable'
+        >
+          <PetsList pets={adoptable} />
+        </Tabs.TabPane>
+      </Tabs>
     </div>
   );
 }

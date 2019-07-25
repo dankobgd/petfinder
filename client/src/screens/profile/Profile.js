@@ -13,7 +13,7 @@ const { SubMenu } = Menu;
 const { Sider, Content } = Layout;
 
 function Profile() {
-  const user = useSelector(state => state.auth.user);
+  const user = useSelector(state => state.identity.user);
 
   return (
     <Layout style={{ minHeight: 'calc(100vh - 78px)' }}>

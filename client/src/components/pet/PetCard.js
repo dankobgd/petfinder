@@ -1,18 +1,18 @@
 import React from 'react';
-import { Card, Icon, Avatar } from 'antd';
+import { Card, Icon } from 'antd';
 
-function PetCard() {
+function PetCard({ pet }) {
   return (
     <Card
-      style={{ width: 300 }}
-      cover={<img alt='example' src='https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png' />}
-      actions={[<Icon type='setting' />, <Icon type='edit' />, <Icon type='ellipsis' />]}
+      style={{ height: '100%' }}
+      cover={<img alt={pet.name} src={pet.imageUrl} style={{ width: '100%', height: '250px', objectFit: 'cover' }} />}
     >
-      <Card.Meta
-        avatar={<Avatar src='https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png' />}
-        title='Card title'
-        description='This is the description'
-      />
+      <Card.Meta title={pet.name} description={pet.primaryBreed} />
+      <div style={{ paddingTop: '6px ' }}>
+        <span>
+          {pet.gender} - {pet.age}
+        </span>
+      </div>
     </Card>
   );
 }

@@ -16,7 +16,7 @@ import {
   Alert,
 } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { authActions } from '../../redux/auth';
+import { identityActions } from '../../redux/identity';
 import { toastActions } from '../../redux/toast';
 import getBase64 from '../../utils/getBase64';
 
@@ -27,8 +27,8 @@ function EditAccount(props) {
   const [showServerError, setShowServerError] = useState(false);
 
   const dispatch = useDispatch();
-  const user = useSelector(state => state.auth.user);
-  const authErr = useSelector(state => state.error);
+  const user = useSelector(state => state.identity.user);
+  const UIError = useSelector(state => state.error);
 
   const handleFileChange = info => {
     let fileList = [...info.fileList];
@@ -57,7 +57,7 @@ function EditAccount(props) {
     validateFieldsAndScroll(async (formErrors, formValues) => {
       if (!formErrors) {
         try {
-          await dispatch(authActions.updateUserAvatar(formValues));
+          await dispatch(identityActions.updateUserAvatar(formValues));
           dispatch(toastActions.addToast({ type: 'success', msg: 'Avatar updated successfully' }));
         } catch (err) {
           console.error(err);
@@ -71,7 +71,7 @@ function EditAccount(props) {
     validateFieldsAndScroll(async (formErrors, formValues) => {
       if (!formErrors) {
         try {
-          await dispatch(authActions.updateUserAccount(formValues));
+          await dispatch(identityActions.updateUserAccount(formValues));
           dispatch(toastActions.addToast({ type: 'success', msg: 'Account updated successfully' }));
           setShowServerError(true);
         } catch (err) {
@@ -82,7 +82,7 @@ function EditAccount(props) {
   };
 
   const handleDeleteAvatar = () => {
-    dispatch(authActions.deleteUserAvatar(user.avatar));
+    dispatch(identityActions.deleteUserAvatar(user.avatar));
     dispatch(toastActions.addToast({ type: 'success', msg: 'Avatar deleted successfully' }));
     setAvatarImageSource('');
   };
@@ -95,10 +95,10 @@ function EditAccount(props) {
 
   useEffect(() => {
     if (showServerError) {
-      if (authErr.status === 422) {
+      if (UIError.status === 422) {
         let errorsMap = {};
 
-        authErr.data.validation.details.forEach(errObj => {
+        UIError.data.validation.details.forEach(errObj => {
           errorsMap[errObj.context.label] = {
             value: getFieldsValue()[errObj.context.label],
             errors: [new Error(errObj.message)],
@@ -106,16 +106,16 @@ function EditAccount(props) {
         });
 
         setFields(errorsMap);
-      } else if (authErr.message.startsWith('Invalid')) {
+      } else if (UIError.message.startsWith('Invalid')) {
         setFields({
           username: {
             value: getFieldValue('username'),
-            errors: [new Error(authErr.message)],
+            errors: [new Error(UIError.message)],
           },
         });
       }
     }
-  }, [authErr, authErr.status, getFieldValue, getFieldsValue, setFields, showServerError]);
+  }, [UIError, UIError.status, getFieldValue, getFieldsValue, setFields, showServerError]);
 
   return (
     <div>

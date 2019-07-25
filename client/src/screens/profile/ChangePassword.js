@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Icon, Input, Button, Card, Divider, Col, Row, Typography, Alert } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { authActions } from '../../redux/auth';
+import { identityActions } from '../../redux/identity';
 import { toastActions } from '../../redux/toast';
 
 function ChangePassword(props) {
@@ -18,7 +18,7 @@ function ChangePassword(props) {
   const [showServerError, setShowServerError] = useState(false);
 
   const dispatch = useDispatch();
-  const authErr = useSelector(state => state.error);
+  const UIError = useSelector(state => state.error);
 
   const handleConfirmBlur = e => {
     const { value } = e.target;
@@ -45,7 +45,7 @@ function ChangePassword(props) {
     validateFieldsAndScroll(async (formErrors, formData) => {
       if (!formErrors) {
         try {
-          await dispatch(authActions.changeUserPassword(formData));
+          await dispatch(identityActions.changeUserPassword(formData));
           dispatch(toastActions.addToast({ type: 'success', msg: 'Password updated successfully' }));
         } catch (err) {
           setShowServerError(true);
@@ -56,10 +56,10 @@ function ChangePassword(props) {
 
   useEffect(() => {
     if (showServerError) {
-      if (authErr.status === 422) {
+      if (UIError.status === 422) {
         let errorsMap = {};
 
-        authErr.data.validation.details.forEach(errObj => {
+        UIError.data.validation.details.forEach(errObj => {
           errorsMap[errObj.context.label] = {
             value: getFieldsValue()[errObj.context.label],
             errors: [new Error(errObj.message)],
@@ -67,16 +67,16 @@ function ChangePassword(props) {
         });
 
         setFields(errorsMap);
-      } else if (authErr.message.startsWith('Invalid')) {
+      } else if (UIError.message.startsWith('Invalid')) {
         setFields({
           oldPassword: {
             value: getFieldValue('oldPassword'),
-            errors: [new Error(authErr.message)],
+            errors: [new Error(UIError.message)],
           },
         });
       }
     }
-  }, [authErr, authErr.status, getFieldValue, getFieldsValue, setFields, showServerError]);
+  }, [UIError, UIError.status, getFieldValue, getFieldsValue, setFields, showServerError]);
 
   return (
     <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>

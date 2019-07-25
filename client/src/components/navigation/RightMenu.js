@@ -2,15 +2,15 @@ import React from 'react';
 import { Link } from '@reach/router';
 import { Menu, Icon, Avatar, Typography } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { authActions } from '../../redux/auth';
+import { identityActions } from '../../redux/identity';
 import s from './styles.module.css';
 
 const { SubMenu } = Menu;
 
 function RightMenu({ mode }) {
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-  const user = useSelector(state => state.auth.user);
+  const isAuthenticated = useSelector(state => state.identity.isAuthenticated);
+  const user = useSelector(state => state.identity.user);
 
   const loggedOutMenuItems = (
     <Menu mode={mode}>
@@ -48,7 +48,7 @@ function RightMenu({ mode }) {
             <Typography.Text>Profile</Typography.Text>
           </Link>
         </Menu.Item>
-        <Menu.Item key='logout' onClick={() => dispatch(authActions.userLogoutRequest())}>
+        <Menu.Item key='logout' onClick={() => dispatch(identityActions.userLogoutRequest())}>
           <Link to='/'>
             <Icon type='logout' />
             <Typography.Text>Logout</Typography.Text>

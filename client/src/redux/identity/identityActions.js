@@ -1,7 +1,9 @@
-import * as t from './authTypes';
+import * as t from './identityTypes';
 import { errorActions } from '../error';
 import apiClient from '../../utils/apiClient';
+import { identityActions } from '.';
 
+// Authentication
 export const setCurrentUserRequest = () => async dispatch => {
   dispatch({ type: t.USER_LOADING });
   const accessToken = localStorage.getItem('access_token');
@@ -65,6 +67,7 @@ export const userLogoutRequest = () => dispatch => {
   localStorage.removeItem('access_token');
 };
 
+// Password Reset Flow
 export const forgotPasswordRequest = credentials => async dispatch => {
   try {
     await apiClient.post('auth/password-forgot', { data: credentials });
@@ -96,7 +99,7 @@ export const validateResetToken = resetToken => async dispatch => {
   }
 };
 
-// Update user avatar image
+// User Profile Information
 export const updateUserAvatar = userData => async dispatch => {
   try {
     const formData = new FormData();
@@ -111,7 +114,6 @@ export const updateUserAvatar = userData => async dispatch => {
   }
 };
 
-// Delete profile image
 export const deleteUserAvatar = avatarUrl => async dispatch => {
   try {
     await apiClient.del('user/delete-avatar', { data: { avatarUrl } });
@@ -121,7 +123,6 @@ export const deleteUserAvatar = avatarUrl => async dispatch => {
   }
 };
 
-// Update user account details
 export const updateUserAccount = userData => async dispatch => {
   try {
     await apiClient.post('user/edit-account', { data: userData });
@@ -138,7 +139,6 @@ export const updateUserAccount = userData => async dispatch => {
   }
 };
 
-// Change user password
 export const changeUserPassword = userData => async dispatch => {
   try {
     await apiClient.post('user/change-password', { data: userData });
@@ -148,5 +148,17 @@ export const changeUserPassword = userData => async dispatch => {
     dispatch(errorActions.getErrors(err));
     dispatch({ type: t.CHANGE_PASSWORD_FAILURE });
     return Promise.reject(err);
+  }
+};
+
+// User Profile Collections
+export const fetchUsersPets = () => async dispatch => {
+  dispatch({ type: t.FETCH_USERS_PETS });
+  try {
+    const pets = await apiClient.get('user/pets');
+    dispatch({ type: t.FETCH_USERS_PETS_SUCCESS, payload: pets });
+  } catch (err) {
+    console.log(err);
+    dispatch({ type: t.FETCH_USERS_PETS_FAILURE });
   }
 };

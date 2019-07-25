@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { navigate } from '@reach/router';
-import { authActions } from '../redux/auth';
+import { identityActions } from '../redux/identity';
 import { toastActions } from '../redux/toast';
 import { Form, Icon, Input, Col, Row, Divider, Tooltip, Button, Card, Typography, Alert } from 'antd';
 
@@ -25,14 +25,14 @@ function ResetPasswordForm(props) {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
-  const authErr = useSelector(state => state.error);
+  const UIError = useSelector(state => state.error);
 
   useEffect(() => {
     if (showServerError) {
-      if (authErr.status === 422) {
+      if (UIError.status === 422) {
         let errorsMap = {};
 
-        authErr.data.validation.details.forEach(errObj => {
+        UIError.data.validation.details.forEach(errObj => {
           errorsMap[errObj.context.label] = {
             value: getFieldsValue()[errObj.context.label],
             errors: [new Error(errObj.message)],
@@ -40,18 +40,18 @@ function ResetPasswordForm(props) {
         });
 
         setFields(errorsMap);
-      } else if (authErr.status === 400) {
-        if (authErr.message.startsWith('No user')) {
+      } else if (UIError.status === 400) {
+        if (UIError.message.startsWith('No user')) {
           setFields({
             email: {
               value: getFieldValue('email'),
-              errors: [new Error(authErr.message)],
+              errors: [new Error(UIError.message)],
             },
           });
         }
       }
     }
-  }, [authErr, authErr.status, showServerError, getFieldValue, getFieldsValue, setFields]);
+  }, [UIError, UIError.status, showServerError, getFieldValue, getFieldsValue, setFields]);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -59,7 +59,7 @@ function ResetPasswordForm(props) {
       if (!formErrors) {
         try {
           setLoading(true);
-          await dispatch(authActions.resetPasswordRequest({ ...formData, resetToken }));
+          await dispatch(identityActions.resetPasswordRequest({ ...formData, resetToken }));
           dispatch(toastActions.addToast({ type: 'success', msg: 'Your password has been changed' }));
           setShowEmailSentSuccess(true);
           navigate('/login');

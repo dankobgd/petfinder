@@ -1,10 +1,11 @@
-import * as t from './authTypes';
+import * as t from './identityTypes';
 
 const initialState = {
   accessToken: localStorage.getItem('access_token'),
   isAuthenticated: false,
   isLoading: false,
   user: null,
+  pets: [],
 };
 
 const reducer = (state = initialState, action) => {
@@ -57,10 +58,20 @@ const reducer = (state = initialState, action) => {
           result[cur] = state.user[cur];
           return result;
         }, {});
-
       return {
         ...state,
         user: { ...withoutAvatar },
+      };
+    case t.FETCH_USERS_PETS:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case t.FETCH_USERS_PETS_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        pets: action.payload.pets,
       };
     default:
       return state;
