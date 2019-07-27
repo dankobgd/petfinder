@@ -1,10 +1,10 @@
 import React from 'react';
-import { Typography, Result, Icon, Descriptions } from 'antd';
+import { Typography, Result, Icon, Descriptions, Spin, message } from 'antd';
 import { navigate } from '@reach/router';
 import { PreviousStep, SuccessSubmitButton } from './StepperButton';
-import { petActions } from '../../redux/pet';
+import { identityActions } from '../../redux/identity';
 import { toastActions } from '../../redux/toast';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 function DetailsList({ data }) {
   const details = data.filter(d => d.name !== 'profileImage' && d.name !== 'galleryImages');
@@ -29,28 +29,38 @@ function DetailsList({ data }) {
 }
 
 function ConfirmAdd({ formFields, current, prevStep }) {
+  const loading = useSelector(state => state.identity.isLoading);
   const dispatch = useDispatch();
 
   const data = Object.entries(formFields)
     .map(([name, obj]) => ({ name, value: obj.value }))
     .filter(elm => elm.name !== 'onChange');
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    const hideMsgLoading = message.loading('Creating new pet listing', 0);
+
     try {
-      dispatch(petActions.createPetRequest(data));
-      dispatch(toastActions.addToast({ type: 'success', msg: 'Added new pet for adoption' }));
+      await dispatch(identityActions.createPet(data));
+      await dispatch(identityActions.fetchUsersPets());
+      hideMsgLoading();
       navigate('./created');
+      dispatch(toastActions.addToast({ type: 'success', msg: 'Added new pet for adoption' }));
     } catch (err) {
       console.error(err);
     }
   };
 
+  const antIcon = <Icon type='loading' style={{ fontSize: 24 }} spin />;
+
   return (
     <div>
       <Result icon={<Icon type='smile' theme='twoTone' />} title='Success, do you wish to add a new pet for adoption' />
       <DetailsList data={data} />
-      <PreviousStep current={current} onClick={prevStep} />
-      <SuccessSubmitButton onClick={onSubmit} />
+
+      {loading && <Spin indicator={antIcon} />}
+
+      <PreviousStep current={current} onClick={prevStep} disabled={loading} />
+      <SuccessSubmitButton onClick={onSubmit} loading={loading} />
     </div>
   );
 }

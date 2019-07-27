@@ -2,7 +2,6 @@ import { message } from 'antd';
 
 function Toast({ msg, type, removeToast }) {
   message.config({
-    top: 80,
     duration: 3,
   });
 

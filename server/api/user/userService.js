@@ -35,10 +35,10 @@ module.exports = {
              GROUP_CONCAT(DISTINCT images.url) AS images,
              GROUP_CONCAT(DISTINCT colors.color) AS colors
       FROM animals as a
-             INNER JOIN contacts ON a.id = contacts.animal_id
-             INNER JOIN tags ON a.id = tags.animal_id
-             INNER JOIN colors ON a.id = colors.animal_id
-             INNER JOIN images ON a.id = images.animal_id
+             LEFT JOIN contacts ON a.id = contacts.animal_id
+             LEFT JOIN tags ON a.id = tags.animal_id
+             LEFT JOIN colors ON a.id = colors.animal_id
+             LEFT JOIN images ON a.id = images.animal_id
       WHERE user_id = ?
       GROUP BY a.id
     `,

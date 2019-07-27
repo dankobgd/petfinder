@@ -1,7 +1,6 @@
 import * as t from './identityTypes';
 import { errorActions } from '../error';
 import apiClient from '../../utils/apiClient';
-import { identityActions } from '.';
 
 // Authentication
 export const setCurrentUserRequest = () => async dispatch => {
@@ -154,11 +153,37 @@ export const changeUserPassword = userData => async dispatch => {
 // User Profile Collections
 export const fetchUsersPets = () => async dispatch => {
   dispatch({ type: t.FETCH_USERS_PETS });
+
   try {
     const pets = await apiClient.get('user/pets');
     dispatch({ type: t.FETCH_USERS_PETS_SUCCESS, payload: pets });
   } catch (err) {
     console.log(err);
     dispatch({ type: t.FETCH_USERS_PETS_FAILURE });
+  }
+};
+
+export const createPet = petData => async dispatch => {
+  dispatch({ type: t.CREATE_PET_REQUEST });
+
+  try {
+    const profileImage = petData.find(x => x.name === 'profileImage');
+    const galleryImages = petData.filter(x => x.name === 'galleryImages');
+    const data = petData.filter(x => x.name !== 'profileImage' && x.name !== 'galleryImagse');
+    const formData = new FormData();
+
+    data.forEach(elm => formData.append(`${elm.name}`, elm.value));
+    formData.append('profileImage', profileImage.value[0].originFileObj);
+    galleryImages[0].value.map(val => formData.append('galleryImages', val.originFileObj));
+
+    await apiClient.post('animals/create', { data: formData });
+    dispatch({
+      type: t.CREATE_PET_SUCCESS,
+      payload: { data },
+    });
+    return Promise.resolve();
+  } catch (err) {
+    dispatch({ type: t.CREATE_PET_FAILURE });
+    return Promise.reject(err);
   }
 };

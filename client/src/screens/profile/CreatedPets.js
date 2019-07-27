@@ -7,7 +7,6 @@ import { Tabs, Icon } from 'antd';
 function CreatedPets() {
   const dispatch = useDispatch();
   const pets = useSelector(state => state.identity.pets);
-
   const adopted = pets.filter(p => p.status === 'adopted');
   const adoptable = pets.filter(p => p.status === 'adoptable');
 
@@ -32,6 +31,7 @@ function CreatedPets() {
           <PetsList pets={pets} />
         </Tabs.TabPane>
         <Tabs.TabPane
+          disabled={!adopted.length}
           tab={
             <span>
               <Icon type='fire' />
