@@ -4,8 +4,14 @@ import { Card } from 'antd';
 function PetCard({ pet }) {
   return (
     <Card
-      style={{ height: '100%' }}
-      cover={<img alt={pet.name} src={pet.imageUrl} style={{ width: '100%', height: '250px', objectFit: 'cover' }} />}
+      style={{ height: '100%', borderRadius: 20 }}
+      cover={
+        <img
+          alt={pet.name}
+          src={pet.imageUrl}
+          style={{ width: '100%', height: '250px', objectFit: 'cover', borderRadius: '20px 20px 0 0' }}
+        />
+      }
     >
       <Card.Meta title={pet.name} description={pet.primaryBreed} />
       <div style={{ paddingTop: '6px ' }}>
