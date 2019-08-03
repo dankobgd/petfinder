@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Divider, Row, Col } from 'antd';
+import { Card, Typography, Divider } from 'antd';
 import { useSelector } from 'react-redux';
 import ImageGallery from 'react-image-gallery';
 import LeafletMap from './LeafletMap';

@@ -8,7 +8,7 @@ function LeftMenu({ mode }) {
       <Menu.Item key='home'>
         <Link to='/'>Home</Link>
       </Menu.Item>
-      <Menu.Item key='search-pets'>
+      <Menu.Item key='search'>
         <Link to='/search'>Search Pets</Link>
       </Menu.Item>
     </Menu>

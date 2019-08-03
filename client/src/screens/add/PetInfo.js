@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Tooltip, Row, Col } from 'antd';
 import { NextStep } from './StepperButton';
-import { cats, dogs } from './_data';
+import { cats, dogs } from '../../data/pets';
 import getBase64 from '../../utils/getBase64';
 
 const { Option } = Select;

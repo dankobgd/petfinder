@@ -13,6 +13,7 @@ import Login from './components/auth-form/Login';
 import ForgotPassword from './screens/ForgotPassword';
 import ResetPassword from './screens/ResetPassword';
 import Profile from './screens/profile/Profile';
+import Search from './screens/search/Search';
 import { PrivateRoute, PublicRoute, GuestRoute } from './components/route/Auth';
 
 function App() {
@@ -32,7 +33,8 @@ function App() {
           <GuestRoute path='login' component={Login} />
           <PublicRoute path='password-forgot' component={ForgotPassword} />
           <PublicRoute path='password-reset/:resetToken' component={ResetPassword} />
-          {<PrivateRoute path='profile/*' component={Profile} />}
+          <PublicRoute path='search' component={Search} />
+          <PrivateRoute path='profile/*' component={Profile} />
           <NotFound default />
         </Router>
       </div>
