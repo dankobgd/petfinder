@@ -1,14 +1,11 @@
 const createError = require('http-errors');
 const AnimalService = require('./animalsService');
-const { cleanupUploadFiles } = require('../../utils/cleanupUploadFiles');
 
 // Get animals
 exports.getAnimals = async (req, res, next) => {
-  // const animals = await AnimalService.getAnimals();
-  // res.status(200).json({ animals });
-
-  console.log(req.query);
-  res.json(req.query);
+  const filteredResults = await AnimalService.getSearchFilterResults(req.query);
+  console.log(filteredResults);
+  res.status(200).json({ animals: filteredResults });
 };
 
 // Get animal

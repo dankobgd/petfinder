@@ -1,14 +1,14 @@
 export default {
   type: undefined,
   distance: undefined,
-  cityOrZip: undefined,
+  zip: undefined,
   age: [],
   size: [],
   gender: [],
   breed: [],
   goodWith: [],
   care: [],
-  coat: [],
+  coatLength: [],
   color: [],
   days: [],
 };
