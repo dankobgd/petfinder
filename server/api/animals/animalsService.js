@@ -5,6 +5,7 @@ const config = require('../../config');
 const knex = require('../../db/connection');
 
 function toLowerCase(obj) {
+  /* eslint-disable-next-line */
   const arr = Object.entries(obj).map(([k, v]) => {
     if (typeof v === 'string') {
       return [k, v.toLowerCase()];
@@ -67,6 +68,21 @@ module.exports = {
     });
   },
 
+  async getCoordsFromZIP(postalCode) {
+    return new Promise((resolve, reject) => {
+      let [zip, cc] = postalCode.split(',');
+      zip = encodeURIComponent(zip.trim());
+      cc = encodeURIComponent(cc.trim());
+
+      const geocodeURI = `https://us1.locationiq.org/v1/search.php?key=${config.geocodingApiKey}&format=json&postalcode=${zip}&countrycodes=${cc}`;
+
+      request(geocodeURI, (error, response, body) => {
+        if (error) return reject(error);
+        resolve(JSON.parse(body));
+      });
+    });
+  },
+
   async createPet(obj) {
     const data = {};
 
@@ -102,24 +118,26 @@ module.exports = {
       }
     });
 
-    const animalId = await knex('animals').insert({
-      user_id: data.user_id,
-      name: data.name,
-      type: data.type,
-      species: data.species,
-      gender: data.gender,
-      age: data.age,
-      coatLength: data.coatLength,
-      size: data.size,
-      description: data.description,
-      imageUrl: data.imageUrl,
-      status: 'adoptable',
-      primaryBreed: data.primaryBreed,
-      secondaryBreed: data.secondaryBreed,
-      mixedBreed: Number(!!data.mixedBreed),
-      unknownBreed: Number(!!data.unknownBreed),
-      ...petAttributes,
-    });
+    const animalId = await knex('animals')
+      .insert({
+        user_id: data.userId,
+        name: data.name,
+        type: data.type,
+        species: data.species,
+        gender: data.gender,
+        age: data.age,
+        coat_length: data.coatLength,
+        size: data.size,
+        description: data.description,
+        image_url: data.imageUrl,
+        status: 'adoptable',
+        primary_breed: data.primaryBreed,
+        secondary_breed: data.secondaryBreed,
+        mixed_breed: Number(!!data.mixedBreed),
+        unknown_breed: Number(!!data.unknownBreed),
+        ...petAttributes,
+      })
+      .returning('id');
 
     await knex('contacts').insert({
       animal_id: animalId[0],
@@ -128,9 +146,9 @@ module.exports = {
       country: data.country,
       city: data.city,
       address: data.address,
-      lat: data.lat,
-      lng: data.lng,
-      zip: '11000',
+      zip: data.zip,
+      lat: Number.parseFloat(data.lat),
+      lng: Number.parseFloat(data.lng),
     });
 
     const c = obj.colors.split(',').map(color => knex('colors').insert({ animal_id: animalId[0], color }));
@@ -168,65 +186,51 @@ module.exports = {
   async getSearchFilterResults(payload) {
     const options = toLowerCase(payload);
 
+    const geoData = await this.getCoordsFromZIP(options.zip);
+    const { lat, lon } = geoData[0];
+    const parseCoordinate = coord => Number.parseFloat(coord);
+    const getSearchDistance = d => Number.parseInt(d.substr(0, d.length - 2), 10);
+
+    const searchLatitude = parseCoordinate(lat);
+    const searchLongitude = parseCoordinate(lon);
+
     const queries = [
       `
-      SELECT a.id,
-          a.user_id,
-          a.name,
-          a.type,
-          a.species,
-          a.gender,
-          a.age,
-          a.coatLength,
-          a.size,
-          a.status,
-          a.imageUrl,
-          a.description,
-          a.declawed,
-          a.vaccinated,
-          a.special_needs,
-          a.house_trained,
-          a.spayed_neutered,
-          a.good_with_kids,
-          a.good_with_cats,
-          a.good_with_dogs,
-          a.primaryBreed,
-          a.secondaryBreed,
-          a.mixedBreed,
-          a.unknownBreed,
-          a.created_at,
-          a.updated_at,
-          contacts.animal_id,
+      SELECT
+          (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat))
+            * COS(RADIANS(contacts.lng) - RADIANS(?))
+            + SIN(RADIANS(?)) * SIN(RADIANS(contacts.lat)))
+          ) as distance,
+          a.*,
           contacts.phone,
           contacts.email,
           contacts.country,
           contacts.city,
           contacts.address,
-          contacts.zip,
           contacts.lat,
           contacts.lng,
-          GROUP_CONCAT(DISTINCT tags.text) AS tags,
-          GROUP_CONCAT(DISTINCT images.url) AS images,
-          GROUP_CONCAT(DISTINCT colors.color) AS colors
+          COALESCE(JSON_AGG(DISTINCT tags.text) FILTER (WHERE tags.animal_id IS NOT NULL), NULL) AS tags,
+          COALESCE(JSON_AGG(DISTINCT images.url) FILTER (WHERE images.animal_id IS NOT NULL), NULL) AS images,
+          COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL) AS colors
       FROM animals as a
           LEFT JOIN contacts ON a.id = contacts.animal_id
           LEFT JOIN tags ON a.id = tags.animal_id
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
       WHERE a.type = ?
-      AND contacts.zip = ?
     `,
     ];
 
-    const bindings = [options.type, options.zip];
+    // const bindings = [options.type];
+    const bindings = [searchLatitude, searchLongitude, searchLatitude, options.type];
 
-    const addFilterStatement = createDynamicQuery(queries, bindings);
+    const addFilterCondition = createDynamicQuery(queries, bindings);
 
-    addFilterStatement(options.name, 'a.name');
-    addFilterStatement(options.age, 'a.age');
-    addFilterStatement(options.gender, 'a.gender');
-    addFilterStatement(options.coatLength, 'a.coatLength');
-    addFilterStatement(options.size, 'a.size');
+    addFilterCondition(options.name, 'a.name');
+    addFilterCondition(options.age, 'a.age');
+    addFilterCondition(options.gender, 'a.gender');
+    addFilterCondition(options.coat_length, 'a.coat_length');
+    addFilterCondition(options.size, 'a.size');
 
     // handle good_with cases
     if (options.goodWith) {
@@ -254,15 +258,15 @@ module.exports = {
     // handle breeds
     if (options.breed) {
       if (typeof options.breed === 'string') {
-        queries.push(`AND (a.primaryBreed = ? OR a.secondaryBreed = ?)`);
+        queries.push(`AND (a.primary_breed = ? OR a.secondary_breed = ?)`);
         bindings.push(options.breed, options.breed);
       } else if (Array.isArray(options.breed)) {
         const [first, ...rest] = options.breed;
-        queries.push(`AND (a.primaryBreed = ? OR a.secondaryBreed = ?)`);
+        queries.push(`AND (a.primary_breed = ? OR a.secondary_breed = ?)`);
         bindings.push(first, first);
         rest.forEach(x => {
           const v = _.lowerCase(x);
-          queries.push(`OR (a.primaryBreed = ? OR a.secondaryBreed = ?)`);
+          queries.push(`OR (a.primary_breed = ? OR a.secondary_breed = ?)`);
           bindings.push(v, v);
         });
       }
@@ -273,16 +277,27 @@ module.exports = {
       queries.push(`AND DATE(a.created_at) <= DATE('now', '-${options.days} day')`);
     }
 
-    queries.push('GROUP BY a.id');
+    // GROUP BY CLAUSE
+    queries.push('GROUP BY a.id, contacts.id');
+
+    // AGGREGATE FUNCTIONS after GROUP BY...
+    if (options.distance.toLowerCase() !== 'anywhere') {
+      const searchDistance = getSearchDistance(options.distance);
+      queries.push(`HAVING (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat))
+                      * COS(RADIANS(contacts.lng) - RADIANS(?))
+                      + SIN(RADIANS(?)) * SIN(RADIANS(contacts.lat)))) < ?`);
+
+      bindings.push(searchLatitude, searchLongitude, searchLatitude, searchDistance);
+    }
 
     // handle colors aggregate having case
     if (options.color) {
       if (typeof options.color === 'string') {
-        queries.push('HAVING colors LIKE ?');
+        queries.push('AND colors LIKE ?');
         bindings.push(`%${options.color}%`);
       } else if (Array.isArray(options.color)) {
         const [first, ...rest] = options.color;
-        queries.push('HAVING colors LIKE ?');
+        queries.push('AND colors LIKE ?');
         bindings.push(`%${first}%`);
         rest.forEach(x => {
           queries.push('OR colors LIKE ?');

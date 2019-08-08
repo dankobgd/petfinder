@@ -8,12 +8,12 @@ function PetCard({ pet }) {
       cover={
         <img
           alt={pet.name}
-          src={pet.imageUrl}
+          src={pet.image_url}
           style={{ width: '100%', height: '250px', objectFit: 'cover', borderRadius: '20px 20px 0 0' }}
         />
       }
     >
-      <Card.Meta title={pet.name} description={pet.primaryBreed} />
+      <Card.Meta title={pet.name} description={pet.primary_breed} />
       <div style={{ paddingTop: '6px ' }}>
         <span>
           {pet.gender} - {pet.age}

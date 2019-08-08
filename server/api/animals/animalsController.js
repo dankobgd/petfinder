@@ -3,9 +3,8 @@ const AnimalService = require('./animalsService');
 
 // Get animals
 exports.getAnimals = async (req, res, next) => {
-  const filteredResults = await AnimalService.getSearchFilterResults(req.query);
-  console.log(filteredResults);
-  res.status(200).json({ animals: filteredResults });
+  const results = await AnimalService.getSearchFilterResults(req.query);
+  res.status(200).json({ animals: results.rows });
 };
 
 // Get animal
@@ -29,13 +28,20 @@ exports.createAnimal = async (req, res, next) => {
 
     const results = await AnimalService.getCoordsFromAddress(req.body.address.trim());
 
+    const extractZip = address =>
+      address
+        .split(',')
+        .reverse()[1]
+        .trim();
+
     const data = {
       ...req.body,
-      user_id: userId,
+      userId,
       imageUrl: profileImageData.secure_url,
+      gallery: galleryURIs,
       lat: results[0].lat,
       lng: results[0].lon,
-      gallery: galleryURIs,
+      zip: extractZip(results[0].display_name),
     };
 
     await AnimalService.createPet(data);

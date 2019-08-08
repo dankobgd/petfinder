@@ -11,10 +11,10 @@ exports.up = knex =>
     t.string('species').notNullable();
     t.string('gender').notNullable();
     t.string('age').notNullable();
-    t.string('coatLength').notNullable();
+    t.string('coat_length').notNullable();
     t.string('size').notNullable();
     t.string('status').notNullable();
-    t.string('imageUrl').notNullable();
+    t.string('image_url').notNullable();
     t.string('description');
 
     // attributes
@@ -28,10 +28,10 @@ exports.up = knex =>
     t.boolean('good_with_dogs').defaultTo(1);
 
     // breeds
-    t.string('primaryBreed');
-    t.string('secondaryBreed');
-    t.boolean('mixedBreed').defaultTo(0);
-    t.boolean('unknownBreed').defaultTo(0);
+    t.string('primary_breed');
+    t.string('secondary_breed');
+    t.boolean('mixed_breed').defaultTo(0);
+    t.boolean('unknown_breed').defaultTo(0);
 
     t.timestamp('created_at')
       .notNullable()

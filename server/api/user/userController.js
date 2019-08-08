@@ -63,7 +63,7 @@ exports.getUsersPets = async (req, res, next) => {
 
   try {
     const pets = await UserService.getUsersPets(userId);
-    res.status(200).json({ pets });
+    res.status(200).json({ pets: pets.rows });
   } catch (err) {
     return next(createError.BadRequest('Could not fetch pets'));
   }

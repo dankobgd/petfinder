@@ -24,51 +24,25 @@ module.exports = {
   async getUsersPets(userId) {
     return knex.raw(
       `
-      SELECT a.id,
-          a.user_id,
-          a.name,
-          a.type,
-          a.species,
-          a.gender,
-          a.age,
-          a.coatLength,
-          a.size,
-          a.status,
-          a.imageUrl,
-          a.description,
-          a.declawed,
-          a.vaccinated,
-          a.special_needs,
-          a.house_trained,
-          a.spayed_neutered,
-          a.good_with_kids,
-          a.good_with_cats,
-          a.good_with_dogs,
-          a.primaryBreed,
-          a.secondaryBreed,
-          a.mixedBreed,
-          a.unknownBreed,
-          a.created_at,
-          a.updated_at,
-          contacts.animal_id,
+      SELECT
+          a.*,
           contacts.phone,
           contacts.email,
           contacts.country,
           contacts.city,
           contacts.address,
-          contacts.zip,
           contacts.lat,
           contacts.lng,
-          GROUP_CONCAT(DISTINCT tags.text) AS tags,
-          GROUP_CONCAT(DISTINCT images.url) AS images,
-          GROUP_CONCAT(DISTINCT colors.color) AS colors
+          COALESCE(JSON_AGG(DISTINCT tags.text) FILTER (WHERE tags.animal_id IS NOT NULL), NULL) AS tags,
+          COALESCE(JSON_AGG(DISTINCT images.url) FILTER (WHERE images.animal_id IS NOT NULL), NULL) AS images,
+          COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL) AS colors
       FROM animals as a
           LEFT JOIN contacts ON a.id = contacts.animal_id
           LEFT JOIN tags ON a.id = tags.animal_id
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
       WHERE user_id = ?
-      GROUP BY a.id
+      GROUP BY a.id, contacts.id
     `,
       [userId]
     );

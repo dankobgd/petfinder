@@ -37,11 +37,11 @@ function PetSingle(props) {
 
   if (!pet.images) {
     galleryImages.push({
-      original: pet.imageUrl,
-      thumbnail: getImageThumb(pet.imageUrl),
+      original: pet.image_url,
+      thumbnail: getImageThumb(pet.image_url),
     });
   } else {
-    pet.images.split(',').forEach(img => {
+    pet.images.forEach(img => {
       galleryImages.push({
         original: img,
         thumbnail: getImageThumb(img),
@@ -60,7 +60,12 @@ function PetSingle(props) {
 
   return (
     <div>
-      <ImageGallery items={galleryImages} autoPlay={true} slideInterval={5000} />
+      <ImageGallery
+        showPlayButton={galleryImages.length !== 1}
+        items={galleryImages}
+        autoPlay={true}
+        slideInterval={5000}
+      />
 
       <Card style={{ borderRadius: 20, marginTop: '1rem' }}>
         <div>

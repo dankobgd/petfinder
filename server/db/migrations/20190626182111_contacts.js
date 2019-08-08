@@ -10,8 +10,8 @@ exports.up = knex =>
     t.string('city').notNullable();
     t.string('address').notNullable();
     t.string('zip').notNullable();
-    t.string('lat').notNullable();
-    t.string('lng').notNullable();
+    t.float('lat', 11, 8).notNullable();
+    t.float('lng', 11, 8).notNullable();
     t.timestamp('created_at')
       .notNullable()
       .defaultTo(knex.fn.now());
