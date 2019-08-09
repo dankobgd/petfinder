@@ -1,6 +1,12 @@
 const createError = require('http-errors');
 const AnimalService = require('./animalsService');
 
+// Return country short code
+exports.getCountryCode = async (req, res, next) => {
+  const countrycode = await AnimalService.getCountryShortCode(req.body.loc);
+  res.status(200).json(countrycode);
+};
+
 // Get animals
 exports.getAnimals = async (req, res, next) => {
   const results = await AnimalService.getSearchFilterResults(req.query);

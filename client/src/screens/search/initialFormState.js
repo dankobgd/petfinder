@@ -2,6 +2,7 @@ export default {
   type: undefined,
   distance: undefined,
   zip: undefined,
+  countryCode: undefined,
   age: [],
   size: [],
   gender: [],

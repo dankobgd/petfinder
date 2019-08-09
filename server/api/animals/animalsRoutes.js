@@ -13,4 +13,6 @@ router.delete('/delete/:id', AnimalsController.deleteAnimal);
 router.get('/types', AnimalsController.getTypes);
 router.get('/types/:type', AnimalsController.getType);
 
+router.post('/countrycode', AnimalsController.getCountryCode);
+
 module.exports = router;

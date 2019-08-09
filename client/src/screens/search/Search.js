@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Col, Form, Input, Select, Button, Icon, Layout, message } from 'antd';
 import { cats } from '../../data/pets';
 import { navigate } from '@reach/router';
@@ -89,6 +89,10 @@ function SearchPage() {
       updateQueryParam('distance');
       updateQueryParam('zip');
 
+      if (formState['countryCode']) {
+        updateQueryParam('countryCode');
+      }
+
       const queryStr = urlParams.toString();
       navigate(pathname + '?' + queryStr);
       apiClient.get(`animals?${queryStr}`);
@@ -141,6 +145,24 @@ function SearchPage() {
     }
   };
 
+  useEffect(() => {
+    async function getCountryCode() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async pos => {
+          const loc = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+
+          const cc = await apiClient.post('animals/countrycode', { data: { loc } });
+          setFormState({ countryCode: cc.toUpperCase() });
+        });
+      }
+    }
+
+    getCountryCode();
+  }, []);
+
   return (
     <>
       <Layout style={{ padding: '0 24px' }}>
@@ -183,13 +205,26 @@ function SearchPage() {
               </Select>
             </Col>
             <Col xs={12} sm={12} md={4} lg={4} xl={4}>
-              <Input
-                prefix={<Icon type='search' />}
-                size='large'
-                placeholder='ZIP Code'
-                onChange={handleChange('zip')}
-                value={formState['zip'] || ''}
-              />
+              <Input.Group compact>
+                <Input
+                  prefix={<Icon type='search' />}
+                  size='large'
+                  placeholder='ZIP Code'
+                  onChange={handleChange('zip')}
+                  value={formState['zip']}
+                  style={{ width: '70%' }}
+                />
+                <Input
+                  size='large'
+                  placeholder='CC'
+                  onChange={e => {
+                    e.persist();
+                    setFormState(st => ({ ...st, countryCode: e.target.value }));
+                  }}
+                  value={formState['countryCode']}
+                  style={{ width: '30%' }}
+                />
+              </Input.Group>
             </Col>
             <Col xs={12} sm={12} md={4} lg={4} xl={4}>
               <Button type='primary' size='large' onClick={searchPets}>

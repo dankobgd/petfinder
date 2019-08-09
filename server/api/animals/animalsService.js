@@ -68,17 +68,29 @@ module.exports = {
     });
   },
 
-  async getCoordsFromZIP(postalCode) {
+  async getCoordsFromZIP(zipCode, countryCode) {
     return new Promise((resolve, reject) => {
-      let [zip, cc] = postalCode.split(',');
-      zip = encodeURIComponent(zip.trim());
-      cc = encodeURIComponent(cc.trim());
+      const zip = encodeURIComponent(zipCode);
+      const cc = encodeURIComponent(countryCode);
 
-      const geocodeURI = `https://us1.locationiq.org/v1/search.php?key=${config.geocodingApiKey}&format=json&postalcode=${zip}&countrycodes=${cc}`;
+      const baseURI = `https://us1.locationiq.org/v1/search.php?key=${config.geocodingApiKey}&format=json&postalcode=${zip}`;
+      const countryCodeQuery = `&countrycodes=${cc}`;
+      const geocodeURI = !cc ? baseURI : baseURI + countryCodeQuery;
 
       request(geocodeURI, (error, response, body) => {
         if (error) return reject(error);
         resolve(JSON.parse(body));
+      });
+    });
+  },
+
+  async getCountryShortCode({ lat, lng }) {
+    return new Promise((resolve, reject) => {
+      const geocodeURI = `https://us1.locationiq.org/v1/reverse.php?key=${config.geocodingApiKey}&format=json&lat=${lat}&lon=${lng}`;
+      request(geocodeURI, (error, response, body) => {
+        if (error) return reject(error);
+        const b = JSON.parse(body);
+        resolve(b.address.country_code);
       });
     });
   },
@@ -186,7 +198,7 @@ module.exports = {
   async getSearchFilterResults(payload) {
     const options = toLowerCase(payload);
 
-    const geoData = await this.getCoordsFromZIP(options.zip);
+    const geoData = await this.getCoordsFromZIP(options.zip, options.countryCode);
     const { lat, lon } = geoData[0];
     const parseCoordinate = coord => Number.parseFloat(coord);
     const getSearchDistance = d => Number.parseInt(d.substr(0, d.length - 2), 10);
