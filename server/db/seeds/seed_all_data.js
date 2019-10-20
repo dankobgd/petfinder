@@ -93,7 +93,7 @@ const createAnimals = ids => {
     secondary_breed: nullable(getRandomItem(breedArr)),
     mixed_breed: faker.random.boolean(),
     unknown_breed: faker.random.boolean(),
-    status: 'adoptable',
+    status: 'Adoptable',
   };
 };
 

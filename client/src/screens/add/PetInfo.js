@@ -65,11 +65,11 @@ function PetInfoForm(props) {
             rules: [{ required: true, message: 'Please select animal type' }],
           })(
             <Radio.Group buttonStyle='solid'>
-              <Radio.Button value='cat'>Cat</Radio.Button>
-              <Radio.Button value='dog'>Dog</Radio.Button>
-              <Radio.Button value='rabbit'>Rabbit</Radio.Button>
-              <Radio.Button value='bird'>Bird</Radio.Button>
-              <Radio.Button value='fish'>Fish</Radio.Button>
+              <Radio.Button value='Cat'>Cat</Radio.Button>
+              <Radio.Button value='Dog'>Dog</Radio.Button>
+              <Radio.Button value='Rabbit'>Rabbit</Radio.Button>
+              <Radio.Button value='Bird'>Bird</Radio.Button>
+              <Radio.Button value='Fish'>Fish</Radio.Button>
             </Radio.Group>
           )}
         </Form.Item>
@@ -79,8 +79,8 @@ function PetInfoForm(props) {
             rules: [{ required: true, message: 'Please select animal gender' }],
           })(
             <Radio.Group buttonStyle='solid'>
-              <Radio.Button value='male'>male</Radio.Button>
-              <Radio.Button value='female'>female</Radio.Button>
+              <Radio.Button value='Male'>Male</Radio.Button>
+              <Radio.Button value='Female'>Female</Radio.Button>
             </Radio.Group>
           )}
         </Form.Item>
@@ -90,10 +90,10 @@ function PetInfoForm(props) {
             rules: [{ required: true, message: 'Please select animal age' }],
           })(
             <Radio.Group buttonStyle='solid'>
-              <Radio.Button value='baby'>baby</Radio.Button>
-              <Radio.Button value='young'>young</Radio.Button>
-              <Radio.Button value='adult'>adult</Radio.Button>
-              <Radio.Button value='senior'>senior</Radio.Button>
+              <Radio.Button value='Baby'>Baby</Radio.Button>
+              <Radio.Button value='Young'>Young</Radio.Button>
+              <Radio.Button value='Adult'>Adult</Radio.Button>
+              <Radio.Button value='Senior'>Senior</Radio.Button>
             </Radio.Group>
           )}
         </Form.Item>
@@ -118,13 +118,13 @@ function PetInfoForm(props) {
               optionFilterProp='children'
               filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
-              {getFieldValue('type') === 'dog'
+              {getFieldValue('type') === 'Dog'
                 ? dogs.breeds.map(dog => (
                     <Option key={dog} value={dog}>
                       {dog}
                     </Option>
                   ))
-                : getFieldValue('type') === 'cat'
+                : getFieldValue('type') === 'Cat'
                 ? cats.breeds.map(cat => (
                     <Option key={cat} value={cat}>
                       {cat}
@@ -143,13 +143,13 @@ function PetInfoForm(props) {
               optionFilterProp='children'
               filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
-              {getFieldValue('type') === 'dog'
+              {getFieldValue('type') === 'Dog'
                 ? dogs.breeds.map(dog => (
                     <Option key={dog} value={dog}>
                       {dog}
                     </Option>
                   ))
-                : getFieldValue('type') === 'cat'
+                : getFieldValue('type') === 'Cat'
                 ? cats.breeds.map(cat => (
                     <Option key={cat} value={cat}>
                       {cat}
@@ -188,10 +188,10 @@ function PetInfoForm(props) {
             rules: [{ required: true, message: 'Please select animal coat length' }],
           })(
             <Radio.Group placeholder='Select coat length' buttonStyle='solid'>
-              <Radio.Button value='hairless'>hairless</Radio.Button>
-              <Radio.Button value='short'>short</Radio.Button>
-              <Radio.Button value='medium'>medium</Radio.Button>
-              <Radio.Button value='long'>long</Radio.Button>
+              <Radio.Button value='Hairless'>Hairless</Radio.Button>
+              <Radio.Button value='Short'>Short</Radio.Button>
+              <Radio.Button value='Medium'>Medium</Radio.Button>
+              <Radio.Button value='Long'>Long</Radio.Button>
             </Radio.Group>
           )}
         </Form.Item>
@@ -201,10 +201,10 @@ function PetInfoForm(props) {
             rules: [{ required: true, message: 'Please select animal size' }],
           })(
             <Radio.Group placeholder='Animal size' buttonStyle='solid'>
-              <Radio.Button value='small'>small</Radio.Button>
-              <Radio.Button value='medium'>medium</Radio.Button>
-              <Radio.Button value='large'>large</Radio.Button>
-              <Radio.Button value='extra_large'>extra large</Radio.Button>
+              <Radio.Button value='Small'>Small</Radio.Button>
+              <Radio.Button value='Medium'>Medium</Radio.Button>
+              <Radio.Button value='Large'>Large</Radio.Button>
+              <Radio.Button value='XL'>Extra Large</Radio.Button>
             </Radio.Group>
           )}
         </Form.Item>
@@ -230,13 +230,13 @@ function PetInfoForm(props) {
               optionFilterProp='children'
               filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
-              {getFieldValue('type') === 'dog'
+              {getFieldValue('type') === 'Dog'
                 ? dogs.colors.map(dog => (
                     <Option key={dog} value={dog}>
                       {dog}
                     </Option>
                   ))
-                : getFieldValue('type') === 'cat'
+                : getFieldValue('type') === 'Cat'
                 ? cats.colors.map(cat => (
                     <Option key={cat} value={cat}>
                       {cat}

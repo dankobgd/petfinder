@@ -10,6 +10,7 @@ exports.getCountryCode = async (req, res, next) => {
 // Get animals
 exports.getAnimals = async (req, res, next) => {
   const results = await AnimalService.getSearchFilterResults(req.query);
+  console.log(results.rows);
   res.status(200).json({ animals: results.rows });
 };
 
@@ -23,7 +24,6 @@ exports.getAnimal = async (req, res, next) => {
 // Create animal
 exports.createAnimal = async (req, res, next) => {
   try {
-    const userId = req.user.sub;
     const profileImage = req.files.find(file => file.fieldname === 'profileImage');
     const galleryImages = req.files.filter(file => file.fieldname === 'galleryImages');
 
@@ -42,7 +42,7 @@ exports.createAnimal = async (req, res, next) => {
 
     const data = {
       ...req.body,
-      userId,
+      userId: req.user.sub,
       imageUrl: profileImageData.secure_url,
       gallery: galleryURIs,
       lat: results[0].lat,
@@ -50,6 +50,7 @@ exports.createAnimal = async (req, res, next) => {
       zip: extractZip(results[0].display_name),
     };
 
+    console.log('PASSED DATA', data);
     await AnimalService.createPet(data);
     res.json(data);
   } catch (err) {

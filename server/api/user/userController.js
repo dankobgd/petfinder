@@ -57,7 +57,7 @@ exports.changePassword = async (req, res, next) => {
   }
 };
 
-// Get user's created pets (adopted | adoptable)
+// Get user's created pets (Adopted | Adoptable)
 exports.getUsersPets = async (req, res, next) => {
   const userId = req.user.sub;
 

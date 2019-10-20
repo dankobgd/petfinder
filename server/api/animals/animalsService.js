@@ -4,16 +4,22 @@ const { cloudinaryUpload } = require('../../services/cloudinary');
 const config = require('../../config');
 const knex = require('../../db/connection');
 
-function toLowerCase(obj) {
-  /* eslint-disable-next-line */
+function lowerizeCase(obj) {
   const arr = Object.entries(obj).map(([k, v]) => {
-    if (typeof v === 'string') {
-      return [k, v.toLowerCase()];
+    const exists = v !== undefined && v !== null && v !== 'undefined';
+
+    if (exists) {
+      if (typeof v === 'string') {
+        return [k, v.toLowerCase()];
+      }
+      if (Array.isArray(v)) {
+        const lowerVal = v.map(x => x.toLowerCase());
+        return [k, lowerVal];
+      }
+      return [k, v];
     }
-    if (Array.isArray(v)) {
-      const lowerVal = v.map(x => x.toLowerCase());
-      return [k, lowerVal];
-    }
+
+    return [k, null];
   });
 
   return Object.fromEntries(arr);
@@ -96,8 +102,8 @@ module.exports = {
   },
 
   async createPet(obj) {
+    // // const data = lowerizeCase(obj);
     const data = {};
-
     Object.entries(obj).forEach(([key, val]) => {
       if (!val || val === 'undefined') {
         data[[key]] = null;
@@ -142,7 +148,7 @@ module.exports = {
         size: data.size,
         description: data.description,
         image_url: data.imageUrl,
-        status: 'adoptable',
+        status: 'Adoptable',
         primary_breed: data.primaryBreed,
         secondary_breed: data.secondaryBreed,
         mixed_breed: Number(!!data.mixedBreed),
@@ -196,7 +202,8 @@ module.exports = {
   },
 
   async getSearchFilterResults(payload) {
-    const options = toLowerCase(payload);
+    // const options = lowerizeCase(payload);
+    const options = payload;
 
     const geoData = await this.getCoordsFromZIP(options.zip, options.countryCode);
     const { lat, lon } = geoData[0];
@@ -238,11 +245,16 @@ module.exports = {
 
     const addFilterCondition = createDynamicQuery(queries, bindings);
 
-    addFilterCondition(options.name, 'a.name');
     addFilterCondition(options.age, 'a.age');
     addFilterCondition(options.gender, 'a.gender');
     addFilterCondition(options.coat_length, 'a.coat_length');
     addFilterCondition(options.size, 'a.size');
+
+    // **************************************************************
+    if (options.name) {
+      queries.push(`AND a.name ILIKE ?`);
+      bindings.push(`%${options.name}%`);
+    }
 
     // handle good_with cases
     if (options.goodWith) {
