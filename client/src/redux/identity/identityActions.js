@@ -158,7 +158,6 @@ export const fetchUsersPets = () => async dispatch => {
     const pets = await apiClient.get('user/pets');
     dispatch({ type: t.FETCH_USERS_PETS_SUCCESS, payload: pets });
   } catch (err) {
-    console.log(err);
     dispatch({ type: t.FETCH_USERS_PETS_FAILURE });
   }
 };

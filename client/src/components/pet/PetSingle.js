@@ -11,6 +11,10 @@ const getImageThumb = originalUrl => {
   return thumb;
 };
 
+function isCloudinaryImageUrl(url) {
+  return url.includes('res.cloudinary')
+}
+
 function Txt({ children, style, ...rest }) {
   return (
     <Typography.Text style={{ fontSize: 18, ...style }} {...rest}>
@@ -32,13 +36,14 @@ function Dot() {
 }
 
 function PetSingle(props) {
-  const pet = useSelector(state => state.identity.pets[props.id - 1]);
+  const pet = useSelector(state => state.identity.pets.find(p => p.id === Number.parseInt(props.id, 10)));
+
   let galleryImages = [];
 
   if (!pet.images) {
     galleryImages.push({
       original: pet.image_url,
-      thumbnail: getImageThumb(pet.image_url),
+      thumbnail: isCloudinaryImageUrl ? getImageThumb(pet.image_url) : pet.image_url,
     });
   } else {
     pet.images.forEach(img => {

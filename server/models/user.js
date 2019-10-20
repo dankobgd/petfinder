@@ -44,7 +44,8 @@ module.exports = knex => {
     const user = await beforeSave(props);
     const insertedId = await knex('users')
       .insert(user)
-      .timeout(base.timeout);
+      .timeout(base.timeout)
+      .returning('id');
 
     return base.findOne({ id: insertedId[0] });
   };
