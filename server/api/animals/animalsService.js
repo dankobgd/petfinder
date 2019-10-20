@@ -240,7 +240,6 @@ module.exports = {
     `,
     ];
 
-    // const bindings = [options.type];
     const bindings = [searchLatitude, searchLongitude, searchLatitude, options.type];
 
     const addFilterCondition = createDynamicQuery(queries, bindings);
@@ -250,7 +249,7 @@ module.exports = {
     addFilterCondition(options.coat_length, 'a.coat_length');
     addFilterCondition(options.size, 'a.size');
 
-    // **************************************************************
+    // Handle pet name fuzzy search
     if (options.name) {
       queries.push(`AND a.name ILIKE ?`);
       bindings.push(`%${options.name}%`);
@@ -261,10 +260,10 @@ module.exports = {
       const prefix = 'good_with_';
       if (typeof options.goodWith === 'string') {
         const stm = `${prefix}${options.goodWith}`;
-        queries.push(`AND a.${stm} = 1`);
+        queries.push(`AND a.${stm} = true`);
       } else if (Array.isArray(options.goodWith)) {
         const gwarr = options.goodWith.map(x => `${prefix}${x}`);
-        gwarr.forEach(x => queries.push(`AND a.${x} = 1`));
+        gwarr.forEach(x => queries.push(`AND a.${x} = true`));
       }
     }
 
@@ -272,10 +271,10 @@ module.exports = {
     if (options.care) {
       if (typeof options.care === 'string') {
         const stm = _.snakeCase(options.care);
-        queries.push(`AND a.${stm} = 1`);
+        queries.push(`AND a.${stm} = true`);
       } else if (Array.isArray(options.care)) {
         const arr = options.care.map(x => _.snakeCase(x));
-        arr.forEach(x => queries.push(`AND a.${x} = 1`));
+        arr.forEach(x => queries.push(`AND a.${x} = true`));
       }
     }
 
@@ -298,7 +297,7 @@ module.exports = {
 
     // handle days on petfinder
     if (options.days) {
-      queries.push(`AND DATE(a.created_at) <= DATE('now', '-${options.days} day')`);
+      queries.push(`AND a.created_at >= (NOW() - INTERVAL '${options.days} days' )`);
     }
 
     // GROUP BY CLAUSE

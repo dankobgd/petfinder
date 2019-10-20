@@ -4,6 +4,9 @@ import { cats } from '../../data/pets';
 import { navigate } from '@reach/router';
 import initialFormState from './initialFormState';
 import apiClient from '../../utils/apiClient';
+import { petsActions } from '../../redux/pets';
+import { useSelector, useDispatch } from 'react-redux';
+import PetsList from '../../components/pet/PetsList';
 
 const { Option } = Select;
 const { Search } = Input;
@@ -27,30 +30,30 @@ const updateFilterUrlQuery = (key, values) => {
 };
 
 function SearchPage() {
-  const [topFilterFilled, setTopFilterFilled] = useState(false);
-  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
-  const [formState, setFormState] = useState(initialFormState);
+  const dispatch = useDispatch();
+  const petsSearchResults = useSelector(state => state.pets.list);
 
-  const handleToggleFilters = () => {
-    setMoreFiltersOpen(flt => !flt);
-  };
+  const [topFilterFilled, setTopFilterFilled] = useState(false);
+  const [formState, setFormState] = useState(initialFormState);
 
   const handleChange = name => e => {
     if (name === 'days') {
       const { search, pathname } = window.location;
       const urlParams = new URLSearchParams(search);
 
+      const doSearch = () => {
+        urlParams.append(name, e);
+        const queryStr = urlParams.toString();
+        navigate(pathname + '?' + queryStr);
+        dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
+        // apiClient.get(`animals?${queryStr}`);
+      };
+
       if (search.includes('days')) {
         urlParams.delete('days');
-        urlParams.append(name, e);
-        const queryStr = urlParams.toString();
-        navigate(pathname + '?' + queryStr);
-        apiClient.get(`animals?${queryStr}`);
+        doSearch();
       } else {
-        urlParams.append(name, e);
-        const queryStr = urlParams.toString();
-        navigate(pathname + '?' + queryStr);
-        apiClient.get(`animals?${queryStr}`);
+        doSearch();
       }
     }
 
@@ -95,14 +98,16 @@ function SearchPage() {
 
       const queryStr = urlParams.toString();
       navigate(pathname + '?' + queryStr);
-      apiClient.get(`animals?${queryStr}`);
+      dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
+      // apiClient.get(`animals?${queryStr}`);
     }
   };
 
   const handleMultiSelect = name => valsArr => {
     setFormState(state => ({ ...state, [name]: valsArr }));
     updateFilterUrlQuery(name, valsArr);
-    apiClient.get(`animals${window.location.search}`);
+    dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
+    // apiClient.get(`animals${window.location.search}`);
   };
 
   const resetFilters = () => {
@@ -135,13 +140,14 @@ function SearchPage() {
       const queryStr = urlParams.toString();
       const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
       navigate(URI);
-      apiClient.get(`animals${window.location.search}`);
+      dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
     } else {
       urlParams.delete(key);
       const queryStr = urlParams.toString();
       const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
       navigate(URI);
-      apiClient.get(`animals${window.location.search}`);
+      dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
+      // apiClient.get(`animals${window.location.search}`);
     }
   };
 
@@ -242,7 +248,6 @@ function SearchPage() {
                   </Button>
                 </Col>
               </Row>
-
               <Row gutter={20} style={{ marginTop: '2.5rem' }}>
                 <Col xs={12} sm={12} md={4} lg={4} xl={4}>
                   <label htmlFor='breed'>Breed</label>
@@ -284,86 +289,63 @@ function SearchPage() {
                     options={['Cats', 'Dogs', 'Kids']}
                   />
                 </Col>
+              </Row>
+              <Row gutter={20} style={{ marginTop: '1.5rem' }}>
                 <Col xs={12} sm={12} md={4} lg={4} xl={4}>
-                  {moreFiltersOpen ? (
-                    <Button style={{ marginTop: 20 }} onClick={handleToggleFilters} icon='minus'>
-                      Less Filters
-                    </Button>
-                  ) : (
-                    <Button style={{ marginTop: 20 }} onClick={handleToggleFilters} icon='plus'>
-                      More Filters
-                    </Button>
-                  )}
+                  <label htmlFor='care'>Care & Behaviour</label>
+                  <MultiSelect
+                    formState={formState}
+                    field='care'
+                    onChange={handleMultiSelect}
+                    options={['House Trained', 'Declawed', 'Special Needs', 'Vaccinated', 'Spayed/Neutered']}
+                  />
+                </Col>
+                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                  <label htmlFor='coatLength'>Coat Length</label>
+                  <MultiSelect
+                    formState={formState}
+                    field='coatLength'
+                    onChange={handleMultiSelect}
+                    options={['Hairless', 'Medium', 'Short', 'Long']}
+                  />
+                </Col>
+                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                  <label htmlFor='color'>Color</label>
+                  <MultiSelect formState={formState} field='color' onChange={handleMultiSelect} options={cats.colors} />
+                </Col>
+                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                  <label htmlFor='days'>Days on Petfinder</label>
+                  <Select
+                    style={{ width: '100%' }}
+                    showSearch
+                    placeholder='Any'
+                    optionFilterProp='children'
+                    filterOption={(input, option) =>
+                      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
+                    onChange={handleChange('days')}
+                    value={formState['days']}
+                  >
+                    {[1, 7, 14, 30].map(opt => (
+                      <Option key={opt} value={opt}>
+                        {opt === 30 ? '30+' : opt}
+                      </Option>
+                    ))}
+                  </Select>
+                </Col>
+
+                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                  <label htmlFor='name'>Pet Name</label>
+                  <Search placeholder='Pet Name' onSearch={onNameSearch} enterButton />
                 </Col>
               </Row>
-
-              {moreFiltersOpen && (
-                <Row gutter={20} style={{ marginTop: '1.5rem' }}>
-                  <Col xs={12} sm={12} md={4} lg={4} xl={4}>
-                    <label htmlFor='care'>Care & Behaviour</label>
-                    <MultiSelect
-                      formState={formState}
-                      field='care'
-                      onChange={handleMultiSelect}
-                      options={['House Trained', 'Declawed', 'Special Needs', 'Vaccinated', 'Spayed/Neutered']}
-                    />
-                  </Col>
-                  <Col xs={12} sm={12} md={4} lg={4} xl={4}>
-                    <label htmlFor='coatLength'>Coat Length</label>
-                    <MultiSelect
-                      formState={formState}
-                      field='coatLength'
-                      onChange={handleMultiSelect}
-                      options={['Hairless', 'Medium', 'Short', 'Long']}
-                    />
-                  </Col>
-                  <Col xs={12} sm={12} md={4} lg={4} xl={4}>
-                    <label htmlFor='color'>Color</label>
-                    <MultiSelect
-                      formState={formState}
-                      field='color'
-                      onChange={handleMultiSelect}
-                      options={cats.colors}
-                    />
-                  </Col>
-                  <Col xs={12} sm={12} md={4} lg={4} xl={4}>
-                    <label htmlFor='days'>Days on Petfinder</label>
-                    <Select
-                      style={{ width: '100%' }}
-                      showSearch
-                      placeholder='Any'
-                      optionFilterProp='children'
-                      filterOption={(input, option) =>
-                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                      }
-                      onChange={handleChange('days')}
-                      value={formState['days']}
-                    >
-                      {[1, 7, 14, 30].map(opt => (
-                        <Option key={opt} value={opt}>
-                          {opt === 30 ? '30+' : opt}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Col>
-
-                  <Col xs={12} sm={12} md={4} lg={4} xl={4}>
-                    <label htmlFor='name'>Pet Name</label>
-                    <Search placeholder='Pet Name' onSearch={onNameSearch} enterButton />
-                  </Col>
-                </Row>
-              )}
             </>
           )}
         </Layout.Content>
       </Layout>
 
-      <div style={{ backgroundColor: '#fff', width: '100%', height: '100%', padding: 0, margin: 0 }}>
-        <Row gutter={20} style={{ marginTop: '2.5rem' }}>
-          <Col xs={12} sm={12} md={4} lg={4} xl={4}>
-            CONTENT
-          </Col>
-        </Row>
+      <div style={{ padding: '3rem' }}>
+        <PetsList pets={petsSearchResults} />
       </div>
     </>
   );

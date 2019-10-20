@@ -38,7 +38,7 @@ function CreatedPets() {
               Adopted
             </span>
           }
-          key='adopted'
+          key='Adopted'
         >
           <PetsList pets={adopted} />
         </Tabs.TabPane>
@@ -49,7 +49,7 @@ function CreatedPets() {
               Adoptable
             </span>
           }
-          key='adoptable'
+          key='Adoptable'
         >
           <PetsList pets={adoptable} />
         </Tabs.TabPane>

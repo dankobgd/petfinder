@@ -10,7 +10,6 @@ exports.getCountryCode = async (req, res, next) => {
 // Get animals
 exports.getAnimals = async (req, res, next) => {
   const results = await AnimalService.getSearchFilterResults(req.query);
-  console.log(results.rows);
   res.status(200).json({ animals: results.rows });
 };
 
@@ -50,7 +49,6 @@ exports.createAnimal = async (req, res, next) => {
       zip: extractZip(results[0].display_name),
     };
 
-    console.log('PASSED DATA', data);
     await AnimalService.createPet(data);
     res.json(data);
   } catch (err) {
