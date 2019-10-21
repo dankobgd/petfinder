@@ -9,8 +9,12 @@ exports.getCountryCode = async (req, res, next) => {
 
 // Get animals
 exports.getAnimals = async (req, res, next) => {
-  const results = await AnimalService.getSearchFilterResults(req.query);
-  res.status(200).json({ animals: results.rows });
+  try {
+    const results = await AnimalService.getSearchFilterResults(req.query);
+    res.status(200).json({ animals: results.rows });
+  } catch (err) {
+    next(createError.BadRequest(err.message));
+  }
 };
 
 // Get animal

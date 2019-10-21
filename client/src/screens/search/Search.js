@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Form, Input, Select, Button, Icon, Layout, message } from 'antd';
+import { Row, Col, Form, Input, Select, Button, Icon, Layout, message, Alert } from 'antd';
 import { cats } from '../../data/pets';
 import { navigate } from '@reach/router';
 import initialFormState from './initialFormState';
@@ -32,6 +32,7 @@ const updateFilterUrlQuery = (key, values) => {
 function SearchPage() {
   const dispatch = useDispatch();
   const petsSearchResults = useSelector(state => state.pets.list);
+  const searchError = useSelector(state => state.error.message);
 
   const [topFilterFilled, setTopFilterFilled] = useState(false);
   const [formState, setFormState] = useState(initialFormState);
@@ -65,7 +66,7 @@ function SearchPage() {
     }
   };
 
-  const searchPets = () => {
+  const searchPets = async () => {
     const { type, distance, zip } = formState;
     const isEmpty = elm => elm === undefined || elm === '';
     const { search, pathname } = window.location;
@@ -87,7 +88,6 @@ function SearchPage() {
     } else if (isEmpty(zip)) {
       message.warn('Need valid ZIP to start');
     } else {
-      setTopFilterFilled(true);
       updateQueryParam('type');
       updateQueryParam('distance');
       updateQueryParam('zip');
@@ -98,7 +98,14 @@ function SearchPage() {
 
       const queryStr = urlParams.toString();
       navigate(pathname + '?' + queryStr);
-      dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
+
+      try {
+        await dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
+        setTopFilterFilled(true);
+      } catch (err) {
+        setTopFilterFilled(false);
+        dispatch(petsActions.clearSearch());
+      }
       // apiClient.get(`animals?${queryStr}`);
     }
   };
@@ -343,6 +350,14 @@ function SearchPage() {
           )}
         </Layout.Content>
       </Layout>
+
+      {searchError && (
+        <Row gutter={20} style={{ marginTop: '2.5rem' }}>
+          <div style={{ margin: '3rem' }}>
+            <Alert message='Search Error' description={searchError} type='error' closable />
+          </div>
+        </Row>
+      )}
 
       <div style={{ padding: '3rem' }}>
         <PetsList pets={petsSearchResults} />

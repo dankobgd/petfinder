@@ -23,6 +23,11 @@ const reducer = (state = initialState, action) => {
         ...state,
         isLoading: false,
       };
+    case t.CLEAR_PETS_SEARCH:
+      return {
+        list: [],
+        isLoading: false,
+      };
     default:
       return state;
   }

@@ -14,8 +14,14 @@ export const searchPetsByFilter = filterPath => async dispatch => {
         pets: res.animals,
       },
     });
+    return res;
   } catch (err) {
     dispatch(errorActions.getErrors(err));
     dispatch({ type: t.SEARCH_PET_FAILURE });
+    return Promise.reject(err);
   }
+};
+
+export const clearSearch = () => dispatch => {
+  dispatch({ type: t.CLEAR_PETS_SEARCH });
 };
