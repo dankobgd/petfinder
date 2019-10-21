@@ -4,27 +4,6 @@ const { cloudinaryUpload } = require('../../services/cloudinary');
 const config = require('../../config');
 const knex = require('../../db/connection');
 
-function lowerizeCase(obj) {
-  const arr = Object.entries(obj).map(([k, v]) => {
-    const exists = v !== undefined && v !== null && v !== 'undefined';
-
-    if (exists) {
-      if (typeof v === 'string') {
-        return [k, v.toLowerCase()];
-      }
-      if (Array.isArray(v)) {
-        const lowerVal = v.map(x => x.toLowerCase());
-        return [k, lowerVal];
-      }
-      return [k, v];
-    }
-
-    return [k, null];
-  });
-
-  return Object.fromEntries(arr);
-}
-
 function createDynamicQuery(queries, bindings) {
   return function(val, stm) {
     if (val) {
@@ -195,18 +174,15 @@ module.exports = {
     }
   },
 
-  getAnimals() {
+  async getAnimals() {
     return knex('animals');
   },
 
-  getSingleAnimal(id) {
+  async getSingleAnimal(id) {
     return knex('animals').where({ id });
   },
 
-  async getSearchFilterResults(payload) {
-    // const options = lowerizeCase(payload);
-    const options = payload;
-
+  async __getSearchFilterResults(options) {
     try {
       const geoData = await this.getCoordsFromZIP(options.zip, options.countryCode);
 
@@ -256,7 +232,7 @@ module.exports = {
 
       addFilterCondition(options.age, 'a.age');
       addFilterCondition(options.gender, 'a.gender');
-      addFilterCondition(options.coat_length, 'a.coat_length');
+      addFilterCondition(options.coatLength, 'a.coat_length');
       addFilterCondition(options.size, 'a.size');
 
       // Handle pet name fuzzy search
@@ -324,20 +300,162 @@ module.exports = {
       }
 
       // handle colors aggregate having case
-      if (options.color) {
-        if (typeof options.color === 'string') {
-          queries.push('AND colors LIKE ?');
-          bindings.push(`%${options.color}%`);
-        } else if (Array.isArray(options.color)) {
-          const [first, ...rest] = options.color;
-          queries.push('AND colors LIKE ?');
-          bindings.push(`%${first}%`);
-          rest.forEach(x => {
-            queries.push('OR colors LIKE ?');
-            bindings.push(`%${x}%`);
-          });
-        }
+      // if (options.color) {
+      //   if (typeof options.color === 'string') {
+      //     queries.push('AND colors LIKE ?');
+      //     bindings.push(`%${options.color}%`);
+      //   } else if (Array.isArray(options.color)) {
+      //     const [first, ...rest] = options.color;
+      //     queries.push('AND colors LIKE ?');
+      //     bindings.push(`%${first}%`);
+      //     rest.forEach(x => {
+      //       queries.push('OR colors LIKE ?');
+      //       bindings.push(`%${x}%`);
+      //     });
+      //   }
+      // }
+
+      // SOLUTION
+      // HAVING (COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL))::jsonb ?| ARRAY['Black', 'white', 'orange']
+
+      return knex.raw(queries.join(' '), bindings);
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  async getSearchFilterResults(options) {
+    try {
+      const geoData = await this.getCoordsFromZIP(options.zip, options.countryCode);
+      if (geoData.error && geoData.error === 'Unable to geocode') {
+        throw new Error('Invalid zip code, unable to geocode');
       }
+      const { lat, lon } = geoData[0];
+      const parseCoordinate = coord => Number.parseFloat(coord);
+      const getSearchDistance = d => Number.parseInt(d.substr(0, d.length - 2), 10);
+      const searchLatitude = parseCoordinate(lat);
+      const searchLongitude = parseCoordinate(lon);
+
+      const queries = [
+        `
+        SELECT
+            (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat))
+              * COS(RADIANS(contacts.lng) - RADIANS(?))
+              + SIN(RADIANS(?)) * SIN(RADIANS(contacts.lat)))
+            ) as distance,
+            a.*,
+            contacts.phone,
+            contacts.email,
+            contacts.country,
+            contacts.city,
+            contacts.address,
+            contacts.lat,
+            contacts.lng,
+            COALESCE(JSON_AGG(DISTINCT tags.text) FILTER (WHERE tags.animal_id IS NOT NULL), NULL) AS tags,
+            COALESCE(JSON_AGG(DISTINCT images.url) FILTER (WHERE images.animal_id IS NOT NULL), NULL) AS images,
+            COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL) AS colors
+        FROM animals as a
+            LEFT JOIN contacts ON a.id = contacts.animal_id
+            LEFT JOIN tags ON a.id = tags.animal_id
+            LEFT JOIN colors ON a.id = colors.animal_id
+            LEFT JOIN images ON a.id = images.animal_id
+        WHERE a.type = ?
+      `,
+      ];
+
+      const bindings = [searchLatitude, searchLongitude, searchLatitude, options.type];
+
+      // Handle pet age filter
+      if (options.age) {
+        const value = Array.isArray(options.age) ? options.age : [options.age];
+        queries.push('AND a.age = ANY (?)');
+        bindings.push(value);
+      }
+
+      // Handle pet gender filter
+      if (options.gender) {
+        const value = Array.isArray(options.gender) ? options.gender : [options.gender];
+        queries.push('AND a.gender = ANY (?)');
+        bindings.push(value);
+      }
+
+      // Handle pet coat_length filter
+      if (options.coatLength) {
+        const value = Array.isArray(options.coatLength) ? options.coatLength : [options.coatLength];
+        queries.push('AND a.coat_length = ANY (?)');
+        bindings.push(value);
+      }
+
+      // Handle pet size filter
+      if (options.size) {
+        const value = Array.isArray(options.size) ? options.size : [options.size];
+        queries.push('AND a.size = ANY (?)');
+        bindings.push(value);
+      }
+
+      // Handle pet name fuzzy search
+      if (options.name) {
+        queries.push(`AND a.name ILIKE ?`);
+        bindings.push(`%${options.name}%`);
+      }
+
+      // Handle good_with cases filter
+      if (options.goodWith) {
+        const value = Array.isArray(options.goodWith) ? options.goodWith : [options.goodWith];
+        const arr = value.map(x => `good_with_${x.toLowerCase()}`);
+        arr.forEach(x => queries.push(`AND a.${x} = true`));
+      }
+
+      // Handle care & health cases filter
+      if (options.care) {
+        const value = Array.isArray(options.care) ? options.care : [options.care];
+        const arr = value.map(x => _.snakeCase(x));
+        arr.forEach(x => queries.push(`AND a.${x} = true`));
+      }
+
+      // Handle breeds filter
+      if (options.breed) {
+        const value = Array.isArray(options.breed) ? options.breed : [options.breed];
+        queries.push('AND a.primary_breed = ANY (?) OR a.secondary_breed = ANY (?)');
+        bindings.push(value, value);
+      }
+
+      // Handle days on petfinder
+      if (options.days) {
+        queries.push(`AND a.created_at >= (NOW() - INTERVAL '${options.days} days' )`);
+      }
+
+      // GROUP BY CLAUSE
+      queries.push('GROUP BY a.id, contacts.id');
+
+      /**
+       * AGGREGATE FUNCTIONS THAT MUST GO AFTER GROUP BY
+       */
+
+      // Handle geolocation distance filter
+      const specifiedDistance = options.distance.toLowerCase() !== 'anywhere';
+
+      if (specifiedDistance) {
+        const searchDistance = getSearchDistance(options.distance);
+        queries.push(
+          `HAVING (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat)) * COS(RADIANS(contacts.lng) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(contacts.lat)))) < ?`
+        );
+
+        bindings.push(searchLatitude, searchLongitude, searchLatitude, searchDistance);
+      }
+
+      // Handle colors filter
+      if (options.color) {
+        const clausePrefix = specifiedDistance ? 'AND' : 'HAVING';
+        const value = Array.isArray(options.color) ? options.color : [options.color];
+        const fmt = value.map(elm => `'"${elm}"'`).join(', ');
+        queries.push(`${clausePrefix} JSON_AGG(DISTINCT colors.color)::jsonb @> ANY (ARRAY [${fmt}]::jsonb[])`);
+      }
+
+      /**
+       * Proper solution: -> AND JSON_AGG(DISTINCT colors.color)::jsonb ?| ARRAY['Black', 'White', 'Other']
+       * figure out how to escape `?|` operator because ? is used as interpolation in node-pg and knex
+       */
 
       return knex.raw(queries.join(' '), bindings);
     } catch (err) {

@@ -47,7 +47,6 @@ function SearchPage() {
         const queryStr = urlParams.toString();
         navigate(pathname + '?' + queryStr);
         dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
-        // apiClient.get(`animals?${queryStr}`);
       };
 
       if (search.includes('days')) {
@@ -106,7 +105,6 @@ function SearchPage() {
         setTopFilterFilled(false);
         dispatch(petsActions.clearSearch());
       }
-      // apiClient.get(`animals?${queryStr}`);
     }
   };
 
@@ -114,7 +112,6 @@ function SearchPage() {
     setFormState(state => ({ ...state, [name]: valsArr }));
     updateFilterUrlQuery(name, valsArr);
     dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
-    // apiClient.get(`animals${window.location.search}`);
   };
 
   const resetFilters = () => {
@@ -154,7 +151,6 @@ function SearchPage() {
       const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
       navigate(URI);
       dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
-      // apiClient.get(`animals${window.location.search}`);
     }
   };
 
@@ -371,12 +367,15 @@ function MultiSelect({ field, onChange, options, formState }) {
     <Select
       style={{ width: '100%' }}
       mode='multiple'
+      showArrow
+      allowClear
       showSearch
       placeholder='Any'
       optionFilterProp='children'
       filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
       onChange={onChange(field)}
       value={formState[field]}
+      size='large'
     >
       {options.map(opt => (
         <Option key={opt} value={opt}>
