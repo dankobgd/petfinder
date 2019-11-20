@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, Typography, Divider } from 'antd';
-import { useSelector } from 'react-redux';
 import ImageGallery from 'react-image-gallery';
 import LeafletMap from './LeafletMap';
 
@@ -12,7 +11,7 @@ const getImageThumb = originalUrl => {
 };
 
 function isCloudinaryImageUrl(url) {
-  return url.includes('res.cloudinary')
+  return url.includes('res.cloudinary');
 }
 
 function Txt({ children, style, ...rest }) {
@@ -35,9 +34,7 @@ function Dot() {
   return <>&bull;</>;
 }
 
-function PetSingle(props) {
-  const pet = useSelector(state => state.identity.pets.find(p => p.id === Number.parseInt(props.id, 10)));
-
+function PetSingle({ pet }) {
   let galleryImages = [];
 
   if (!pet.images) {

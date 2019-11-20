@@ -7,7 +7,7 @@ import AddPet from '../../screens/add/AddPet';
 import EditAccount from './EditAccount';
 import ChangePassword from './ChangePassword';
 import CreatedPets from './CreatedPets';
-import PetSingle from '../../components/pet/PetSingle';
+import CreatedPet from './CreatedPet';
 
 const { SubMenu } = Menu;
 const { Sider, Content } = Layout;
@@ -81,7 +81,7 @@ function Profile() {
             <PrivateRoute path='add_pet' component={AddPet} />
             <PrivateRoute path='following' component={() => <div>Following</div>} />
             <PrivateRoute path='created' component={CreatedPets} />
-            <PrivateRoute path='created/:id/:name' component={PetSingle} />
+            <PrivateRoute path='created/:id/:name' component={CreatedPet} />
             <PrivateRoute path='account' component={EditAccount} />
             <PrivateRoute path='change_password' component={ChangePassword} />
           </Router>

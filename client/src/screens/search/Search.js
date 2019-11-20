@@ -356,7 +356,7 @@ function SearchPage() {
       )}
 
       <div style={{ padding: '3rem' }}>
-        <PetsList pets={petsSearchResults} />
+        <PetsList pets={petsSearchResults} linkPrefix='../pet/' />
       </div>
     </>
   );
