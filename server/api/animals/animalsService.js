@@ -183,6 +183,7 @@ module.exports = {
       const queries = [
         `
         SELECT
+        COUNT(*) OVER() as total,
             (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat))
               * COS(RADIANS(contacts.lng) - RADIANS(?))
               + SIN(RADIANS(?)) * SIN(RADIANS(contacts.lat)))
@@ -264,9 +265,33 @@ module.exports = {
       /**
        * Other solution: -> HAVING JSON_AGG(DISTINCT colors.color)::jsonb ?| ARRAY['Black', 'White', 'Other']
        * figure out how to escape `?|` operator because `?` is used as interpolation in node-pg and knex
+       * or just create custom operator
        */
 
-      return knex.raw(queries.join(' '), bindings);
+      /**
+       * Pagination meta
+       */
+
+      const currentPage = Number.parseInt(options.page, 10) || 1;
+      const limitPerPage = Number.parseInt(options.limit, 10) || 32;
+      const skip = (currentPage - 1) * limitPerPage;
+
+      queries.push('OFFSET ? LIMIT ?');
+      bindings.push(skip, limitPerPage);
+      const results = await knex.raw(queries.join(' '), bindings);
+
+      const { total: totalRecords } = results.rows[0];
+      const totalPages = Math.ceil(totalRecords / limitPerPage);
+
+      const pagination = {
+        currentPage,
+        limitPerPage,
+        skip,
+        totalPages,
+        totalRecords: Number.parseInt(totalRecords, 10),
+      };
+
+      return { results, pagination };
     } catch (err) {
       throw err;
     }

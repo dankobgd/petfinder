@@ -1,20 +1,16 @@
 const faker = require('faker');
 const data = require('../seed-helpers/data');
 const getRandomItem = require('../seed-helpers/getRandomItem');
-
-const NUM_USERS = 50;
-const NUM_TAGS = 50;
-const NUM_MICROPCHIP = 30;
-const NUM_ANIMALS = 200;
+const { animals } = require('./animals.json');
 
 const nullable = val => (Math.random() < 0.5 ? val : null);
 const genArr = (length, seedFn) => Array.from({ length }, seedFn);
 
-const createUser = () => ({
-  username: faker.name.firstName(),
-  email: faker.internet.email(),
+const testUser = {
+  username: 'test',
+  email: 'test@test.com',
   password: '$2a$12$Xrvbj13hyv2rBidkJVim5e4BDn3Gkd3RTrW3fffVgt/HlruPyEAw2',
-});
+};
 
 const createTag = ids => ({
   animal_id: faker.random.arrayElement(ids),
@@ -29,8 +25,8 @@ const createMicrochip = ids => ({
   location: nullable(faker.lorem.sentence()),
 });
 
-const createContacts = idx => ({
-  animal_id: idx,
+const createContacts = i => ({
+  animal_id: i,
   phone: faker.phone.phoneNumberFormat(1),
   email: faker.internet.email(),
   country: faker.address.country(),
@@ -46,79 +42,53 @@ const createColors = ids => ({
   color: getRandomItem(data.cat.colors),
 });
 
-const createAnimals = ids => {
-  const type = getRandomItem(data.common.types);
-  const species = getRandomItem(data.common.species);
-
-  const getSpeciesArr = t =>
-    ({
-      Cat: data.cat.breeds,
-      Dog: data.dog.breeds,
-      Rabbit: data.rabbit.breeds,
-      'Small & Furry': data.smallAndFurry.collection[0].breed,
-      'Aquatic & Reptiles': data.aquaticAndReptiles.collection[0].breed,
-    }[t]);
-
-  const getBreedArr = t =>
-    ({
-      Cat: data.cat.breeds,
-      Dog: data.dog.breeds,
-      Rabbit: data.rabbit.breeds,
-      'Small & Furry': data.smallAndFurry.collection[0].breed,
-      'Aquatic & Reptiles': data.aquaticAndReptiles.collection[0].breed,
-    }[t]);
-
-  const breedArr = getBreedArr(type);
-
-  return {
-    type,
-    user_id: faker.random.arrayElement(ids),
-    name: faker.internet.userName(),
-    species: getRandomItem(data.common.species),
-    gender: getRandomItem(data.common.gender),
-    age: getRandomItem(data.common.age),
-    coat_length: getRandomItem(data.common.coatLength),
-    size: getRandomItem(data.common.size),
-    image_url: 'https://res.cloudinary.com/dankobgd/image/upload/v1563729655/sample.jpg',
-    description: faker.lorem.sentence(),
-    declawed: faker.random.boolean(),
-    vaccinated: faker.random.boolean(),
-    house_trained: faker.random.boolean(),
-    special_needs: faker.random.boolean(),
-    spayed_neutered: faker.random.boolean(),
-    good_with_kids: faker.random.boolean(),
-    good_with_cats: faker.random.boolean(),
-    good_with_dogs: faker.random.boolean(),
-    primary_breed: getRandomItem(breedArr),
-    secondary_breed: nullable(getRandomItem(breedArr)),
-    mixed_breed: faker.random.boolean(),
-    unknown_breed: faker.random.boolean(),
-    status: 'Adoptable',
-  };
-};
+const createAnimals = (elm, idsArr) => ({
+  user_id: faker.random.arrayElement(idsArr),
+  name: elm.name || faker.name.findName(),
+  type: elm.type,
+  species: elm.species,
+  gender: elm.gender,
+  age: elm.age,
+  size: elm.size,
+  coat_length: getRandomItem(data.common.coatLength),
+  image_url: elm.photos[0].full || elm.photos[0].large || elm.photos[0].medium || elm.photos[0].small,
+  description: elm.description || faker.lorem.sentence(),
+  declawed: faker.random.boolean(),
+  vaccinated: faker.random.boolean(),
+  house_trained: faker.random.boolean(),
+  special_needs: faker.random.boolean(),
+  spayed_neutered: faker.random.boolean(),
+  good_with_kids: faker.random.boolean(),
+  good_with_cats: faker.random.boolean(),
+  good_with_dogs: faker.random.boolean(),
+  primary_breed: elm.breeds.primary,
+  secondary_breed: elm.breeds.secondary,
+  mixed_breed: elm.breeds.mixed,
+  unknown_breed: elm.breeds.unknown,
+  status: 'Adoptable',
+});
 
 exports.seed = async knex => {
-  const pluck = (table, field) =>
-    knex
-      .distinct()
-      .from(table)
-      .pluck(field);
+  // eslint-disable-next-line
+  const pluck = (table, field) => knex.distinct().from(table).pluck(field);
 
-  const test = {
-    username: 'test',
-    email: 'test@test.com',
-    password: '$2a$12$Xrvbj13hyv2rBidkJVim5e4BDn3Gkd3RTrW3fffVgt/HlruPyEAw2',
-  };
-
-  // Clean all previous data first before seed
+  // Start with clean data
   await knex.migrate.rollback();
   await knex.migrate.latest();
-
-  const fakeUsers = [test, ...genArr(NUM_USERS, createUser)];
+  
+  const fakeUsers = [testUser];
+  for (let i = 0; i < 50; i++) {
+    fakeUsers.push({
+      username: faker.name.firstName(),
+      email: faker.internet.email(),
+      password: '$2a$12$Xrvbj13hyv2rBidkJVim5e4BDn3Gkd3RTrW3fffVgt/HlruPyEAw2',
+    });
+  }
   await knex('users').insert(fakeUsers);
   const uids = await pluck('users', 'id');
 
-  const fakeAnimals = genArr(NUM_ANIMALS, () => createAnimals(uids));
+  const withPhotos = animals.filter(x => x.photos.length);
+  const fakeAnimals = withPhotos.map(elm => createAnimals(elm, uids));
   await knex('animals').insert(fakeAnimals);
   const ids = await pluck('animals', 'id');
 
@@ -127,9 +97,9 @@ exports.seed = async knex => {
     fakeContacts.push(createContacts(i + 1));
   }
 
-  const fakeTags = genArr(NUM_TAGS, () => createTag(ids));
-  const fakeColors = genArr(NUM_ANIMALS, () => createColors(ids));
-  const fakeMicrochip = genArr(NUM_MICROPCHIP, () => createMicrochip(ids));
+  const fakeTags = genArr(50, () => createTag(ids));
+  const fakeColors = genArr(fakeAnimals.length, () => createColors(ids));
+  const fakeMicrochip = genArr(30, () => createMicrochip(ids));
 
   await knex('contacts').insert(fakeContacts);
   await knex('tags').insert(fakeTags);

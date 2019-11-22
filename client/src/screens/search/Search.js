@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Form, Input, Select, Button, Icon, Layout, message, Alert } from 'antd';
+import { Row, Col, Form, Input, Select, Button, Icon, Layout, message, Alert, Pagination } from 'antd';
 import { cats } from '../../data/pets';
 import { navigate } from '@reach/router';
 import initialFormState from './initialFormState';
@@ -29,9 +29,28 @@ const updateFilterUrlQuery = (key, values) => {
   navigate(URI);
 };
 
+const updatePaginationUrlQuery = (key, val) => {
+  const { search, pathname } = window.location;
+  const urlParams = new URLSearchParams(search);
+  const urlContainsKey = search.includes(key);
+
+  if (urlContainsKey) {
+    urlParams.delete(key);
+    urlParams.append(key, val);
+  } else {
+    urlParams.append(key, val);
+  }
+
+  const queryStr = urlParams.toString();
+  const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
+
+  navigate(URI);
+};
+
 function SearchPage() {
   const dispatch = useDispatch();
   const petsSearchResults = useSelector(state => state.pets.list);
+  const petsSearchMeta = useSelector(state => state.pets.meta);
   const searchError = useSelector(state => state.error.message);
 
   const [topFilterFilled, setTopFilterFilled] = useState(false);
@@ -171,6 +190,16 @@ function SearchPage() {
 
     getCountryCode();
   }, []);
+
+  const onPaginationLimitChange = (_, limit) => {
+    updatePaginationUrlQuery('limit', limit);
+    dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
+  };
+
+  const onPaginationChange = page => {
+    updatePaginationUrlQuery('page', page);
+    dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
+  };
 
   return (
     <>
@@ -357,6 +386,24 @@ function SearchPage() {
 
       <div style={{ padding: '3rem' }}>
         <PetsList pets={petsSearchResults} linkPrefix='../pet/' />
+
+        {!!petsSearchResults.length && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
+            <Pagination
+              showSizeChanger
+              showQuickJumper
+              hideOnSinglePage={true}
+              defaultCurrent={1}
+              defaultPageSize={32}
+              pageSizeOptions={['12', '24', '32', '48']}
+              current={petsSearchMeta.currentPage}
+              total={petsSearchMeta.totalRecords}
+              onShowSizeChange={onPaginationLimitChange}
+              onChange={onPaginationChange}
+              showTotal={(total, range) => `${range[0]} to ${range[1]} of ${total}`}
+            />
+          </div>
+        )}
       </div>
     </>
   );

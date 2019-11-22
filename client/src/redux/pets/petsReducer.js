@@ -3,6 +3,7 @@ import * as t from './petsTypes';
 const initialState = {
   isLoading: false,
   list: [],
+  meta: null,
 };
 
 const reducer = (state = initialState, action) => {
@@ -16,6 +17,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         list: action.payload.pets,
+        meta: action.payload.meta,
         isLoading: false,
       };
     case t.SEARCH_PET_FAILURE:

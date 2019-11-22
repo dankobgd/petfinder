@@ -12,6 +12,7 @@ export const searchPetsByFilter = filterPath => async dispatch => {
       type: t.SEARCH_PET_SUCCESS,
       payload: {
         pets: res.animals,
+        meta: res.meta,
       },
     });
     return res;

@@ -830,6 +830,6 @@ module.exports = {
     gender: ['Male', 'Female'],
     age: ['Baby', 'Young', 'Adult', 'Senior'],
     coatLength: ['Hairless', 'Short', 'Medium', 'Long'],
-    size: ['Small', 'Medium', 'Large', 'XL'],
+    size: ['Small', 'Medium', 'Large', 'Extra Large'],
   },
 };

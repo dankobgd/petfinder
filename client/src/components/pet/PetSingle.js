@@ -40,7 +40,7 @@ function PetSingle({ pet }) {
   if (!pet.images) {
     galleryImages.push({
       original: pet.image_url,
-      thumbnail: isCloudinaryImageUrl ? getImageThumb(pet.image_url) : pet.image_url,
+      thumbnail: isCloudinaryImageUrl(pet.image_url) ? getImageThumb(pet.image_url) : pet.image_url,
     });
   } else {
     pet.images.forEach(img => {

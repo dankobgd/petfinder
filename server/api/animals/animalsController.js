@@ -10,8 +10,9 @@ exports.getCountryCode = async (req, res, next) => {
 // Get animals
 exports.getAnimals = async (req, res, next) => {
   try {
-    const results = await AnimalService.getSearchFilterResults(req.query);
-    res.status(200).json({ animals: results.rows });
+    const { results, pagination } = await AnimalService.getSearchFilterResults(req.query);
+    const searchResults = results.rows.map(({ total, ...rest }) => rest);
+    res.status(200).json({ meta: pagination, animals: searchResults });
   } catch (err) {
     next(createError.BadRequest(err.message));
   }
