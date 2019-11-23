@@ -11,39 +11,28 @@ import PetsList from '../../components/pet/PetsList';
 const { Option } = Select;
 const { Search } = Input;
 
-const updateFilterUrlQuery = (key, values) => {
+const updateFilterUrlQuery = (key, val) => {
   const { search, pathname } = window.location;
   const urlParams = new URLSearchParams(search);
   const urlContainsKey = search.includes(key);
 
   if (urlContainsKey) {
     urlParams.delete(key);
-    values.forEach(v => urlParams.append(key, v));
+    if (Array.isArray(val)) {
+      val.forEach(v => urlParams.append(key, v));
+    } else {
+      urlParams.append(key, val);
+    }
   } else {
-    values.forEach(v => urlParams.append(key, v));
+    if (Array.isArray(val)) {
+      val.forEach(v => urlParams.append(key, v));
+    } else {
+      urlParams.append(key, val);
+    }
   }
 
   const queryStr = urlParams.toString();
   const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
-
-  navigate(URI);
-};
-
-const updatePaginationUrlQuery = (key, val) => {
-  const { search, pathname } = window.location;
-  const urlParams = new URLSearchParams(search);
-  const urlContainsKey = search.includes(key);
-
-  if (urlContainsKey) {
-    urlParams.delete(key);
-    urlParams.append(key, val);
-  } else {
-    urlParams.append(key, val);
-  }
-
-  const queryStr = urlParams.toString();
-  const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
-
   navigate(URI);
 };
 
@@ -192,12 +181,12 @@ function SearchPage() {
   }, []);
 
   const onPaginationLimitChange = (_, limit) => {
-    updatePaginationUrlQuery('limit', limit);
+    updateFilterUrlQuery('limit', limit);
     dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
   };
 
   const onPaginationChange = page => {
-    updatePaginationUrlQuery('page', page);
+    updateFilterUrlQuery('page', page);
     dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
   };
 

@@ -64,6 +64,7 @@ function PetSingle({ pet }) {
     <div>
       <ImageGallery
         showPlayButton={galleryImages.length !== 1}
+        showThumbnails={galleryImages.length !== 1}
         items={galleryImages}
         autoPlay={true}
         slideInterval={5000}
