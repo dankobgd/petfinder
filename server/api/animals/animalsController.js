@@ -7,6 +7,16 @@ exports.getCountryCode = async (req, res, next) => {
   res.status(200).json(countrycode);
 };
 
+// Get latest animals
+exports.getLatestAnimals = async (req, res, next) => {
+  try {
+    const latest = await AnimalService.getLatestAnimals();
+    res.status(200).json({ animals: latest.rows });
+  } catch (err) {
+    next(createError.BadRequest(err.message));
+  }
+};
+
 // Get animals
 exports.getAnimals = async (req, res, next) => {
   try {

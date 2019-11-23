@@ -5,7 +5,7 @@ const initialState = {
   isAuthenticated: false,
   isLoading: false,
   user: null,
-  pets: [],
+  postedPets: [],
 };
 
 const reducer = (state = initialState, action) => {
@@ -71,7 +71,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         isLoading: false,
-        pets: action.payload.pets,
+        postedPets: action.payload.pets,
       };
     case t.CREATE_PET_REQUEST:
       return {

@@ -38,7 +38,7 @@ const updateFilterUrlQuery = (key, val) => {
 
 function SearchPage() {
   const dispatch = useDispatch();
-  const petsSearchResults = useSelector(state => state.pets.list);
+  const petsSearchResults = useSelector(state => state.pets.searchResults);
   const petsSearchMeta = useSelector(state => state.pets.meta);
   const searchError = useSelector(state => state.error.message);
 

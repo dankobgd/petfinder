@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { Layout } from 'antd';
 import PetSingle from '../components/pet/PetSingle';
 
-function Pet(props) {
-  const pet = useSelector(state => state.pets.searchResults.find(p => p.id === Number.parseInt(props.id, 10)));
+function LatestPet(props) {
+  const pet = useSelector(state => state.pets.latest.find(p => p.id === Number.parseInt(props.id, 10)));
 
   return (
     <Layout style={{ padding: '0 24px 24px' }}>
@@ -22,4 +22,4 @@ function Pet(props) {
   );
 }
 
-export default Pet;
+export default LatestPet;

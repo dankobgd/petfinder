@@ -15,6 +15,7 @@ import ResetPassword from './screens/ResetPassword';
 import Profile from './screens/profile/Profile';
 import Search from './screens/search/Search';
 import Pet from './screens/Pet';
+import LatestPet from './screens/LatestPet';
 import { PrivateRoute, PublicRoute, GuestRoute } from './components/route/Auth';
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <PublicRoute path='password-reset/:resetToken' component={ResetPassword} />
           <PublicRoute path='search' component={Search} />
           <PublicRoute path='pet/:id/:name' component={Pet} />
+          <PublicRoute path='latest/pet/:id/:name' component={LatestPet} />
           <PrivateRoute path='profile/*' component={Profile} />
           <NotFound default />
         </Router>

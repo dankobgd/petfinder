@@ -5,6 +5,7 @@ const mw = require('../../middleware');
 const { requireJWT } = mw.authGard;
 
 router.get('/', AnimalsController.getAnimals);
+router.get('/latest', AnimalsController.getLatestAnimals);
 router.get('/:id', AnimalsController.getAnimal);
 router.post('/create', requireJWT, mw.uploadFile.upload().any(), AnimalsController.createAnimal);
 router.put('/update/:id', AnimalsController.updateAnimal);

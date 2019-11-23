@@ -2,8 +2,9 @@ import * as t from './petsTypes';
 
 const initialState = {
   isLoading: false,
-  list: [],
+  searchResults: [],
   meta: null,
+  latest: [],
 };
 
 const reducer = (state = initialState, action) => {
@@ -16,7 +17,7 @@ const reducer = (state = initialState, action) => {
     case t.SEARCH_PET_SUCCESS:
       return {
         ...state,
-        list: action.payload.pets,
+        searchResults: action.payload.pets,
         meta: action.payload.meta,
         isLoading: false,
       };
@@ -27,8 +28,13 @@ const reducer = (state = initialState, action) => {
       };
     case t.CLEAR_PETS_SEARCH:
       return {
-        list: [],
+        searchResults: [],
         isLoading: false,
+      };
+    case t.FETCH_LATEST_ANIMALS_SUCCESS:
+      return {
+        ...state,
+        latest: action.payload.pets,
       };
     default:
       return state;
