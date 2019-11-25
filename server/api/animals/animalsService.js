@@ -280,15 +280,19 @@ module.exports = {
       bindings.push(skip, limitPerPage);
       const results = await knex.raw(queries.join(' '), bindings);
 
-      const { total: totalRecords } = results.rows[0];
-      const totalPages = Math.ceil(totalRecords / limitPerPage);
+      let totalRecords = 0;
+      let totalPages = 0;
+      if (results.rows.length) {
+        totalRecords = Number.parseInt(results.rows[0].total, 10);
+        totalPages = Math.ceil(totalRecords / limitPerPage);
+      }
 
       const pagination = {
         currentPage,
         limitPerPage,
         skip,
         totalPages,
-        totalRecords: Number.parseInt(totalRecords, 10),
+        totalRecords,
       };
 
       return { results, pagination };
