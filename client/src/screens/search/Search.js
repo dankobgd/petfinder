@@ -11,35 +11,50 @@ import PetsList from '../../components/pet/PetsList';
 const { Option } = Select;
 const { Search } = Input;
 
-const updateFilterUrlQuery = (key, val) => {
-  const { search, pathname } = window.location;
+const getQueryString = () => {
+  const { search } = window.location;
+  const params = new URLSearchParams(search);
+  return params.toString();
+};
+
+const buildURI = params => {
+  const { pathname } = window.location;
+  const queryStr = params.toString();
+  const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
+  return URI;
+};
+
+const updateSearchFilterURI = (key, val) => {
+  const { search } = window.location;
   const urlParams = new URLSearchParams(search);
   const urlContainsKey = search.includes(key);
-
   if (urlContainsKey) {
     urlParams.delete(key);
-    if (Array.isArray(val)) {
-      val.forEach(v => urlParams.append(key, v));
-    } else {
-      urlParams.append(key, val);
-    }
-  } else {
-    if (Array.isArray(val)) {
-      val.forEach(v => urlParams.append(key, v));
-    } else {
-      urlParams.append(key, val);
-    }
   }
+  if (Array.isArray(val)) {
+    val.forEach(v => urlParams.append(key, v));
+  } else {
+    urlParams.append(key, val);
+  }
+  const URI = buildURI(urlParams);
+  navigate(URI);
+};
 
-  const queryStr = urlParams.toString();
-  const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
+const resetSearchFilterURI = () => {
+  const { search } = window.location;
+  const oldParams = new URLSearchParams(search);
+  const newParams = new URLSearchParams();
+  newParams.append('type', oldParams.get('type'));
+  newParams.append('distance', oldParams.get('distance'));
+  newParams.append('zip', oldParams.get('zip'));
+  const URI = buildURI(newParams);
   navigate(URI);
 };
 
 function SearchPage() {
   const dispatch = useDispatch();
-  const petsSearchResults = useSelector(state => state.pets.searchResults);
-  const petsSearchMeta = useSelector(state => state.pets.meta);
+  const searchResults = useSelector(state => state.pets.searchResults);
+  const searchMeta = useSelector(state => state.pets.meta);
   const searchError = useSelector(state => state.error.message);
 
   const [topFilterFilled, setTopFilterFilled] = useState(false);
@@ -47,24 +62,10 @@ function SearchPage() {
 
   const handleChange = name => e => {
     if (name === 'days') {
-      const { search, pathname } = window.location;
-      const urlParams = new URLSearchParams(search);
-
-      const doSearch = () => {
-        urlParams.append(name, e);
-        const queryStr = urlParams.toString();
-        navigate(pathname + '?' + queryStr);
-        dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
-      };
-
-      if (search.includes('days')) {
-        urlParams.delete('days');
-        doSearch();
-      } else {
-        doSearch();
-      }
+      updateSearchFilterURI('days', e);
+      const queryStr = getQueryString();
+      dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
     }
-
     if (name === 'zip') {
       e.persist();
       setFormState(state => ({ ...state, [name]: e.target.value }));
@@ -74,20 +75,8 @@ function SearchPage() {
   };
 
   const searchPets = async () => {
-    const { type, distance, zip } = formState;
+    const { type, distance, zip, countryCode } = formState;
     const isEmpty = elm => elm === undefined || elm === '';
-    const { search, pathname } = window.location;
-    const urlParams = new URLSearchParams(search);
-
-    const updateQueryParam = name => {
-      if (search.includes(name)) {
-        urlParams.delete(name);
-        urlParams.append(name, formState[name]);
-      } else {
-        urlParams.append(name, formState[name]);
-      }
-    };
-
     if (isEmpty(type)) {
       message.warn('Enter pet type');
     } else if (isEmpty(distance)) {
@@ -95,18 +84,14 @@ function SearchPage() {
     } else if (isEmpty(zip)) {
       message.warn('Need valid ZIP to start');
     } else {
-      updateQueryParam('type');
-      updateQueryParam('distance');
-      updateQueryParam('zip');
-
-      if (formState['countryCode']) {
-        updateQueryParam('countryCode');
+      updateSearchFilterURI('type', type);
+      updateSearchFilterURI('distance', distance);
+      updateSearchFilterURI('zip', zip);
+      if (countryCode) {
+        updateSearchFilterURI('countryCode', countryCode);
       }
-
-      const queryStr = urlParams.toString();
-      navigate(pathname + '?' + queryStr);
-
       try {
+        const queryStr = getQueryString();
         await dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
         setTopFilterFilled(true);
       } catch (err) {
@@ -118,46 +103,20 @@ function SearchPage() {
 
   const handleMultiSelect = name => valsArr => {
     setFormState(state => ({ ...state, [name]: valsArr }));
-    updateFilterUrlQuery(name, valsArr);
+    updateSearchFilterURI(name, valsArr);
     dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
   };
 
   const resetFilters = () => {
     const { type, distance, zip, ...rest } = initialFormState;
     setFormState(state => ({ ...state, ...rest }));
-    const { search, pathname } = window.location;
-    const urlParams = new URLSearchParams(search);
-    const p = new URLSearchParams();
-    p.append('type', urlParams.get('type'));
-    p.append('distance', urlParams.get('distance'));
-    p.append('zip', urlParams.get('zip'));
-
-    const queryStr = p.toString();
-
-    navigate(pathname + '?' + queryStr);
+    resetSearchFilterURI();
+    dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
   };
 
   const onNameSearch = val => {
-    const { search, pathname } = window.location;
-    const urlParams = new URLSearchParams(search);
-    const key = 'name';
-
     if (val.length) {
-      if (search.includes(key)) {
-        urlParams.delete(key);
-        urlParams.append(key, val);
-      } else {
-        urlParams.append(key, val);
-      }
-      const queryStr = urlParams.toString();
-      const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
-      navigate(URI);
-      dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
-    } else {
-      urlParams.delete(key);
-      const queryStr = urlParams.toString();
-      const URI = queryStr.length ? `${pathname}?${queryStr}` : pathname;
-      navigate(URI);
+      updateSearchFilterURI('name', val);
       dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
     }
   };
@@ -181,12 +140,12 @@ function SearchPage() {
   }, []);
 
   const onPaginationLimitChange = (_, limit) => {
-    updateFilterUrlQuery('limit', limit);
+    updateSearchFilterURI('limit', limit);
     dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
   };
 
   const onPaginationChange = page => {
-    updateFilterUrlQuery('page', page);
+    updateSearchFilterURI('page', page);
     dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
   };
 
@@ -374,9 +333,9 @@ function SearchPage() {
       )}
 
       <div style={{ padding: '3rem' }}>
-        <PetsList pets={petsSearchResults} linkPrefix='../pet/' />
+        <PetsList pets={searchResults} linkPrefix='../pet/' />
 
-        {!!petsSearchResults.length && (
+        {!!searchResults.length && (
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
             <Pagination
               showSizeChanger
@@ -385,8 +344,8 @@ function SearchPage() {
               defaultCurrent={1}
               defaultPageSize={32}
               pageSizeOptions={['12', '24', '32', '48']}
-              current={petsSearchMeta.currentPage}
-              total={petsSearchMeta.totalRecords}
+              current={searchMeta.currentPage}
+              total={searchMeta.totalRecords}
               onShowSizeChange={onPaginationLimitChange}
               onChange={onPaginationChange}
               showTotal={(total, range) => `${range[0]} to ${range[1]} of ${total}`}
