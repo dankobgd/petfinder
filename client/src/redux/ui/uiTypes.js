@@ -1,1 +1,2 @@
-export const a = 'a';
+export const TOGGLE_SEARCH_FILTER = 'TOGGLE_SEARCH_FILTER';
+export const PERSIST_SEARCH_FORM = 'PERSIST_SEARCH_FORM';

@@ -5,6 +5,7 @@ import { navigate } from '@reach/router';
 import initialFormState from './initialFormState';
 import apiClient from '../../utils/apiClient';
 import { petsActions } from '../../redux/pets';
+import { uiActions } from '../../redux/ui';
 import { useSelector, useDispatch } from 'react-redux';
 import PetsList from '../../components/pet/PetsList';
 
@@ -53,12 +54,12 @@ const resetSearchFilterURI = () => {
 
 function SearchPage() {
   const dispatch = useDispatch();
+  const formState = useSelector(state => state.ui.searchForm);
+
   const searchResults = useSelector(state => state.pets.searchResults);
   const searchMeta = useSelector(state => state.pets.meta);
   const searchError = useSelector(state => state.error.message);
-
-  const [topFilterFilled, setTopFilterFilled] = useState(false);
-  const [formState, setFormState] = useState(initialFormState);
+  const topSearchFilterCompleted = useSelector(state => state.ui.topSearchFilterCompleted);
 
   const handleChange = name => e => {
     if (name === 'days') {
@@ -68,9 +69,9 @@ function SearchPage() {
     }
     if (name === 'zip') {
       e.persist();
-      setFormState(state => ({ ...state, [name]: e.target.value }));
+      dispatch(uiActions.persistSearchForm({ [name]: e.target.value }));
     } else {
-      setFormState(state => ({ ...state, [name]: e }));
+      dispatch(uiActions.persistSearchForm({ [name]: e }));
     }
   };
 
@@ -93,23 +94,23 @@ function SearchPage() {
       try {
         const queryStr = getQueryString();
         await dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
-        setTopFilterFilled(true);
+        dispatch(uiActions.toggleSearchFilter(true));
       } catch (err) {
-        setTopFilterFilled(false);
+        dispatch(uiActions.toggleSearchFilter(false));
         dispatch(petsActions.clearSearch());
       }
     }
   };
 
   const handleMultiSelect = name => valsArr => {
-    setFormState(state => ({ ...state, [name]: valsArr }));
+    dispatch(uiActions.persistSearchForm({ [name]: valsArr }));
     updateSearchFilterURI(name, valsArr);
     dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
   };
 
   const resetFilters = () => {
     const { type, distance, zip, ...rest } = initialFormState;
-    setFormState(state => ({ ...state, ...rest }));
+    dispatch(uiActions.persistSearchForm({ ...rest }));
     resetSearchFilterURI();
     dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
   };
@@ -117,6 +118,7 @@ function SearchPage() {
   const onNameSearch = val => {
     if (val.length) {
       updateSearchFilterURI('name', val);
+      dispatch(uiActions.persistSearchForm({ name: val }));
       dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
     }
   };
@@ -131,13 +133,13 @@ function SearchPage() {
           };
 
           const cc = await apiClient.post('animals/countrycode', { data: { loc } });
-          setFormState({ countryCode: cc.toUpperCase() });
+          dispatch(uiActions.persistSearchForm({ countryCode: cc.toUpperCase() }));
         });
       }
     }
 
     getCountryCode();
-  }, []);
+  }, [dispatch]);
 
   const onPaginationLimitChange = (_, limit) => {
     updateSearchFilterURI('limit', limit);
@@ -205,7 +207,7 @@ function SearchPage() {
                   placeholder='CC'
                   onChange={e => {
                     e.persist();
-                    setFormState(st => ({ ...st, countryCode: e.target.value }));
+                    dispatch(uiActions.persistSearchForm({ countryCode: e.target.value }));
                   }}
                   value={formState['countryCode']}
                   style={{ width: '30%' }}
@@ -219,7 +221,7 @@ function SearchPage() {
             </Col>
           </Row>
 
-          {topFilterFilled && (
+          {topSearchFilterCompleted && (
             <>
               <Row gutter={20} style={{ marginTop: '2.5rem' }}>
                 <Col xs={12} sm={12} md={4} lg={4} xl={4} offset={20}>

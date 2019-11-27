@@ -1,20 +1,11 @@
 import * as t from './uiTypes';
-import { errorActions } from '../error';
-import apiClient from '../../utils/apiClient';
 
-// Filter search pets
-export const a = () => async dispatch => {
-  try {
-    const res = await apiClient.get('');
+// Toggle top search filter state
+export const toggleSearchFilter = bool => dispatch => {
+  dispatch({ type: t.TOGGLE_SEARCH_FILTER, payload: bool });
+};
 
-    dispatch({
-      type: '',
-      payload: {},
-    });
-    return res;
-  } catch (err) {
-    dispatch(errorActions.getErrors(err));
-    dispatch({ type: '' });
-    return Promise.reject(err);
-  }
+// Save search filters state
+export const persistSearchForm = searchForm => dispatch => {
+  dispatch({ type: t.PERSIST_SEARCH_FORM, payload: { searchForm } });
 };
