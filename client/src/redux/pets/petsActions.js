@@ -3,10 +3,10 @@ import { errorActions } from '../error';
 import apiClient from '../../utils/apiClient';
 
 // Filter search pets
-export const searchPetsByFilter = filterPath => async dispatch => {
+export const searchPetsByFilter = filter => async dispatch => {
   dispatch({ type: t.SEARCH_PET_REQUEST });
   try {
-    const res = await apiClient.get(`${filterPath}`);
+    const res = await apiClient.get(`animals?${filter}`);
 
     dispatch({
       type: t.SEARCH_PET_SUCCESS,

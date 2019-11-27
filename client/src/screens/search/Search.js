@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Row, Col, Form, Input, Select, Button, Icon, Layout, message, Alert, Pagination } from 'antd';
 import { cats } from '../../data/pets';
 import { navigate } from '@reach/router';
@@ -25,7 +25,7 @@ const buildURI = params => {
   return URI;
 };
 
-const updateSearchFilterURI = (key, val) => {
+const updateSearchFilterURI = (key, val, dispatch) => {
   const { search } = window.location;
   const urlParams = new URLSearchParams(search);
   const urlContainsKey = search.includes(key);
@@ -39,6 +39,7 @@ const updateSearchFilterURI = (key, val) => {
   }
   const URI = buildURI(urlParams);
   navigate(URI);
+  dispatch(uiActions.persistQueryString(URI));
 };
 
 const resetSearchFilterURI = () => {
@@ -48,6 +49,9 @@ const resetSearchFilterURI = () => {
   newParams.append('type', oldParams.get('type'));
   newParams.append('distance', oldParams.get('distance'));
   newParams.append('zip', oldParams.get('zip'));
+  if (oldParams.get('countryCode')) {
+    newParams.append('countryCode', oldParams.get('countryCode'));
+  }
   const URI = buildURI(newParams);
   navigate(URI);
 };
@@ -63,9 +67,9 @@ function SearchPage() {
 
   const handleChange = name => e => {
     if (name === 'days') {
-      updateSearchFilterURI('days', e);
+      updateSearchFilterURI('days', e, dispatch);
       const queryStr = getQueryString();
-      dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
+      dispatch(petsActions.searchPetsByFilter(queryStr));
     }
     if (name === 'zip') {
       e.persist();
@@ -85,15 +89,15 @@ function SearchPage() {
     } else if (isEmpty(zip)) {
       message.warn('Need valid ZIP to start');
     } else {
-      updateSearchFilterURI('type', type);
-      updateSearchFilterURI('distance', distance);
-      updateSearchFilterURI('zip', zip);
+      updateSearchFilterURI('type', type, dispatch);
+      updateSearchFilterURI('distance', distance, dispatch);
+      updateSearchFilterURI('zip', zip, dispatch);
       if (countryCode) {
-        updateSearchFilterURI('countryCode', countryCode);
+        updateSearchFilterURI('countryCode', countryCode, dispatch);
       }
       try {
         const queryStr = getQueryString();
-        await dispatch(petsActions.searchPetsByFilter(`animals?${queryStr}`));
+        await dispatch(petsActions.searchPetsByFilter(queryStr));
         dispatch(uiActions.toggleSearchFilter(true));
       } catch (err) {
         dispatch(uiActions.toggleSearchFilter(false));
@@ -104,22 +108,22 @@ function SearchPage() {
 
   const handleMultiSelect = name => valsArr => {
     dispatch(uiActions.persistSearchForm({ [name]: valsArr }));
-    updateSearchFilterURI(name, valsArr);
-    dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
+    updateSearchFilterURI(name, valsArr, dispatch);
+    dispatch(petsActions.searchPetsByFilter(getQueryString()));
   };
 
   const resetFilters = () => {
-    const { type, distance, zip, ...rest } = initialFormState;
+    const { type, distance, zip, countryCode, ...rest } = initialFormState;
     dispatch(uiActions.persistSearchForm({ ...rest }));
     resetSearchFilterURI();
-    dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
+    dispatch(petsActions.searchPetsByFilter(getQueryString()));
   };
 
   const onNameSearch = val => {
     if (val.length) {
-      updateSearchFilterURI('name', val);
+      updateSearchFilterURI('name', val, dispatch);
       dispatch(uiActions.persistSearchForm({ name: val }));
-      dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
+      dispatch(petsActions.searchPetsByFilter(getQueryString()));
     }
   };
 
@@ -137,18 +141,17 @@ function SearchPage() {
         });
       }
     }
-
     getCountryCode();
   }, [dispatch]);
 
   const onPaginationLimitChange = (_, limit) => {
-    updateSearchFilterURI('limit', limit);
-    dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
+    updateSearchFilterURI('limit', limit, dispatch);
+    dispatch(petsActions.searchPetsByFilter(getQueryString()));
   };
 
   const onPaginationChange = page => {
-    updateSearchFilterURI('page', page);
-    dispatch(petsActions.searchPetsByFilter(`animals${window.location.search}`));
+    updateSearchFilterURI('page', page, dispatch);
+    dispatch(petsActions.searchPetsByFilter(getQueryString()));
   };
 
   return (
@@ -288,7 +291,7 @@ function SearchPage() {
                     formState={formState}
                     field='coatLength'
                     onChange={handleMultiSelect}
-                    options={['Hairless', 'Medium', 'Short', 'Long']}
+                    options={['Hairless', 'Short', 'Medium', 'Long']}
                   />
                 </Col>
                 <Col xs={12} sm={12} md={4} lg={4} xl={4}>

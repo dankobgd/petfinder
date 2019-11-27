@@ -1,6 +1,6 @@
 export default {
   type: undefined,
-  distance: undefined,
+  distance: 'Anywhere',
   zip: undefined,
   countryCode: undefined,
   name: undefined,
