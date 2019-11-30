@@ -1,6 +1,7 @@
 import * as t from './identityTypes';
 import { errorActions } from '../error';
 import apiClient from '../../utils/apiClient';
+import { petsActions } from '../pets';
 
 // Authentication
 export const setCurrentUserRequest = () => async dispatch => {
@@ -32,6 +33,7 @@ export const userSignupRequest = credentials => async dispatch => {
         user: res,
       },
     });
+    dispatch(petsActions.fetchLatestAnimals());
     localStorage.setItem('access_token', res.accessToken);
     return res;
   } catch (err) {
@@ -51,6 +53,7 @@ export const userLoginRequest = credentials => async dispatch => {
         user: res,
       },
     });
+    dispatch(petsActions.fetchLatestAnimals());
     localStorage.setItem('access_token', res.accessToken);
     return res;
   } catch (err) {

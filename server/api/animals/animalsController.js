@@ -9,7 +9,7 @@ exports.getCountryCode = async (req, res, next) => {
 
 // Get latest animals
 exports.getLatestAnimals = async (req, res, next) => {
-  const userId = !req.anonymous && req.user && req.user.sub;
+  const userId = req.user && req.user.sub;
   try {
     const latest = await AnimalService.getLatestAnimals(userId);
     res.status(200).json({ animals: latest.rows });
@@ -20,7 +20,7 @@ exports.getLatestAnimals = async (req, res, next) => {
 
 // Get animals
 exports.getAnimals = async (req, res, next) => {
-  const userId = !req.anonymous && req.user && req.user.sub;
+  const userId = req.user && req.user.sub;
   try {
     const { results, pagination } = await AnimalService.getSearchFilterResults(req.query, userId);
     const searchResults = results.rows.map(({ total, ...rest }) => rest);

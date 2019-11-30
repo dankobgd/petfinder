@@ -180,12 +180,14 @@ module.exports = {
       const searchLatitude = parseCoordinate(lat);
       const searchLongitude = parseCoordinate(lon);
 
-      const condQuery = userId ? `AND likes.user_id = ${userId}` : '';
+      const condQuery = userId
+        ? `LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ${userId}) liked ON true`
+        : '';
 
       const queries = [
         `
         SELECT
-            liked,
+            ${userId ? 'liked,' : ''}
             COUNT(*) OVER() as total,
             (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat))
               * COS(RADIANS(contacts.lng) - RADIANS(?))
@@ -207,7 +209,7 @@ module.exports = {
             LEFT JOIN tags ON a.id = tags.animal_id
             LEFT JOIN colors ON a.id = colors.animal_id
             LEFT JOIN images ON a.id = images.animal_id
-            LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id ${condQuery}) liked ON true
+            ${condQuery}
         WHERE a.type = ?
       `,
       ];
@@ -248,7 +250,11 @@ module.exports = {
         bindings.push(`%${options.name}%`);
       }
 
-      queries.push('GROUP BY a.id, contacts.id, liked');
+      if (userId) {
+        queries.push('GROUP BY a.id, contacts.id, liked');
+      } else {
+        queries.push('GROUP BY a.id, contacts.id');
+      }
 
       const specifiedDistance = options.distance.toLowerCase() !== 'anywhere';
       if (specifiedDistance) {
@@ -306,11 +312,14 @@ module.exports = {
   },
 
   async getLatestAnimals(userId) {
-    const condQuery = userId ? `AND likes.user_id = ${userId}` : '';
+    const condQuery = userId
+      ? `LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ${userId}) liked ON true`
+      : '';
+
     return knex.raw(
       `
       SELECT
-          liked,
+          ${userId ? 'liked,' : ''}
           a.*,
           contacts.phone,
           contacts.email,
@@ -327,8 +336,8 @@ module.exports = {
           LEFT JOIN tags ON a.id = tags.animal_id
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
-          LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id ${condQuery}) liked ON true
-      GROUP BY a.id, contacts.id, liked
+          ${condQuery}          
+      GROUP BY a.id, contacts.id ${userId ? ',liked' : ''}
       ORDER BY a.created_at DESC
       LIMIT 8
     `
