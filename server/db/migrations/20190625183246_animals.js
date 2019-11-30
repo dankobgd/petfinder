@@ -33,6 +33,9 @@ exports.up = knex =>
     t.boolean('mixed_breed').defaultTo(0);
     t.boolean('unknown_breed').defaultTo(0);
 
+    // likes
+    t.integer('likes_count').defaultTo(0);
+
     t.timestamp('created_at')
       .notNullable()
       .defaultTo(knex.fn.now());

@@ -168,7 +168,7 @@ module.exports = {
     return knex('animals').where({ id });
   },
 
-  async getSearchFilterResults(options) {
+  async getSearchFilterResults(options, userId) {
     try {
       const geoData = await this.getCoordsFromZIP(options.zip, options.countryCode);
       if (geoData.error && geoData.error === 'Unable to geocode') {
@@ -180,10 +180,13 @@ module.exports = {
       const searchLatitude = parseCoordinate(lat);
       const searchLongitude = parseCoordinate(lon);
 
+      const condQuery = userId ? `AND likes.user_id = ${userId}` : '';
+
       const queries = [
         `
         SELECT
-        COUNT(*) OVER() as total,
+            liked,
+            COUNT(*) OVER() as total,
             (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat))
               * COS(RADIANS(contacts.lng) - RADIANS(?))
               + SIN(RADIANS(?)) * SIN(RADIANS(contacts.lat)))
@@ -204,6 +207,7 @@ module.exports = {
             LEFT JOIN tags ON a.id = tags.animal_id
             LEFT JOIN colors ON a.id = colors.animal_id
             LEFT JOIN images ON a.id = images.animal_id
+            LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id ${condQuery}) liked ON true
         WHERE a.type = ?
       `,
       ];
@@ -244,7 +248,7 @@ module.exports = {
         bindings.push(`%${options.name}%`);
       }
 
-      queries.push('GROUP BY a.id, contacts.id');
+      queries.push('GROUP BY a.id, contacts.id, liked');
 
       const specifiedDistance = options.distance.toLowerCase() !== 'anywhere';
       if (specifiedDistance) {
@@ -301,10 +305,12 @@ module.exports = {
     }
   },
 
-  async getLatestAnimals() {
+  async getLatestAnimals(userId) {
+    const condQuery = userId ? `AND likes.user_id = ${userId}` : '';
     return knex.raw(
       `
       SELECT
+          liked,
           a.*,
           contacts.phone,
           contacts.email,
@@ -321,10 +327,48 @@ module.exports = {
           LEFT JOIN tags ON a.id = tags.animal_id
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
-      GROUP BY a.id, contacts.id
+          LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id ${condQuery}) liked ON true
+      GROUP BY a.id, contacts.id, liked
       ORDER BY a.created_at DESC
       LIMIT 8
     `
     );
+  },
+
+  async likeAnimal(user_id, animal_id) {
+    const likes = await knex('likes')
+      .where({ user_id })
+      .andWhere({ animal_id });
+
+    if (!likes.length) {
+      await knex('likes')
+        .where({ user_id })
+        .andWhere({ animal_id })
+        .insert({ user_id, animal_id });
+
+      await knex('animals')
+        .where({ id: animal_id })
+        .increment('likes_count', 1);
+      return { msg: 'liked' };
+    }
+    return { msg: 'Animal already liked' };
+  },
+
+  async unlikeAnimal(user_id, animal_id) {
+    const likes = await knex('likes')
+      .where({ user_id })
+      .andWhere({ animal_id });
+
+    if (likes.length) {
+      await knex('likes')
+        .where({ user_id })
+        .andWhere({ animal_id })
+        .del();
+      await knex('animals')
+        .where({ id: animal_id })
+        .decrement('likes_count', 1);
+      return { msg: 'unliked' };
+    }
+    return { msg: 'Animal was not liked' };
   },
 };

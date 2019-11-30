@@ -1,28 +1,68 @@
 import React from 'react';
 import { Link } from '@reach/router';
-import { Card } from 'antd';
+import { Card, Icon, Tooltip } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { identityActions } from '../../redux/identity';
 
 function PetCard({ pet, linkPrefix }) {
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector(state => state.identity.isAuthenticated);
+
+  const handleLikePet = () => {
+    dispatch(identityActions.likeAnimal(pet.id));
+  };
+
+  const handleUnlikePet = () => {
+    dispatch(identityActions.unlikeAnimal(pet.id));
+  };
+
   return (
-    <Link key={pet.id} to={`${linkPrefix && linkPrefix}${pet.id}/${pet.name}`}>
-      <Card
-        style={{ height: '100%', borderRadius: 20 }}
-        cover={
+    <Card
+      style={{ height: '100%', borderRadius: 20 }}
+      cover={
+        <Link key={pet.id} to={`${linkPrefix && linkPrefix}${pet.id}/${pet.name}`}>
           <img
             alt={pet.name}
             src={pet.image_url}
             style={{ width: '100%', height: '250px', objectFit: 'cover', borderRadius: '20px 20px 0 0' }}
           />
-        }
-      >
-        <Card.Meta title={pet.name} description={pet.primary_breed} />
-        <div style={{ paddingTop: '6px ' }}>
-          <span>
-            {pet.gender} - {pet.age}
+        </Link>
+      }
+    >
+      <Card.Meta title={pet.name} description={pet.primary_breed} />
+      <div style={{ paddingTop: '6px ', position: 'relative' }}>
+        <span>
+          {pet.gender} - {pet.age}
+        </span>
+
+        {!!pet.likes_count && (
+          <span style={{ position: 'absolute', top: 0, right: 0 }}>
+            likes: <strong>{pet.likes_count}</strong>
           </span>
-        </div>
-      </Card>
-    </Link>
+        )}
+
+        {isAuthenticated &&
+          (pet.liked ? (
+            <Tooltip title='unlike pet'>
+              <Icon
+                type='heart'
+                theme='twoTone'
+                twoToneColor='#eb2f96'
+                style={{ position: 'absolute', bottom: '100%', right: 0, fontSize: '24px' }}
+                onClick={handleUnlikePet}
+              />
+            </Tooltip>
+          ) : (
+            <Tooltip title='like pet'>
+              <Icon
+                type='heart'
+                style={{ position: 'absolute', bottom: '100%', right: 0, fontSize: '24px' }}
+                onClick={handleLikePet}
+              />
+            </Tooltip>
+          ))}
+      </div>
+    </Card>
   );
 }
 

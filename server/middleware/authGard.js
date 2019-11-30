@@ -4,21 +4,16 @@ const config = require('../config');
 
 function requireJWT(req, res, next) {
   const authHeader = req.headers.authorization || req.headers['x-access-token'];
-
   if (!authHeader) {
     return next(createErorr.Unauthorized('Unauthorized access, no authorization header provided'));
   }
-
   const [authScheme, accessToken] = authHeader.split(' ');
-
   if (authScheme.trim() !== 'Bearer') {
     return next(createErorr.Unauthorized('Invalid authentication scheme type'));
   }
-
   if (!accessToken) {
     return next(createErorr.Unauthorized('Unauthorized access, no authorization token provided'));
   }
-
   try {
     const decoded = jwt.verify(accessToken, config.auth.jwtSecret);
     req.user = decoded;
@@ -28,6 +23,33 @@ function requireJWT(req, res, next) {
   }
 }
 
+function condAuth(req, res, next) {
+  const authHeader = req.headers.authorization || req.headers['x-access-token'];
+  if (!authHeader) {
+    req.anonymous = true;
+    return next();
+  }
+  const [authScheme, accessToken] = authHeader.split(' ');
+  if (authScheme.trim() !== 'Bearer') {
+    req.anonymous = true;
+    return next();
+  }
+  if (!accessToken) {
+    req.anonymous = true;
+    return next();
+  }
+  try {
+    const decoded = jwt.verify(accessToken, config.auth.jwtSecret);
+    req.anonymous = false;
+    req.user = decoded;
+    next();
+  } catch (err) {
+    req.anonymous = true;
+    return next();
+  }
+}
+
 module.exports = {
   requireJWT,
+  condAuth,
 };

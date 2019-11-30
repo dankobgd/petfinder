@@ -9,8 +9,9 @@ exports.getCountryCode = async (req, res, next) => {
 
 // Get latest animals
 exports.getLatestAnimals = async (req, res, next) => {
+  const userId = !req.anonymous && req.user && req.user.sub;
   try {
-    const latest = await AnimalService.getLatestAnimals();
+    const latest = await AnimalService.getLatestAnimals(userId);
     res.status(200).json({ animals: latest.rows });
   } catch (err) {
     next(createError.BadRequest(err.message));
@@ -19,8 +20,9 @@ exports.getLatestAnimals = async (req, res, next) => {
 
 // Get animals
 exports.getAnimals = async (req, res, next) => {
+  const userId = !req.anonymous && req.user && req.user.sub;
   try {
-    const { results, pagination } = await AnimalService.getSearchFilterResults(req.query);
+    const { results, pagination } = await AnimalService.getSearchFilterResults(req.query, userId);
     const searchResults = results.rows.map(({ total, ...rest }) => rest);
     res.status(200).json({ meta: pagination, animals: searchResults });
   } catch (err) {
@@ -68,6 +70,32 @@ exports.createAnimal = async (req, res, next) => {
     res.json(data);
   } catch (err) {
     console.error(err);
+  }
+};
+
+// Like pet
+exports.likeAnimal = async (req, res, next) => {
+  const animalId = Number.parseInt(req.params.id, 10);
+  const userId = req.user.sub;
+
+  try {
+    const result = await AnimalService.likeAnimal(userId, animalId);
+    res.status(200).json(result);
+  } catch (err) {
+    next(createError.BadRequest(err.message));
+  }
+};
+
+// Unlike pet
+exports.unlikeAnimal = async (req, res, next) => {
+  const animalId = Number.parseInt(req.params.id, 10);
+  const userId = req.user.sub;
+
+  try {
+    const result = await AnimalService.unlikeAnimal(userId, animalId);
+    res.status(200).json(result);
+  } catch (err) {
+    next(createError.BadRequest(err.message));
   }
 };
 

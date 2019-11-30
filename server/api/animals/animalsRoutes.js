@@ -2,14 +2,17 @@ const router = require('express').Router();
 const AnimalsController = require('./animalsController');
 const mw = require('../../middleware');
 
-const { requireJWT } = mw.authGard;
+const { requireJWT, condAuth } = mw.authGard;
 
-router.get('/', AnimalsController.getAnimals);
-router.get('/latest', AnimalsController.getLatestAnimals);
+router.get('/', condAuth, AnimalsController.getAnimals);
+router.get('/latest', condAuth, AnimalsController.getLatestAnimals);
 router.get('/:id', AnimalsController.getAnimal);
 router.post('/create', requireJWT, mw.uploadFile.upload().any(), AnimalsController.createAnimal);
-router.put('/update/:id', AnimalsController.updateAnimal);
-router.delete('/delete/:id', AnimalsController.deleteAnimal);
+router.put('/update/:id', requireJWT, AnimalsController.updateAnimal);
+router.delete('/delete/:id', requireJWT, AnimalsController.deleteAnimal);
+
+router.post('/:id/like', requireJWT, AnimalsController.likeAnimal);
+router.delete('/:id/unlike', requireJWT, AnimalsController.unlikeAnimal);
 
 router.get('/types', AnimalsController.getTypes);
 router.get('/types/:type', AnimalsController.getType);

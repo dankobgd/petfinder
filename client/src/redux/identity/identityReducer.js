@@ -6,6 +6,7 @@ const initialState = {
   isLoading: false,
   user: null,
   postedPets: [],
+  likedPets: [],
 };
 
 const reducer = (state = initialState, action) => {
@@ -73,6 +74,12 @@ const reducer = (state = initialState, action) => {
         isLoading: false,
         postedPets: action.payload.pets,
       };
+    case t.FETCH_LIKED_PETS_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        likedPets: action.payload.pets,
+      };
     case t.CREATE_PET_REQUEST:
       return {
         ...state,
@@ -83,6 +90,26 @@ const reducer = (state = initialState, action) => {
         ...state,
         isLoading: false,
       };
+    case t.LIKE_ANIMAL: {
+      const newPosted = state.postedPets.map(x => {
+        return x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x;
+      });
+      return {
+        ...state,
+        postedPets: newPosted,
+        likedPets: state.likedPets.filter(x => x.id === action.payload),
+      };
+    }
+    case t.UNLIKE_ANIMAL: {
+      const newPosted = state.postedPets.map(x => {
+        return x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x;
+      });
+      return {
+        ...state,
+        postedPets: newPosted,
+        likedPets: state.likedPets.filter(x => x.id !== action.payload),
+      };
+    }
     default:
       return state;
   }

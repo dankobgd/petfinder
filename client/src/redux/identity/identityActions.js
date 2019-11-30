@@ -153,12 +153,22 @@ export const changeUserPassword = userData => async dispatch => {
 // User Profile Collections
 export const fetchUsersPets = () => async dispatch => {
   dispatch({ type: t.FETCH_USERS_PETS });
-
   try {
     const pets = await apiClient.get('user/pets');
     dispatch({ type: t.FETCH_USERS_PETS_SUCCESS, payload: pets });
   } catch (err) {
     dispatch({ type: t.FETCH_USERS_PETS_FAILURE });
+  }
+};
+
+// User Profile Collections
+export const fetchLikedPets = () => async dispatch => {
+  dispatch({ type: t.FETCH_LIKED_PETS });
+  try {
+    const pets = await apiClient.get('user/pets/liked');
+    dispatch({ type: t.FETCH_LIKED_PETS_SUCCESS, payload: pets });
+  } catch (err) {
+    dispatch({ type: t.FETCH_LIKED_PETS_FAILURE });
   }
 };
 
@@ -184,5 +194,23 @@ export const createPet = petData => async dispatch => {
   } catch (err) {
     dispatch({ type: t.CREATE_PET_FAILURE });
     return Promise.reject(err);
+  }
+};
+
+export const likeAnimal = id => async dispatch => {
+  try {
+    await apiClient.post(`animals/${id}/like`);
+    dispatch({ type: t.LIKE_ANIMAL, payload: id });
+  } catch (err) {
+    dispatch(errorActions.getErrors(err));
+  }
+};
+
+export const unlikeAnimal = id => async dispatch => {
+  try {
+    await apiClient.del(`animals/${id}/unlike`);
+    dispatch({ type: t.UNLIKE_ANIMAL, payload: id });
+  } catch (err) {
+    dispatch(errorActions.getErrors(err));
   }
 };

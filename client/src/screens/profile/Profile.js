@@ -7,7 +7,8 @@ import AddPet from '../../screens/add/AddPet';
 import EditAccount from './EditAccount';
 import ChangePassword from './ChangePassword';
 import CreatedPets from './CreatedPets';
-import CreatedPet from './CreatedPet';
+import PetPage from './PetPage';
+import LikedPets from './LikedPets';
 
 const { SubMenu } = Menu;
 const { Sider, Content } = Layout;
@@ -37,10 +38,10 @@ function Profile() {
               <Link to='add_pet'>Add Pet</Link>
             </Menu.Item>
             <Menu.Item key='created'>
-              <Link to='created'>Added By Me</Link>
+              <Link to='created'>Posted pets</Link>
             </Menu.Item>
-            <Menu.Item key='following'>
-              <Link to='following'>Followed Pets</Link>
+            <Menu.Item key='liked'>
+              <Link to='liked'>Liked Pets</Link>
             </Menu.Item>
           </SubMenu>
           <SubMenu
@@ -79,9 +80,10 @@ function Profile() {
         >
           <Router>
             <PrivateRoute path='add_pet' component={AddPet} />
-            <PrivateRoute path='following' component={() => <div>Following</div>} />
+            <PrivateRoute path='liked' component={LikedPets} />
             <PrivateRoute path='created' component={CreatedPets} />
-            <PrivateRoute path='created/:id/:name' component={CreatedPet} />
+            <PrivateRoute path='liked/:id/:name' component={p => <PetPage arr='likedPets' {...p} />} />
+            <PrivateRoute path='created/:id/:name' component={p => <PetPage arr='postedPets' {...p} />} />
             <PrivateRoute path='account' component={EditAccount} />
             <PrivateRoute path='change_password' component={ChangePassword} />
           </Router>
