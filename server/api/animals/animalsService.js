@@ -187,6 +187,7 @@ module.exports = {
       const queries = [
         `
         SELECT
+            (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,
             ${userId ? 'liked,' : ''}
             COUNT(*) OVER() as total,
             (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat))
@@ -209,6 +210,7 @@ module.exports = {
             LEFT JOIN tags ON a.id = tags.animal_id
             LEFT JOIN colors ON a.id = colors.animal_id
             LEFT JOIN images ON a.id = images.animal_id
+            LEFT JOIN users on a.user_id = users.id
             ${condQuery}
         WHERE a.type = ? AND a.adopted = false
       `,
@@ -251,9 +253,9 @@ module.exports = {
       }
 
       if (userId) {
-        queries.push('GROUP BY a.id, contacts.id, liked');
+        queries.push('GROUP BY a.id, contacts.id, liked, users.id');
       } else {
-        queries.push('GROUP BY a.id, contacts.id');
+        queries.push('GROUP BY a.id, contacts.id, users.id');
       }
 
       const specifiedDistance = options.distance.toLowerCase() !== 'anywhere';
@@ -319,6 +321,7 @@ module.exports = {
     return knex.raw(
       `
       SELECT
+          (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,
           ${userId ? 'liked,' : ''}
           a.*,
           contacts.phone,
@@ -336,9 +339,10 @@ module.exports = {
           LEFT JOIN tags ON a.id = tags.animal_id
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
+          LEFT JOIN users on a.user_id = users.id
           ${condQuery}
       WHERE a.adopted = false
-      GROUP BY a.id, contacts.id ${userId ? ',liked' : ''}
+      GROUP BY a.id, contacts.id, users.id ${userId ? ',liked' : ''}
       ORDER BY a.created_at DESC
       LIMIT 8
     `
@@ -359,9 +363,9 @@ module.exports = {
       await knex('animals')
         .where({ id: animal_id })
         .increment('likes_count', 1);
-      return { msg: 'liked' };
+      return { msg: 'Pet liked' };
     }
-    return { msg: 'Animal already liked' };
+    throw new Error('Animal already liked');
   },
 
   async unlikeAnimal(user_id, animal_id) {
@@ -377,9 +381,9 @@ module.exports = {
       await knex('animals')
         .where({ id: animal_id })
         .decrement('likes_count', 1);
-      return { msg: 'unliked' };
+      return { msg: 'Pet unliked' };
     }
-    return { msg: 'Animal was not liked' };
+    throw new Error('Animal was not liked');
   },
 
   async adoptAnimal(user_id, animal_id) {
@@ -396,6 +400,6 @@ module.exports = {
         .update({ adopted: true });
       return { msg: 'Adopted' };
     }
-    return { msg: 'Animal already adopted' };
+    throw new Error('Animal already adopted');
   },
 };

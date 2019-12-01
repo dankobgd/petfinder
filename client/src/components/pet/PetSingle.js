@@ -71,13 +71,21 @@ function PetSingle({ pet }) {
       dispatch(identityActions.fetchAdoptedPets());
       navigate('/profile/adopted');
 
-      openNotificationWithIcon('success', pet.name);
+      sendAdoptedPetNotification('success', pet.name);
     } catch (err) {
-      console.error(err);
+      sendAlreadyAdoptedError();
     }
   };
 
-  const openNotificationWithIcon = (type, name) => {
+  const sendAlreadyAdoptedError = () => {
+    notification['error']({
+      message: 'Pet already adapted error',
+      description: 'Looks like somone was bit faster than you :c try with other fellas',
+      duration: 0,
+    });
+  };
+
+  const sendAdoptedPetNotification = (type, name) => {
     notification[type]({
       message: 'Pet Adopted',
       description: `You adopted ${name} successfully! Enjoy the company of your new friend.`,
@@ -164,7 +172,7 @@ function PetSingle({ pet }) {
           <div style={{ marginBottom: '1rem' }}>
             <Txt strong>Status</Txt> <Txt>{pet.adopted ? 'Adopted' : 'Adoptable'}</Txt>
           </div>
-          {!pet.adopted && (
+          {!pet.adopted && !pet.mine && (
             <Button onClick={handleAdoptPet} type='primary'>
               Adopt a pet
             </Button>

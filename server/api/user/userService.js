@@ -25,6 +25,7 @@ module.exports = {
     return knex.raw(
       `
       SELECT
+          (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,
           liked,
           a.*,
           contacts.phone,
@@ -42,9 +43,10 @@ module.exports = {
           LEFT JOIN tags ON a.id = tags.animal_id
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
+          LEFT JOIN users on a.user_id = users.id
           LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ?) liked ON true
       WHERE a.user_id = ?
-      GROUP BY a.id, contacts.id, liked
+      GROUP BY a.id, contacts.id, liked, users.id
     `,
       [userId, userId]
     );
@@ -54,6 +56,7 @@ module.exports = {
     return knex.raw(
       `
       SELECT
+          (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,  
           liked,
           a.*,
           contacts.phone,
@@ -72,9 +75,10 @@ module.exports = {
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
           LEFT JOIN likes ON a.id = likes.animal_id
+          LEFT JOIN users on a.user_id = users.id
           LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ?) liked ON true
       WHERE likes.user_id = ? AND a.id = likes.animal_id
-      GROUP BY a.id, contacts.id, liked
+      GROUP BY a.id, contacts.id, liked, users.id
     `,
       [userId, userId]
     );
@@ -84,6 +88,7 @@ module.exports = {
     return knex.raw(
       `
       SELECT
+          (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,
           liked,
           a.*,
           contacts.phone,
@@ -103,9 +108,11 @@ module.exports = {
           LEFT JOIN images ON a.id = images.animal_id
           LEFT JOIN likes ON a.id = likes.animal_id
           LEFT JOIN adopted ON a.id = adopted.animal_id
+          LEFT JOIN users on a.user_id = users.id
           LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ?) liked ON true
       WHERE a.adopted = true AND adopted.user_id = ?
-      GROUP BY a.id, contacts.id, liked`,
+      GROUP BY a.id, contacts.id, liked, users.id
+      `,
       [userId, userId]
     );
   },
