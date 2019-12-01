@@ -54,6 +54,7 @@ export const userLoginRequest = credentials => async dispatch => {
       },
     });
     dispatch(petsActions.fetchLatestAnimals());
+    dispatch(fetchAdoptedPets());
     localStorage.setItem('access_token', res.accessToken);
     return res;
   } catch (err) {
@@ -215,5 +216,26 @@ export const unlikeAnimal = id => async dispatch => {
     dispatch({ type: t.UNLIKE_ANIMAL, payload: id });
   } catch (err) {
     dispatch(errorActions.getErrors(err));
+  }
+};
+
+export const adoptAnimal = id => async dispatch => {
+  try {
+    await apiClient.post(`animals/${id}/adopt`);
+    dispatch({ type: t.ADOPT_ANIMAL, payload: id });
+    return Promise.resolve();
+  } catch (err) {
+    dispatch(errorActions.getErrors(err));
+    return Promise.reject(err);
+  }
+};
+
+export const fetchAdoptedPets = () => async dispatch => {
+  dispatch({ type: t.FETCH_ADOPTED_PETS });
+  try {
+    const pets = await apiClient.get('user/pets/adopted');
+    dispatch({ type: t.FETCH_ADOPTED_PETS_SUCCESS, payload: pets });
+  } catch (err) {
+    dispatch({ type: t.FETCH_ADOPTED_PETS_FAILURE });
   }
 };

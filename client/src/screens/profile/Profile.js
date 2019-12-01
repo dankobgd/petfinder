@@ -9,6 +9,7 @@ import ChangePassword from './ChangePassword';
 import CreatedPets from './CreatedPets';
 import PetPage from './PetPage';
 import LikedPets from './LikedPets';
+import AdoptedPets from './AdoptedPets';
 
 const { SubMenu } = Menu;
 const { Sider, Content } = Layout;
@@ -42,6 +43,9 @@ function Profile() {
             </Menu.Item>
             <Menu.Item key='liked'>
               <Link to='liked'>Liked Pets</Link>
+            </Menu.Item>
+            <Menu.Item key='adopted'>
+              <Link to='adopted'>Adopted Pets</Link>
             </Menu.Item>
           </SubMenu>
           <SubMenu
@@ -82,8 +86,10 @@ function Profile() {
             <PrivateRoute path='add_pet' component={AddPet} />
             <PrivateRoute path='liked' component={LikedPets} />
             <PrivateRoute path='created' component={CreatedPets} />
+            <PrivateRoute path='adopted' component={AdoptedPets} />
             <PrivateRoute path='liked/:id/:name' component={p => <PetPage arr='likedPets' {...p} />} />
             <PrivateRoute path='created/:id/:name' component={p => <PetPage arr='postedPets' {...p} />} />
+            <PrivateRoute path='adopted/:id/:name' component={p => <PetPage arr='adoptedPets' {...p} />} />
             <PrivateRoute path='account' component={EditAccount} />
             <PrivateRoute path='change_password' component={ChangePassword} />
           </Router>

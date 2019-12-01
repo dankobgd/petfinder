@@ -3,8 +3,8 @@ import { identityTypes } from '../identity';
 
 const initialState = {
   isLoading: false,
-  searchResults: [],
   meta: null,
+  searchResults: [],
   latest: [],
 };
 
@@ -38,31 +38,34 @@ const reducer = (state = initialState, action) => {
         latest: action.payload.pets,
       };
     case identityTypes.LIKE_ANIMAL: {
-      const newLatest = state.latest.map(x => {
-        return x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x;
-      });
-      const newSearchRes = state.searchResults.map(x => {
-        return x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x;
-      });
       return {
         ...state,
-        latest: newLatest,
-        searchResults: newSearchRes,
+        latest: state.latest.map(x =>
+          x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x
+        ),
+        searchResults: state.searchResults.map(x =>
+          x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x
+        ),
       };
     }
     case identityTypes.UNLIKE_ANIMAL: {
-      const newLatest = state.latest.map(x => {
-        return x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x;
-      });
-      const newSearchRes = state.latest.map(x => {
-        return x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x;
-      });
       return {
         ...state,
-        latest: newLatest,
-        searchResults: newSearchRes,
+        latest: state.latest.map(x =>
+          x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x
+        ),
+        searchResults: state.latest.map(x =>
+          x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x
+        ),
       };
     }
+    case identityTypes.ADOPT_ANIMAL:
+      return {
+        ...state,
+        latest: state.latest.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
+        searchResults: state.searchResults.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
+      };
+
     default:
       return state;
   }

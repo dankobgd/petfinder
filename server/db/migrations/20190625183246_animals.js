@@ -13,9 +13,9 @@ exports.up = knex =>
     t.string('age').notNullable();
     t.string('coat_length').notNullable();
     t.string('size').notNullable();
-    t.string('status').notNullable();
     t.string('image_url').notNullable();
     t.string('description');
+    t.boolean('adopted').notNullable();
 
     // attributes
     t.boolean('declawed').defaultTo(0);

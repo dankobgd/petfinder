@@ -65,7 +65,7 @@ const createAnimals = (elm, idsArr) => ({
   secondary_breed: elm.breeds.secondary,
   mixed_breed: elm.breeds.mixed,
   unknown_breed: elm.breeds.unknown,
-  status: 'Adoptable',
+  adopted: false,
 });
 
 exports.seed = async knex => {
@@ -75,7 +75,7 @@ exports.seed = async knex => {
   // Start with clean data
   await knex.migrate.rollback();
   await knex.migrate.latest();
-  
+
   const fakeUsers = [testUser];
   for (let i = 0; i < 50; i++) {
     fakeUsers.push({

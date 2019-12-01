@@ -115,11 +115,11 @@ module.exports = {
         size: data.size,
         description: data.description,
         image_url: data.imageUrl,
-        status: 'Adoptable',
         primary_breed: data.primaryBreed,
         secondary_breed: data.secondaryBreed,
         mixed_breed: Number(!!data.mixedBreed),
         unknown_breed: Number(!!data.unknownBreed),
+        adopted: false,
         ...petAttributes,
       })
       .returning('id');
@@ -210,7 +210,7 @@ module.exports = {
             LEFT JOIN colors ON a.id = colors.animal_id
             LEFT JOIN images ON a.id = images.animal_id
             ${condQuery}
-        WHERE a.type = ?
+        WHERE a.type = ? AND a.adopted = false
       `,
       ];
 
@@ -336,7 +336,8 @@ module.exports = {
           LEFT JOIN tags ON a.id = tags.animal_id
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
-          ${condQuery}          
+          ${condQuery}
+      WHERE a.adopted = false
       GROUP BY a.id, contacts.id ${userId ? ',liked' : ''}
       ORDER BY a.created_at DESC
       LIMIT 8
@@ -379,5 +380,22 @@ module.exports = {
       return { msg: 'unliked' };
     }
     return { msg: 'Animal was not liked' };
+  },
+
+  async adoptAnimal(user_id, animal_id) {
+    const res = await knex
+      .from('animals')
+      .select('adopted')
+      .andWhere({ id: animal_id });
+
+    await knex('adopted').insert({ user_id, animal_id });
+
+    if (!res[0].adopted) {
+      await knex('animals')
+        .where({ id: animal_id })
+        .update({ adopted: true });
+      return { msg: 'Adopted' };
+    }
+    return { msg: 'Animal already adopted' };
   },
 };

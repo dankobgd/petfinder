@@ -1,7 +1,10 @@
 import React from 'react';
-import { Card, Typography, Divider } from 'antd';
+import { Card, Typography, Divider, Button, notification } from 'antd';
 import ImageGallery from 'react-image-gallery';
 import LeafletMap from './LeafletMap';
+import { useDispatch } from 'react-redux';
+import { identityActions } from '../../redux/identity';
+import { navigate } from '@reach/router';
 
 const getImageThumb = originalUrl => {
   const transformations = 'w_100,h_100';
@@ -35,6 +38,8 @@ function Dot() {
 }
 
 function PetSingle({ pet }) {
+  const dispatch = useDispatch();
+
   let galleryImages = [];
 
   if (!pet.images) {
@@ -59,6 +64,25 @@ function PetSingle({ pet }) {
 
   const petGoodWith = goodWithList.filter((elm, idx) => goodWithProvided[idx]);
   const petAttributes = attributesList.filter((elm, idx) => attributesProvided[idx]);
+
+  const handleAdoptPet = async () => {
+    try {
+      await dispatch(identityActions.adoptAnimal(pet.id));
+      dispatch(identityActions.fetchAdoptedPets());
+      navigate('/profile/adopted');
+
+      openNotificationWithIcon('success', pet.name);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const openNotificationWithIcon = (type, name) => {
+    notification[type]({
+      message: 'Pet Adopted',
+      description: `You adopted ${name} successfully! Enjoy the company of your new friend.`,
+    });
+  };
 
   return (
     <div>
@@ -136,6 +160,15 @@ function PetSingle({ pet }) {
           <div style={{ marginBottom: '1rem' }}>
             <Txt strong>Description</Txt> <Txt>{pet.description}</Txt>
           </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <Txt strong>Status</Txt> <Txt>{pet.adopted ? 'Adopted' : 'Adoptable'}</Txt>
+          </div>
+          {!pet.adopted && (
+            <Button onClick={handleAdoptPet} type='primary'>
+              Adopt a pet
+            </Button>
+          )}
         </div>
 
         <Card>

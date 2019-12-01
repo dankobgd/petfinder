@@ -99,6 +99,19 @@ exports.unlikeAnimal = async (req, res, next) => {
   }
 };
 
+// Adopt pet
+exports.adoptAnimal = async (req, res, next) => {
+  const animalId = Number.parseInt(req.params.id, 10);
+  const userId = req.user.sub;
+
+  try {
+    const result = await AnimalService.adoptAnimal(userId, animalId);
+    res.status(200).json(result);
+  } catch (err) {
+    next(createError.BadRequest(err.message));
+  }
+};
+
 // Update animal
 exports.updateAnimal = async (req, res, next) => {
   res.status(200).json({ animals: 'UPDATE' });

@@ -80,3 +80,15 @@ exports.getLikedPets = async (req, res, next) => {
     return next(createError.BadRequest('Could not fetch pets'));
   }
 };
+
+// Get user's adopted pets
+exports.getAdoptedPets = async (req, res, next) => {
+  const userId = req.user.sub;
+
+  try {
+    const pets = await UserService.getAdoptedPets(userId);
+    res.status(200).json({ pets: pets.rows });
+  } catch (err) {
+    return next(createError.BadRequest('Could not fetch pets'));
+  }
+};

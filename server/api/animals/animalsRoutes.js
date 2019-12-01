@@ -14,6 +14,8 @@ router.delete('/delete/:id', requireJWT, AnimalsController.deleteAnimal);
 router.post('/:id/like', requireJWT, AnimalsController.likeAnimal);
 router.delete('/:id/unlike', requireJWT, AnimalsController.unlikeAnimal);
 
+router.post('/:id/adopt', requireJWT, AnimalsController.adoptAnimal);
+
 router.get('/types', AnimalsController.getTypes);
 router.get('/types/:type', AnimalsController.getType);
 

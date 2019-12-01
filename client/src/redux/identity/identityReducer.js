@@ -7,6 +7,7 @@ const initialState = {
   user: null,
   postedPets: [],
   likedPets: [],
+  adoptedPets: [],
 };
 
 const reducer = (state = initialState, action) => {
@@ -64,6 +65,8 @@ const reducer = (state = initialState, action) => {
         user: { ...withoutAvatar },
       };
     case t.FETCH_USERS_PETS:
+    case t.FETCH_LIKED_PETS:
+    case t.FETCH_ADOPTED_PETS:
       return {
         ...state,
         isLoading: true,
@@ -80,6 +83,13 @@ const reducer = (state = initialState, action) => {
         isLoading: false,
         likedPets: action.payload.pets,
       };
+    case t.FETCH_ADOPTED_PETS_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        adoptedPets: action.payload.pets,
+      };
+
     case t.CREATE_PET_REQUEST:
       return {
         ...state,
@@ -91,25 +101,35 @@ const reducer = (state = initialState, action) => {
         isLoading: false,
       };
     case t.LIKE_ANIMAL: {
-      const newPosted = state.postedPets.map(x => {
-        return x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x;
-      });
       return {
         ...state,
-        postedPets: newPosted,
         likedPets: state.likedPets.filter(x => x.id === action.payload),
+        postedPets: state.postedPets.map(x =>
+          x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x
+        ),
+        adoptedPets: state.adoptedPets.map(x =>
+          x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x
+        ),
       };
     }
     case t.UNLIKE_ANIMAL: {
-      const newPosted = state.postedPets.map(x => {
-        return x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x;
-      });
       return {
         ...state,
-        postedPets: newPosted,
         likedPets: state.likedPets.filter(x => x.id !== action.payload),
+        postedPets: state.postedPets.map(x =>
+          x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x
+        ),
+        adoptedPets: state.adoptedPets.map(x =>
+          x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x
+        ),
       };
     }
+    case t.ADOPT_ANIMAL:
+      return {
+        ...state,
+        adoptedPets: state.adoptedPets.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
+        likedPets: state.likedPets.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
+      };
     default:
       return state;
   }

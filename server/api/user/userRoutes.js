@@ -12,5 +12,6 @@ router.post('/edit-account', requireJWT, mw.validate(accountSchema), UserControl
 router.post('/change-password', requireJWT, mw.validate(passwordSchema), UserController.changePassword);
 router.get('/pets', requireJWT, UserController.getUsersPets);
 router.get('/pets/liked', requireJWT, UserController.getLikedPets);
+router.get('/pets/adopted', requireJWT, UserController.getAdoptedPets);
 
 module.exports = router;

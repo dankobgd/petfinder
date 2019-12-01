@@ -7,8 +7,8 @@ import { Tabs, Icon } from 'antd';
 function CreatedPets() {
   const dispatch = useDispatch();
   const pets = useSelector(state => state.identity.postedPets);
-  const adopted = pets.filter(p => p.status === 'Adopted');
-  const adoptable = pets.filter(p => p.status === 'Adoptable');
+  const adopted = pets.filter(p => p.adopted === true);
+  const adoptable = pets.filter(p => p.adopted === false);
 
   useEffect(() => {
     if (!pets.length) {
