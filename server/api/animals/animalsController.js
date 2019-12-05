@@ -66,8 +66,8 @@ exports.createAnimal = async (req, res, next) => {
       zip: extractZip(results[0].display_name),
     };
 
-    await AnimalService.createPet(data);
-    res.json(data);
+    const petData = await AnimalService.createPet(data);
+    res.status(201).json({ petData });
   } catch (err) {
     console.error(err);
   }
@@ -77,7 +77,6 @@ exports.createAnimal = async (req, res, next) => {
 exports.likeAnimal = async (req, res, next) => {
   const animalId = Number.parseInt(req.params.id, 10);
   const userId = req.user.sub;
-
   try {
     const result = await AnimalService.likeAnimal(userId, animalId);
     res.status(200).json(result);
@@ -90,7 +89,6 @@ exports.likeAnimal = async (req, res, next) => {
 exports.unlikeAnimal = async (req, res, next) => {
   const animalId = Number.parseInt(req.params.id, 10);
   const userId = req.user.sub;
-
   try {
     const result = await AnimalService.unlikeAnimal(userId, animalId);
     res.status(200).json(result);
@@ -103,7 +101,6 @@ exports.unlikeAnimal = async (req, res, next) => {
 exports.adoptAnimal = async (req, res, next) => {
   const animalId = Number.parseInt(req.params.id, 10);
   const userId = req.user.sub;
-
   try {
     const result = await AnimalService.adoptAnimal(userId, animalId);
     res.status(200).json(result);
@@ -112,22 +109,24 @@ exports.adoptAnimal = async (req, res, next) => {
   }
 };
 
-// Update animal
+// Update pet
 exports.updateAnimal = async (req, res, next) => {
-  res.status(200).json({ animals: 'UPDATE' });
+  const animalId = Number.parseInt(req.params.id, 10);
+  try {
+    const result = await AnimalService.updateAnimal(animalId, req.body.petData);
+    res.status(200).json(result);
+  } catch (err) {
+    next(createError.BadRequest(err.message));
+  }
 };
 
-// Delete animal
+// Delete pet
 exports.deleteAnimal = async (req, res, next) => {
-  res.status(200).json({ animals: 'DELETE' });
-};
-
-// Get all types
-exports.getTypes = async (req, res, next) => {
-  res.status(200).json({ animals: 'ALL_TYPES' });
-};
-
-// Get type
-exports.getType = async (req, res, next) => {
-  res.status(200).json({ animals: 'TYPE' });
+  const animalId = Number.parseInt(req.params.id, 10);
+  try {
+    const result = await AnimalService.deleteAnimal(animalId);
+    res.status(200).json(result);
+  } catch (err) {
+    next(createError.BadRequest(err.message));
+  }
 };

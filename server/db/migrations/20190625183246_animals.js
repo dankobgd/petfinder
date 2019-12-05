@@ -3,7 +3,8 @@ exports.up = knex =>
     t.increments('id').primary();
     t.integer('user_id')
       .references('id')
-      .inTable('users');
+      .inTable('users')
+      .onDelete('CASCADE');
 
     // common
     t.string('name').notNullable();

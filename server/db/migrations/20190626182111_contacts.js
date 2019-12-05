@@ -3,7 +3,8 @@ exports.up = knex =>
     t.increments('id').primary();
     t.integer('animal_id')
       .references('id')
-      .inTable('animals');
+      .inTable('animals')
+      .onDelete('CASCADE');
     t.string('phone').notNullable();
     t.string('email').notNullable();
     t.string('country').notNullable();

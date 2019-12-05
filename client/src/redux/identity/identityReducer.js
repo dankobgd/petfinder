@@ -130,6 +130,20 @@ const reducer = (state = initialState, action) => {
         adoptedPets: state.adoptedPets.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
         likedPets: state.likedPets.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
       };
+    case t.UPDATE_PET_SUCCESS:
+      return {
+        ...state,
+        likedPets: state.likedPets.map(x => (x.id === action.payload.id ? { ...x, ...action.payload.petData } : x)),
+        adoptedPets: state.adoptedPets.map(x => (x.id === action.payload.id ? { ...x, ...action.payload.petData } : x)),
+        postedPets: state.postedPets.map(x => (x.id === action.payload.id ? { ...x, ...action.payload.petData } : x)),
+      };
+    case t.DELETE_PET_SUCCESS:
+      return {
+        ...state,
+        likedPets: state.likedPets.filter(x => x.id !== action.payload.id),
+        adoptedPets: state.adoptedPets.filter(x => x.id !== action.payload.id),
+        postedPets: state.postedPets.filter(x => x.id !== action.payload.id),
+      };
     default:
       return state;
   }

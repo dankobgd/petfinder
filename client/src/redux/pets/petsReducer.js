@@ -65,7 +65,20 @@ const reducer = (state = initialState, action) => {
         latest: state.latest.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
         searchResults: state.searchResults.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
       };
-
+    case identityTypes.UPDATE_PET_SUCCESS:
+      return {
+        ...state,
+        latest: state.latest.map(x => (x.id === action.payload.id ? { ...x, ...action.payload.petData } : x)),
+        searchResults: state.searchResults.map(x =>
+          x.id === action.payload.id ? { ...x, ...action.payload.petData } : x
+        ),
+      };
+    case identityTypes.DELETE_PET_SUCCESS:
+      return {
+        ...state,
+        latest: state.latest.filter(x => x.id !== action.payload.id),
+        searchResults: state.searchResults.filter(x => x.id !== action.payload.id),
+      };
     default:
       return state;
   }

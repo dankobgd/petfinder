@@ -4,7 +4,8 @@ exports.up = knex =>
     t.integer('user_id')
       .references('id')
       .inTable('users')
-      .notNullable();
+      .notNullable()
+      .onDelete('CASCADE');
     t.string('token');
     t.timestamp('expires');
   });

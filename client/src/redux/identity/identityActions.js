@@ -178,7 +178,6 @@ export const fetchLikedPets = () => async dispatch => {
 
 export const createPet = petData => async dispatch => {
   dispatch({ type: t.CREATE_PET_REQUEST });
-
   try {
     const profileImage = petData.find(x => x.name === 'profileImage');
     const galleryImages = petData.filter(x => x.name === 'galleryImages');
@@ -189,7 +188,7 @@ export const createPet = petData => async dispatch => {
     formData.append('profileImage', profileImage.value[0].originFileObj);
     galleryImages[0].value.map(val => formData.append('galleryImages', val.originFileObj));
 
-    await apiClient.post('animals/create', { data: formData });
+    await apiClient.post('animals', { data: formData });
     dispatch({
       type: t.CREATE_PET_SUCCESS,
       payload: { data },
@@ -197,6 +196,33 @@ export const createPet = petData => async dispatch => {
     return Promise.resolve();
   } catch (err) {
     dispatch({ type: t.CREATE_PET_FAILURE });
+    return Promise.reject(err);
+  }
+};
+
+export const updatePet = (id, petData) => async dispatch => {
+  dispatch({ type: t.UPDATE_PET_REQUEST });
+  try {
+    const res = await apiClient.put(`animals/${id}`, { data: { id, petData } });
+    dispatch({
+      type: t.UPDATE_PET_SUCCESS,
+      payload: { id, petData: res.petData },
+    });
+    return Promise.resolve();
+  } catch (err) {
+    dispatch({ type: t.UPDATE_PET_FAILURE });
+    return Promise.reject(err);
+  }
+};
+
+export const deletePet = id => async dispatch => {
+  dispatch({ type: t.DELETE_PET_REQUEST });
+  try {
+    await apiClient.del(`animals/${id}`);
+    dispatch({ type: t.DELETE_PET_SUCCESS, payload: { id } });
+    return Promise.resolve();
+  } catch (err) {
+    dispatch({ type: t.DELETE_PET_FAILURE });
     return Promise.reject(err);
   }
 };

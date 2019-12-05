@@ -69,7 +69,6 @@ module.exports = {
   },
 
   async createPet(obj) {
-    // // const data = lowerizeCase(obj);
     const data = {};
     Object.entries(obj).forEach(([key, val]) => {
       if (!val || val === 'undefined') {
@@ -93,35 +92,37 @@ module.exports = {
     const providedAttrs = data.attributes ? data.attributes.split(',') : [];
     const providedEnv = data.environment ? data.environment.split(',') : [];
     const provided = [...providedAttrs, ...providedEnv];
-    const petAttributes = {};
+    const petCharacteristics = {};
 
     _.intersection(target, provided).forEach(item => {
       if (item.startsWith('good')) {
-        petAttributes[[item]] = Number(!item);
+        petCharacteristics[[item]] = Number(!item);
       } else {
-        petAttributes[[item]] = Number(!!item);
+        petCharacteristics[[item]] = Number(!!item);
       }
     });
 
+    const insertAnimalObj = {
+      user_id: data.userId,
+      name: data.name,
+      type: data.type,
+      species: data.species,
+      gender: data.gender,
+      age: data.age,
+      coat_length: data.coatLength,
+      size: data.size,
+      description: data.description,
+      image_url: data.imageUrl,
+      primary_breed: data.primaryBreed,
+      secondary_breed: data.secondaryBreed,
+      mixed_breed: Number(!!data.mixedBreed),
+      unknown_breed: Number(!!data.unknownBreed),
+      adopted: false,
+      ...petCharacteristics,
+    };
+
     const animalId = await knex('animals')
-      .insert({
-        user_id: data.userId,
-        name: data.name,
-        type: data.type,
-        species: data.species,
-        gender: data.gender,
-        age: data.age,
-        coat_length: data.coatLength,
-        size: data.size,
-        description: data.description,
-        image_url: data.imageUrl,
-        primary_breed: data.primaryBreed,
-        secondary_breed: data.secondaryBreed,
-        mixed_breed: Number(!!data.mixedBreed),
-        unknown_breed: Number(!!data.unknownBreed),
-        adopted: false,
-        ...petAttributes,
-      })
+      .insert(insertAnimalObj)
       .returning('id');
 
     await knex('contacts').insert({
@@ -158,14 +159,6 @@ module.exports = {
       const p = obj.tags.split(',').map(text => knex('tags').insert({ animal_id: animalId[0], text }));
       await Promise.all(p);
     }
-  },
-
-  async getAnimals() {
-    return knex('animals');
-  },
-
-  async getSingleAnimal(id) {
-    return knex('animals').where({ id });
   },
 
   async getSearchFilterResults(options, userId) {
@@ -401,5 +394,89 @@ module.exports = {
       return { msg: 'Adopted' };
     }
     throw new Error('Animal already adopted');
+  },
+
+  async updateAnimal(animal_id, petData) {
+    const target = [
+      'declawed',
+      'house_trained',
+      'special_needs',
+      'vaccinated',
+      'spayed_neutered',
+      'good_with_kids',
+      'good_with_cats',
+      'good_with_dogs',
+    ];
+
+    const providedAttrs = petData.attributes ? petData.attributes : [];
+    const providedEnv = petData.environment ? petData.environment : [];
+    const provided = [...providedAttrs, ...providedEnv];
+    const petCharacteristics = {};
+
+    _.intersection(target, provided).forEach(item => {
+      if (item.startsWith('good')) {
+        petCharacteristics[[item]] = !item;
+      } else {
+        petCharacteristics[[item]] = !!item;
+      }
+    });
+
+    const updateObject = {
+      user_id: petData.userId,
+      name: petData.name,
+      type: petData.type,
+      species: petData.species,
+      gender: petData.gender,
+      age: petData.age,
+      coat_length: petData.coatLength,
+      size: petData.size,
+      description: petData.description,
+      primary_breed: petData.primaryBreed,
+      secondary_breed: petData.secondaryBreed,
+      mixed_breed: !!petData.mixedBreed,
+      unknown_breed: !!petData.unknownBreed,
+      ...petCharacteristics,
+    };
+
+    const animalId = await knex('animals')
+      .where({ id: animal_id })
+      .update(updateObject)
+      .returning('id');
+
+    await Promise.all(petData.colors.map(color => knex('colors').insert({ animal_id: animalId[0], color })));
+
+    if (petData.attributes && petData.attributes.includes('microchip')) {
+      await knex('microchip')
+        .where({ animal_id })
+        .update({
+          number: petData.chipId,
+          brand: petData.chipBrand,
+          location: petData.chipLocation,
+          description: petData.chipDescription,
+        });
+    }
+
+    if (petData.tags && petData.tags.length) {
+      await Promise.all(petData.tags.map(text => knex('tags').insert({ animal_id: animalId[0], text })));
+    }
+
+    return {
+      petData: {
+        id: animalId[0],
+        ...updateObject,
+        colors: petData.colors,
+        tags: petData.tags,
+      },
+    };
+  },
+
+  async deleteAnimal(id) {
+    try {
+      return knex('animals')
+        .where({ id })
+        .del();
+    } catch (err) {
+      throw err;
+    }
   },
 };
