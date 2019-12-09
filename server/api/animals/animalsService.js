@@ -180,7 +180,7 @@ module.exports = {
       const queries = [
         `
         SELECT
-            (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,
+            ${userId ? '(CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,' : ''}
             ${userId ? 'liked,' : ''}
             COUNT(*) OVER() as total,
             (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat))
@@ -314,7 +314,7 @@ module.exports = {
     return knex.raw(
       `
       SELECT
-          (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,
+          ${userId ? '(CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,' : ''}
           ${userId ? 'liked,' : ''}
           a.*,
           contacts.phone,
@@ -478,5 +478,40 @@ module.exports = {
     } catch (err) {
       throw err;
     }
+  },
+
+  async getAnimal(animalId, userId) {
+    const condQuery = userId
+      ? `LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ${userId}) liked ON true`
+      : '';
+
+    return knex.raw(
+      `
+      SELECT
+          ${userId ? '(CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,' : ''}
+          ${userId ? 'liked,' : ''}
+          a.*,
+          contacts.phone,
+          contacts.email,
+          contacts.country,
+          contacts.city,
+          contacts.address,
+          contacts.lat,
+          contacts.lng,
+          COALESCE(JSON_AGG(DISTINCT tags.text) FILTER (WHERE tags.animal_id IS NOT NULL), NULL) AS tags,
+          COALESCE(JSON_AGG(DISTINCT images.url) FILTER (WHERE images.animal_id IS NOT NULL), NULL) AS images,
+          COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL) AS colors
+      FROM animals as a
+          LEFT JOIN contacts ON a.id = contacts.animal_id
+          LEFT JOIN tags ON a.id = tags.animal_id
+          LEFT JOIN colors ON a.id = colors.animal_id
+          LEFT JOIN images ON a.id = images.animal_id
+          LEFT JOIN users on a.user_id = users.id
+          ${condQuery}
+      WHERE a.adopted = false AND a.id = ${animalId}
+      GROUP BY a.id, contacts.id, users.id ${userId ? ',liked' : ''}
+      ORDER BY a.created_at DESC
+    `
+    );
   },
 };

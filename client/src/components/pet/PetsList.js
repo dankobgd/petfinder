@@ -5,7 +5,7 @@ import PetCard from './PetCard';
 function PetsList({ pets, linkPrefix = '' }) {
   return (
     <Row gutter={16} type='flex'>
-      {pets.length ? (
+      {pets && pets.length ? (
         pets.map(pet => (
           <Col key={pet.id} xs={24} sm={12} md={8} lg={8} xl={6} style={{ height: '100%' }}>
             <PetCard pet={pet} linkPrefix={linkPrefix} />

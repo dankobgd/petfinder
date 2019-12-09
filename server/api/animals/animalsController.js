@@ -32,9 +32,14 @@ exports.getAnimals = async (req, res, next) => {
 
 // Get animal
 exports.getAnimal = async (req, res, next) => {
-  const { id } = req.params;
-  const animal = await AnimalService.getSingleAnimal(id);
-  res.status(200).json({ animal });
+  const userId = req.user && req.user.sub;
+  const animalId = req.params.id;
+  try {
+    const result = await AnimalService.getAnimal(animalId, userId);
+    res.status(200).json({ animal: result.rows[0] });
+  } catch (err) {
+    next(createError.BadRequest(err.message));
+  }
 };
 
 // Create animal

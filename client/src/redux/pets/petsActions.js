@@ -35,10 +35,8 @@ export const fetchLatestAnimals = () => async dispatch => {
       type: t.FETCH_LATEST_ANIMALS_SUCCESS,
       payload: { pets: res.animals },
     });
-    return res;
   } catch (err) {
     dispatch(errorActions.getErrors(err));
     dispatch({ type: t.FETCH_LATEST_ANIMALS_FAILURE });
-    return Promise.reject(err);
   }
 };

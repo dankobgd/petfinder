@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Typography, Divider, Button, notification, Tooltip, Drawer, Popconfirm, Icon } from 'antd';
 import ImageGallery from 'react-image-gallery';
 import LeafletMap from './LeafletMap';
@@ -7,10 +7,11 @@ import { identityActions } from '../../redux/identity';
 import { toastActions } from '../../redux/toast';
 import { navigate } from '@reach/router';
 import EditPetForm from './EditPetForm';
+import apiClient from '../../utils/apiClient';
 
 const getProp = (obj, path) => path.split('.').reduce((prev, curr) => (prev ? prev[curr] : null), obj);
 
-const isCloudinaryImageUrl = url => url.includes('res.cloudinary');
+const isCloudinaryImageUrl = url => (url && url.includes('res.cloudinary') ? true : false);
 
 const getImageThumb = originalUrl => {
   const transformations = 'w_100,h_100';
@@ -21,8 +22,33 @@ const getImageThumb = originalUrl => {
 
 function PetSingle({ arr, id }) {
   const dispatch = useDispatch();
+  const petId = Number.parseInt(id, 10);
+  const currentPet = useSelector(state => getProp(state, arr).find(p => p.id === petId));
+  const [pet, setPet] = useState(currentPet);
 
-  const pet = useSelector(state => getProp(state, arr).find(p => p.id === Number.parseInt(id, 10)));
+  useEffect(() => {
+    async function checkPetCache() {
+      if (!pet) {
+        try {
+          const cache = JSON.parse(localStorage.getItem('pf:cache'));
+          const cachedPet = cache && cache.latest.find(x => x.id === petId);
+          if (cachedPet) {
+            setPet(cachedPet);
+          } else {
+            try {
+              const result = await apiClient.get(`animals/${petId}`);
+              setPet(result.animal);
+            } catch (err) {
+              console.error(err);
+            }
+          }
+        } catch (err) {
+          console.error('unable to parse cached pets data');
+        }
+      }
+    }
+    checkPetCache();
+  }, [pet, petId]);
 
   const [editDrawerVisible, setEditDrawerVisible] = useState(false);
   const showEditDrawer = () => {
@@ -69,25 +95,30 @@ function PetSingle({ arr, id }) {
   };
 
   let galleryImages = [];
-  if (!pet.images) {
-    galleryImages.push({
-      original: pet.image_url,
-      thumbnail: isCloudinaryImageUrl(pet.image_url) ? getImageThumb(pet.image_url) : pet.image_url,
-    });
-  } else {
-    pet.images.forEach(img => {
+
+  if (pet) {
+    if (!pet.images) {
       galleryImages.push({
-        original: img,
-        thumbnail: getImageThumb(img),
+        original: pet.image_url,
+        thumbnail: isCloudinaryImageUrl(pet.image_url) ? getImageThumb(pet.image_url) : pet.image_url,
       });
-    });
+    } else {
+      pet.images.forEach(img => {
+        galleryImages.push({
+          original: img,
+          thumbnail: getImageThumb(img),
+        });
+      });
+    }
   }
 
   const attributesList = ['House Trained', 'Declawed', 'Spayed/Neutered', 'Special Needs', 'Vaccinated'];
   const goodWithList = ['Other Cats', 'Dogs', 'Kids'];
 
-  const goodWithProvided = [pet.good_with_cats, pet.good_with_dogs, pet.good_with_kids];
-  const attributesProvided = [pet.house_trained, pet.declawed, pet.spayed_neutered, pet.special_needs, pet.vaccinated];
+  const goodWithProvided = pet ? [pet.good_with_cats, pet.good_with_dogs, pet.good_with_kids] : [];
+  const attributesProvided = pet
+    ? [pet.house_trained, pet.declawed, pet.spayed_neutered, pet.special_needs, pet.vaccinated]
+    : [];
 
   const petGoodWith = goodWithList.filter((elm, idx) => goodWithProvided[idx]);
   const petAttributes = attributesList.filter((elm, idx) => attributesProvided[idx]);
@@ -105,131 +136,135 @@ function PetSingle({ arr, id }) {
       </Drawer>
 
       <div>
-        <ImageGallery
-          showPlayButton={galleryImages.length !== 1}
-          showThumbnails={galleryImages.length !== 1}
-          items={galleryImages}
-          autoPlay={true}
-          slideInterval={5000}
-        />
+        {pet && (
+          <ImageGallery
+            showPlayButton={galleryImages.length !== 1}
+            showThumbnails={galleryImages.length !== 1}
+            items={galleryImages}
+            autoPlay={true}
+            slideInterval={5000}
+          />
+        )}
 
-        <Card style={{ borderRadius: 20, marginTop: '1rem' }}>
-          {pet.mine && (
-            <Tooltip title='Edit Pet Info'>
-              <Button type='primary' shape='circle' icon='edit' size='large' onClick={showEditDrawer} />
-            </Tooltip>
-          )}
-
-          {pet.mine && (
-            <Tooltip title='Delete pet'>
-              <Popconfirm
-                title='Are you sure？'
-                okText='Yes'
-                icon={<Icon type='delete' style={{ color: 'red' }} />}
-                onConfirm={handleDeletePet}
-              >
-                <Button type='primary' shape='circle' icon='delete' size='large' />
-              </Popconfirm>
-            </Tooltip>
-          )}
-
-          <div>
-            <Title level={1}>{pet.name}</Title>
-          </div>
-          <div>
-            {pet.primary_breed && <Txt strong>{pet.primary_breed}</Txt>}
-            {pet.secondary_breed && <Txt type='secondary'> &#38; {pet.secondary_breed}</Txt>}
-            {pet.unkown_breed && <Txt type='secondary'>Unkown Breed</Txt>}
-          </div>
-
-          <div>
-            <Divider />
-            <Txt>{pet.age}</Txt> <Dot />
-            <Txt>{pet.gender}</Txt> <Dot />
-            <Txt>{pet.size}</Txt>
-            <Divider />
-          </div>
-
-          <div>
-            <div style={{ marginBottom: '2rem' }}>
-              <Typography.Title level={3}>About</Typography.Title> {'\n'}
-            </div>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <Txt strong>Coat Length</Txt> <Txt>{pet.coat_length}</Txt>
-            </div>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <Txt strong>Attributes: </Txt>
-              {petAttributes.map((item, idx) => (
-                <React.Fragment key={item}>
-                  <Txt>{item}</Txt>{' '}
-                  {idx !== petAttributes.length - 1 && (
-                    <>
-                      <Dot />{' '}
-                    </>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <Txt strong>Good In Home With: </Txt>
-              {petGoodWith.map((item, idx) => (
-                <React.Fragment key={item}>
-                  <Txt>{item}</Txt>{' '}
-                  {idx !== petGoodWith.length - 1 && (
-                    <>
-                      <Dot />{' '}
-                    </>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <Txt strong>Colors: </Txt> <Txt>{pet.colors}</Txt>
-            </div>
-
-            {pet.tags && (
-              <Txt style={{ marginBottom: '1rem' }}>
-                <Txt strong>Tags: </Txt> <Txt>{pet.tags}</Txt>
-              </Txt>
+        {pet && (
+          <Card style={{ borderRadius: 20, marginTop: '1rem' }}>
+            {pet.mine && (
+              <Tooltip title='Edit Pet Info'>
+                <Button type='primary' shape='circle' icon='edit' size='large' onClick={showEditDrawer} />
+              </Tooltip>
             )}
 
-            <div style={{ marginBottom: '1rem' }}>
-              <Txt strong>Description</Txt> <Txt>{pet.description}</Txt>
-            </div>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <Txt strong>Status</Txt> <Txt>{pet.adopted ? 'Adopted' : 'Adoptable'}</Txt>
-            </div>
-            {!pet.adopted && !pet.mine && (
-              <Button onClick={handleAdoptPet} type='primary'>
-                Adopt a pet
-              </Button>
+            {pet.mine && (
+              <Tooltip title='Delete pet'>
+                <Popconfirm
+                  title='Are you sure？'
+                  okText='Yes'
+                  icon={<Icon type='delete' style={{ color: 'red' }} />}
+                  onConfirm={handleDeletePet}
+                >
+                  <Button type='primary' shape='circle' icon='delete' size='large' />
+                </Popconfirm>
+              </Tooltip>
             )}
-          </div>
 
-          <Card>
-            <div style={{ marginBottom: '1rem' }}>
-              <Txt strong>Contact Phone: </Txt> <Txt>{pet.phone}</Txt>
-            </div>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <Txt strong>Country: </Txt> <Txt>{pet.country}</Txt>
-            </div>
-
-            <div style={{ marginBottom: '1rem' }}>
-              <Txt strong>City: </Txt> <Txt>{pet.city}</Txt>
+            <div>
+              <Title level={1}>{pet.name}</Title>
             </div>
             <div>
-              <Txt strong>Address: </Txt> <Txt>{pet.address}</Txt>
+              {pet.primary_breed && <Txt strong>{pet.primary_breed}</Txt>}
+              {pet.secondary_breed && <Txt type='secondary'> &#38; {pet.secondary_breed}</Txt>}
+              {pet.unkown_breed && <Txt type='secondary'>Unkown Breed</Txt>}
             </div>
-          </Card>
 
-          <LeafletMap zoom={16} lat={pet.lat} lng={pet.lng} name={pet.name} />
-        </Card>
+            <div>
+              <Divider />
+              <Txt>{pet.age}</Txt> <Dot />
+              <Txt>{pet.gender}</Txt> <Dot />
+              <Txt>{pet.size}</Txt>
+              <Divider />
+            </div>
+
+            <div>
+              <div style={{ marginBottom: '2rem' }}>
+                <Typography.Title level={3}>About</Typography.Title> {'\n'}
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <Txt strong>Coat Length</Txt> <Txt>{pet.coat_length}</Txt>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <Txt strong>Attributes: </Txt>
+                {petAttributes.map((item, idx) => (
+                  <React.Fragment key={item}>
+                    <Txt>{item}</Txt>{' '}
+                    {idx !== petAttributes.length - 1 && (
+                      <>
+                        <Dot />{' '}
+                      </>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <Txt strong>Good In Home With: </Txt>
+                {petGoodWith.map((item, idx) => (
+                  <React.Fragment key={item}>
+                    <Txt>{item}</Txt>{' '}
+                    {idx !== petGoodWith.length - 1 && (
+                      <>
+                        <Dot />{' '}
+                      </>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <Txt strong>Colors: </Txt> <Txt>{pet.colors}</Txt>
+              </div>
+
+              {pet.tags && (
+                <Txt style={{ marginBottom: '1rem' }}>
+                  <Txt strong>Tags: </Txt> <Txt>{pet.tags}</Txt>
+                </Txt>
+              )}
+
+              <div style={{ marginBottom: '1rem' }}>
+                <Txt strong>Description</Txt> <Txt>{pet.description}</Txt>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <Txt strong>Status</Txt> <Txt>{pet.adopted ? 'Adopted' : 'Adoptable'}</Txt>
+              </div>
+              {!pet.adopted && !pet.mine && (
+                <Button onClick={handleAdoptPet} type='primary'>
+                  Adopt a pet
+                </Button>
+              )}
+            </div>
+
+            <Card>
+              <div style={{ marginBottom: '1rem' }}>
+                <Txt strong>Contact Phone: </Txt> <Txt>{pet.phone}</Txt>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <Txt strong>Country: </Txt> <Txt>{pet.country}</Txt>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <Txt strong>City: </Txt> <Txt>{pet.city}</Txt>
+              </div>
+              <div>
+                <Txt strong>Address: </Txt> <Txt>{pet.address}</Txt>
+              </div>
+            </Card>
+
+            {pet && <LeafletMap zoom={16} lat={pet.lat} lng={pet.lng} name={pet.name} />}
+          </Card>
+        )}
       </div>
     </>
   );
