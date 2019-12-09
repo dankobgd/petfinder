@@ -7,9 +7,9 @@ import AddPet from '../../screens/add/AddPet';
 import EditAccount from './EditAccount';
 import ChangePassword from './ChangePassword';
 import CreatedPets from './CreatedPets';
-import PetPage from './PetPage';
 import LikedPets from './LikedPets';
 import AdoptedPets from './AdoptedPets';
+import PetSingle from '../../components/pet/PetSingle';
 
 const { SubMenu } = Menu;
 const { Sider, Content } = Layout;
@@ -87,9 +87,9 @@ function Profile() {
             <PrivateRoute path='liked' component={LikedPets} />
             <PrivateRoute path='created' component={CreatedPets} />
             <PrivateRoute path='adopted' component={AdoptedPets} />
-            <PrivateRoute path='liked/:id/:name' component={p => <PetPage arr='likedPets' {...p} />} />
-            <PrivateRoute path='created/:id/:name' component={p => <PetPage arr='postedPets' {...p} />} />
-            <PrivateRoute path='adopted/:id/:name' component={p => <PetPage arr='adoptedPets' {...p} />} />
+            <PrivateRoute path='liked/:id/:name' component={p => <PetSingle arr='identity.likedPets' {...p} />} />
+            <PrivateRoute path='created/:id/:name' component={p => <PetSingle arr='identity.postedPets' {...p} />} />
+            <PrivateRoute path='adopted/:id/:name' component={p => <PetSingle arr='identity.adoptedPets' {...p} />} />
             <PrivateRoute path='account' component={EditAccount} />
             <PrivateRoute path='change_password' component={ChangePassword} />
           </Router>

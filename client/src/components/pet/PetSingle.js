@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Card, Typography, Divider, Button, notification, Tooltip, Drawer, Popconfirm, Icon } from 'antd';
 import ImageGallery from 'react-image-gallery';
 import LeafletMap from './LeafletMap';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { identityActions } from '../../redux/identity';
 import { toastActions } from '../../redux/toast';
 import { navigate } from '@reach/router';
 import EditPetForm from './EditPetForm';
+
+const getProp = (obj, path) => path.split('.').reduce((prev, curr) => (prev ? prev[curr] : null), obj);
 
 const isCloudinaryImageUrl = url => url.includes('res.cloudinary');
 
@@ -17,8 +19,10 @@ const getImageThumb = originalUrl => {
   return thumb;
 };
 
-function PetSingle({ pet }) {
+function PetSingle({ arr, id }) {
   const dispatch = useDispatch();
+
+  const pet = useSelector(state => getProp(state, arr).find(p => p.id === Number.parseInt(id, 10)));
 
   const [editDrawerVisible, setEditDrawerVisible] = useState(false);
   const showEditDrawer = () => {
