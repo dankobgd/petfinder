@@ -9,6 +9,7 @@ router.get('/', condAuth, AnimalsController.getAnimals);
 router.post('/', requireJWT, mw.uploadFile.upload().any(), AnimalsController.createAnimal);
 router.get('/:id', condAuth, AnimalsController.getAnimal);
 router.put('/:id', requireJWT, AnimalsController.updateAnimal);
+router.put('/contact/:id', requireJWT, AnimalsController.updateAnimalContact);
 router.delete('/:id', requireJWT, AnimalsController.deleteAnimal);
 
 router.post('/:id/like', requireJWT, AnimalsController.likeAnimal);

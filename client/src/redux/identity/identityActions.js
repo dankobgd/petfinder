@@ -208,10 +208,21 @@ export const updatePet = (id, petData) => async dispatch => {
       type: t.UPDATE_PET_SUCCESS,
       payload: { id, petData: res.petData },
     });
-    return Promise.resolve();
   } catch (err) {
     dispatch({ type: t.UPDATE_PET_FAILURE });
-    return Promise.reject(err);
+  }
+};
+
+export const updatePetContact = (id, petData) => async dispatch => {
+  dispatch({ type: t.UPDATE_PET_REQUEST });
+  try {
+    const res = await apiClient.put(`animals/contact/${id}`, { data: { id, petData } });
+    dispatch({
+      type: t.UPDATE_PET_SUCCESS,
+      payload: { id, petData: res.petData },
+    });
+  } catch (err) {
+    dispatch({ type: t.UPDATE_PET_FAILURE });
   }
 };
 

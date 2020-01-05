@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Typography, Divider, Button, notification, Tooltip, Drawer, Popconfirm, Icon } from 'antd';
 import ImageGallery from 'react-image-gallery';
 import LeafletMap from './LeafletMap';
@@ -6,7 +6,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { identityActions } from '../../redux/identity';
 import { toastActions } from '../../redux/toast';
 import { navigate } from '@reach/router';
-import EditPetForm from './EditPetForm';
+import EditPetInfoForm from './EditPetInfoForm';
+import EditPetContactModal from './EditPetContactModal';
 import apiClient from '../../utils/apiClient';
 
 const getProp = (obj, path) => path.split('.').reduce((prev, curr) => (prev ? prev[curr] : null), obj);
@@ -25,6 +26,7 @@ function PetSingle({ arr, id }) {
   const petId = Number.parseInt(id, 10);
   const currentPet = useSelector(state => getProp(state, arr).find(p => p.id === petId));
   const [pet, setPet] = useState(currentPet);
+  const editContactRef = useRef(null);
 
   useEffect(() => {
     async function checkPetCache() {
@@ -51,11 +53,24 @@ function PetSingle({ arr, id }) {
   }, [pet, petId]);
 
   const [editDrawerVisible, setEditDrawerVisible] = useState(false);
-  const showEditDrawer = () => {
-    setEditDrawerVisible(true);
-  };
-  const closeEditDrawer = () => {
-    setEditDrawerVisible(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const showEditModal = () => setEditModalVisible(true);
+  const closeEditModal = () => setEditModalVisible(false);
+  const showEditDrawer = () => setEditDrawerVisible(true);
+  const closeEditDrawer = () => setEditDrawerVisible(false);
+
+  const handleEditContactSuccess = () => {
+    const editContactForm = editContactRef.current;
+    editContactForm.validateFields((err, values) => {
+      if (err) return;
+      try {
+        dispatch(identityActions.updatePetContact(petId, values));
+        editContactForm.resetFields();
+        setEditModalVisible(false);
+      } catch (e) {
+        console.error(e);
+      }
+    });
   };
 
   const handleDeletePet = async () => {
@@ -125,6 +140,7 @@ function PetSingle({ arr, id }) {
 
   return (
     <>
+      {/* EDIT PET INFO DRAWER */}
       <Drawer
         title='Edit Pet Information'
         width={720}
@@ -132,8 +148,17 @@ function PetSingle({ arr, id }) {
         visible={editDrawerVisible}
         bodyStyle={{ paddingBottom: 40 }}
       >
-        <EditPetForm pet={pet} />
+        <EditPetInfoForm pet={pet} />
       </Drawer>
+
+      {/* EDIT PET CONTACT MODAL */}
+      <EditPetContactModal
+        ref={editContactRef}
+        visible={editModalVisible}
+        onCancel={closeEditModal}
+        onUpdate={handleEditContactSuccess}
+        pet={pet}
+      />
 
       <div>
         {pet && (
@@ -246,6 +271,11 @@ function PetSingle({ arr, id }) {
             </div>
 
             <Card>
+              {pet.mine && (
+                <Tooltip title='Edit Contact Info'>
+                  <Button type='primary' shape='circle' icon='edit' size='large' onClick={showEditModal} />
+                </Tooltip>
+              )}
               <div style={{ marginBottom: '1rem' }}>
                 <Txt strong>Contact Phone: </Txt> <Txt>{pet.phone}</Txt>
               </div>

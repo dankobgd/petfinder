@@ -1,21 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Tooltip, Row, Col } from 'antd';
 import { NextStep } from './StepperButton';
-import { cats, dogs } from '../../data/pets';
+import { cats, dogs, rabbits, birds, aquaticAndReptiles, smallAndFurry } from '../../data/pets';
 import getBase64 from '../../utils/getBase64';
 
 const { Option } = Select;
-
 const verticalGap = { marginBottom: 8 };
 
-function PetInfoForm(props) {
-  const { getFieldDecorator, getFieldValue, validateFields } = props.form;
+const getBreedsList = (petType, petSpecies) => {
+  if (!petSpecies) return [];
+  const elm = petType.collection.find(x => x.species === petSpecies);
+  if (!elm) return [];
+  return elm.breed;
+};
+const getSpeciesList = petType => petType.collection.map(x => x.species);
 
+const renderAutocompleteOpts = (petType, petSpecies) => field => {
+  const colorsMap = type =>
+    ({
+      Dog: dogs.colors,
+      Cat: cats.colors,
+      Rabbit: rabbits.colors,
+      Bird: birds.colors,
+      SmallAndFurry: smallAndFurry.colors,
+      AquaticAndReptiles: aquaticAndReptiles.colors,
+    }[type]);
+
+  const breedsMap = type =>
+    ({
+      Dog: dogs.breeds,
+      Cat: cats.breeds,
+      Rabbit: rabbits.breeds,
+      Bird: getBreedsList(birds, petSpecies),
+      SmallAndFurry: getBreedsList(smallAndFurry, petSpecies),
+      AquaticAndReptiles: getBreedsList(aquaticAndReptiles, petSpecies),
+    }[type]);
+
+  const speciesMap = type =>
+    ({
+      Bird: getSpeciesList(birds, petSpecies),
+      SmallAndFurry: getSpeciesList(smallAndFurry, petSpecies),
+      AquaticAndReptiles: getSpeciesList(aquaticAndReptiles, petSpecies),
+    }[type]);
+
+  let list;
+  if (field === 'colors') list = colorsMap;
+  if (field === 'breeds') list = breedsMap;
+  if (field === 'species') list = speciesMap;
+
+  return petType
+    ? list(petType).map(item => (
+        <Option key={item} value={item}>
+          {item}
+        </Option>
+      ))
+    : null;
+};
+
+function PetInfoForm(props) {
+  const { getFieldDecorator, getFieldValue, validateFields, setFieldsValue } = props.form;
   const [breedRequired, setBreedRequired] = useState(true);
   const [unknownBreedToggled, setUnknownBreedToggled] = useState(false);
-
   const [previewImageSrc, setPreviewImageSrc] = useState('');
   const [previewImageVisible, setPreviewImageVisible] = useState(false);
+
+  const renderOpts = renderAutocompleteOpts(getFieldValue('type'), getFieldValue('species'));
 
   const handleUnknownBreedToggle = () => {
     setBreedRequired(prev => !prev);
@@ -43,6 +92,14 @@ function PetInfoForm(props) {
     }
   }, [unknownBreedToggled, validateFields]);
 
+  const clearNonexistingFields = () => {
+    setFieldsValue({
+      primaryBreed: undefined,
+      secondaryBreed: undefined,
+      colors: undefined,
+    });
+  };
+
   return (
     <Card>
       <Typography.Title level={2} style={{ textAlign: 'center' }}>
@@ -64,15 +121,33 @@ function PetInfoForm(props) {
           {getFieldDecorator('type', {
             rules: [{ required: true, message: 'Please select animal type' }],
           })(
-            <Radio.Group buttonStyle='solid'>
+            <Radio.Group buttonStyle='solid' onChange={clearNonexistingFields}>
               <Radio.Button value='Cat'>Cat</Radio.Button>
               <Radio.Button value='Dog'>Dog</Radio.Button>
               <Radio.Button value='Rabbit'>Rabbit</Radio.Button>
               <Radio.Button value='Bird'>Bird</Radio.Button>
-              <Radio.Button value='Fish'>Fish</Radio.Button>
+              <Radio.Button value='SmallAndFurry'>Small & Furry</Radio.Button>
+              <Radio.Button value='AquaticAndReptiles'>Aquatic & Reptiles</Radio.Button>
             </Radio.Group>
           )}
         </Form.Item>
+
+        {getFieldValue('type') && !getFieldValue('type').match(/Cat|Dog|Rabbit/g) ? (
+          <Form.Item style={verticalGap} label='Species' hasFeedback>
+            {getFieldDecorator('species', {
+              rules: [{ required: true, message: 'Please select species' }],
+            })(
+              <Select
+                showSearch
+                placeholder='Select species'
+                optionFilterProp='children'
+                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+              >
+                {renderOpts('species')}
+              </Select>
+            )}
+          </Form.Item>
+        ) : null}
 
         <Form.Item style={verticalGap} label='Gender' hasFeedback className='custom-feedback'>
           {getFieldDecorator('gender', {
@@ -98,12 +173,6 @@ function PetInfoForm(props) {
           )}
         </Form.Item>
 
-        <Form.Item label='Species' hasFeedback>
-          {getFieldDecorator('species', {
-            rules: [{ required: true, message: 'Please input animal species' }],
-          })(<Input prefix={<Icon type='fire' />} placeholder='Species' />)}
-        </Form.Item>
-
         <Typography.Title level={4} style={{ marginTop: '2rem' }}>
           Additional details
         </Typography.Title>
@@ -118,19 +187,7 @@ function PetInfoForm(props) {
               optionFilterProp='children'
               filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
-              {getFieldValue('type') === 'Dog'
-                ? dogs.breeds.map(dog => (
-                    <Option key={dog} value={dog}>
-                      {dog}
-                    </Option>
-                  ))
-                : getFieldValue('type') === 'Cat'
-                ? cats.breeds.map(cat => (
-                    <Option key={cat} value={cat}>
-                      {cat}
-                    </Option>
-                  ))
-                : null}
+              {renderOpts('breeds')}
             </Select>
           )}
         </Form.Item>
@@ -143,19 +200,7 @@ function PetInfoForm(props) {
               optionFilterProp='children'
               filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
-              {getFieldValue('type') === 'Dog'
-                ? dogs.breeds.map(dog => (
-                    <Option key={dog} value={dog}>
-                      {dog}
-                    </Option>
-                  ))
-                : getFieldValue('type') === 'Cat'
-                ? cats.breeds.map(cat => (
-                    <Option key={cat} value={cat}>
-                      {cat}
-                    </Option>
-                  ))
-                : null}
+              {renderOpts('breeds')}
             </Select>
           )}
         </Form.Item>
@@ -230,19 +275,7 @@ function PetInfoForm(props) {
               optionFilterProp='children'
               filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
             >
-              {getFieldValue('type') === 'Dog'
-                ? dogs.colors.map(dog => (
-                    <Option key={dog} value={dog}>
-                      {dog}
-                    </Option>
-                  ))
-                : getFieldValue('type') === 'Cat'
-                ? cats.colors.map(cat => (
-                    <Option key={cat} value={cat}>
-                      {cat}
-                    </Option>
-                  ))
-                : null}
+              {renderOpts('colors')}
             </Select>
           )}
         </Form.Item>

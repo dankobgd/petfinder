@@ -7,7 +7,7 @@ import { identityActions } from '../../redux/identity';
 const { Option } = Select;
 const verticalGap = { marginBottom: 8 };
 
-function EditPetForm(props) {
+function EditPetInfoForm(props) {
   const dispatch = useDispatch();
 
   const { getFieldDecorator, getFieldValue, validateFields, setFieldsValue } = props.form;
@@ -360,4 +360,4 @@ function EditPetForm(props) {
   );
 }
 
-export default Form.create()(EditPetForm);
+export default Form.create()(EditPetInfoForm);

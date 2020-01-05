@@ -125,6 +125,17 @@ exports.updateAnimal = async (req, res, next) => {
   }
 };
 
+// Update pet contact
+exports.updateAnimalContact = async (req, res, next) => {
+  const animalId = Number.parseInt(req.params.id, 10);
+  try {
+    const result = await AnimalService.updateAnimalContact(animalId, req.body.petData);
+    res.status(200).json(result);
+  } catch (err) {
+    next(createError.BadRequest(err.message));
+  }
+};
+
 // Delete pet
 exports.deleteAnimal = async (req, res, next) => {
   const animalId = Number.parseInt(req.params.id, 10);
