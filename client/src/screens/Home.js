@@ -8,9 +8,7 @@ function Home() {
   const latest = useSelector(state => state.pets.latest);
 
   useEffect(() => {
-    if (latest && latest.length) {
-      localStorage.setItem('pf:cache', JSON.stringify({ latest }));
-    } else {
+    if (!latest.length) {
       dispatch(petsActions.fetchLatestAnimals());
     }
   }, [dispatch, latest]);

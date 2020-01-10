@@ -32,25 +32,19 @@ function PetSingle({ arr, id }) {
     async function checkPetCache() {
       if (!pet) {
         try {
-          const cache = JSON.parse(localStorage.getItem('pf:cache'));
-          const cachedPet = cache && cache.latest.find(x => x.id === petId);
-          if (cachedPet) {
-            setPet(cachedPet);
-          } else {
-            try {
-              const result = await apiClient.get(`animals/${petId}`);
-              setPet(result.animal);
-            } catch (err) {
-              console.error(err);
-            }
-          }
+          const result = await apiClient.get(`animals/${petId}`);
+          setPet(result.animal);
         } catch (err) {
-          console.error('unable to parse cached pets data');
+          console.error(err);
         }
       }
     }
     checkPetCache();
   }, [pet, petId]);
+
+  useEffect(() => {
+    setPet(currentPet);
+  }, [currentPet]);
 
   const [editDrawerVisible, setEditDrawerVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
