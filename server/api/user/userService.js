@@ -35,6 +35,10 @@ module.exports = {
           contacts.address,
           contacts.lat,
           contacts.lng,
+          microchip.number AS chip_id,
+					microchip.brand AS chip_brand,
+					microchip.description AS chip_description,
+					microchip.location AS chip_location,
           COALESCE(JSON_AGG(DISTINCT tags.text) FILTER (WHERE tags.animal_id IS NOT NULL), NULL) AS tags,
           COALESCE(JSON_AGG(DISTINCT images.url) FILTER (WHERE images.animal_id IS NOT NULL), NULL) AS images,
           COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL) AS colors
@@ -44,9 +48,10 @@ module.exports = {
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
           LEFT JOIN users on a.user_id = users.id
+          LEFT JOIN microchip on a.id = microchip.animal_id
           LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ?) liked ON true
       WHERE a.user_id = ?
-      GROUP BY a.id, contacts.id, liked, users.id
+      GROUP BY a.id, contacts.id, liked, microchip.id, users.id
     `,
       [userId, userId]
     );
@@ -75,6 +80,7 @@ module.exports = {
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
           LEFT JOIN likes ON a.id = likes.animal_id
+          LEFT JOIN microchip on a.id = microchip.animal_id
           LEFT JOIN users on a.user_id = users.id
           LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ?) liked ON true
       WHERE likes.user_id = ? AND a.id = likes.animal_id
@@ -98,6 +104,10 @@ module.exports = {
           contacts.address,
           contacts.lat,
           contacts.lng,
+          microchip.number AS chip_id,
+					microchip.brand AS chip_brand,
+					microchip.description AS chip_description,
+					microchip.location AS chip_location,
           COALESCE(JSON_AGG(DISTINCT tags.text) FILTER (WHERE tags.animal_id IS NOT NULL), NULL) AS tags,
           COALESCE(JSON_AGG(DISTINCT images.url) FILTER (WHERE images.animal_id IS NOT NULL), NULL) AS images,
           COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL) AS colors
@@ -109,9 +119,10 @@ module.exports = {
           LEFT JOIN likes ON a.id = likes.animal_id
           LEFT JOIN adopted ON a.id = adopted.animal_id
           LEFT JOIN users on a.user_id = users.id
+          LEFT JOIN microchip on a.id = microchip.animal_id
           LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ?) liked ON true
       WHERE a.adopted = true AND adopted.user_id = ?
-      GROUP BY a.id, contacts.id, liked, users.id
+      GROUP BY a.id, contacts.id, liked, microchip.id, users.id
       `,
       [userId, userId]
     );

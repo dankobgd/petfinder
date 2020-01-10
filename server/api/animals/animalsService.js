@@ -81,9 +81,9 @@ module.exports = {
     const target = [
       'declawed',
       'house_trained',
-      'special_needs',
       'vaccinated',
       'spayed_neutered',
+      'special_needs',
       'good_with_kids',
       'good_with_cats',
       'good_with_dogs',
@@ -106,7 +106,7 @@ module.exports = {
       user_id: data.userId,
       name: data.name,
       type: data.type,
-      species: data.species,
+      species: data.species || data.type,
       gender: data.gender,
       age: data.age,
       coat_length: data.coatLength,
@@ -195,6 +195,10 @@ module.exports = {
             contacts.address,
             contacts.lat,
             contacts.lng,
+            microchip.number AS chip_id,
+					  microchip.brand AS chip_brand,
+					  microchip.description AS chip_description,
+					  microchip.location AS chip_location,
             COALESCE(JSON_AGG(DISTINCT tags.text) FILTER (WHERE tags.animal_id IS NOT NULL), NULL) AS tags,
             COALESCE(JSON_AGG(DISTINCT images.url) FILTER (WHERE images.animal_id IS NOT NULL), NULL) AS images,
             COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL) AS colors
@@ -203,6 +207,7 @@ module.exports = {
             LEFT JOIN tags ON a.id = tags.animal_id
             LEFT JOIN colors ON a.id = colors.animal_id
             LEFT JOIN images ON a.id = images.animal_id
+            LEFT JOIN microchip on a.id = microchip.animal_id
             LEFT JOIN users on a.user_id = users.id
             ${condQuery}
         WHERE a.type = ? AND a.adopted = false
@@ -246,9 +251,9 @@ module.exports = {
       }
 
       if (userId) {
-        queries.push('GROUP BY a.id, contacts.id, liked, users.id');
+        queries.push('GROUP BY a.id, contacts.id, liked, microchip.id, users.id');
       } else {
-        queries.push('GROUP BY a.id, contacts.id, users.id');
+        queries.push('GROUP BY a.id, contacts.id, microchip.id, users.id');
       }
 
       const specifiedDistance = options.distance.toLowerCase() !== 'anywhere';
@@ -324,6 +329,10 @@ module.exports = {
           contacts.address,
           contacts.lat,
           contacts.lng,
+          microchip.number AS chip_id,
+					microchip.brand AS chip_brand,
+					microchip.description AS chip_description,
+					microchip.location AS chip_location,
           COALESCE(JSON_AGG(DISTINCT tags.text) FILTER (WHERE tags.animal_id IS NOT NULL), NULL) AS tags,
           COALESCE(JSON_AGG(DISTINCT images.url) FILTER (WHERE images.animal_id IS NOT NULL), NULL) AS images,
           COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL) AS colors
@@ -332,10 +341,11 @@ module.exports = {
           LEFT JOIN tags ON a.id = tags.animal_id
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
+          LEFT JOIN microchip on a.id = microchip.animal_id
           LEFT JOIN users on a.user_id = users.id
           ${condQuery}
       WHERE a.adopted = false
-      GROUP BY a.id, contacts.id, users.id ${userId ? ',liked' : ''}
+      GROUP BY a.id, contacts.id, microchip.id, users.id ${userId ? ',liked' : ''}
       ORDER BY a.created_at DESC
       LIMIT 8
     `
@@ -438,6 +448,13 @@ module.exports = {
       ...petCharacteristics,
     };
 
+    const chipUpdateObj = {
+      chip_id: petData.chipId,
+      chip_brand: petData.chipBrand,
+      chip_location: petData.chipLocation,
+      chip_description: petData.chipDescription,
+    };
+
     const animalId = await knex('animals')
       .where({ id: animal_id })
       .update(updateObject)
@@ -455,19 +472,38 @@ module.exports = {
           description: petData.chipDescription,
         });
     }
+    if (petData.attributes && !petData.attributes.includes('microchip')) {
+      await knex('microchip')
+        .where({ animal_id })
+        .del();
+    }
 
     if (petData.tags && petData.tags.length) {
       await Promise.all(petData.tags.map(text => knex('tags').insert({ animal_id: animalId[0], text })));
     }
 
-    return {
-      petData: {
-        id: animalId[0],
-        ...updateObject,
-        colors: petData.colors,
-        tags: petData.tags,
-      },
+    const ret = {
+      id: animalId[0],
+      colors: petData.colors,
+      tags: petData.tags,
+      ...updateObject,
     };
+    if (petData.attributes && petData.attributes.includes('microchip')) {
+      return {
+        petData: {
+          ...ret,
+          ...chipUpdateObj,
+        },
+      };
+    }
+    if (petData.attributes && !petData.attributes.includes('microchip')) {
+      return {
+        petData: {
+          ...ret,
+          chip_id: null,
+        },
+      };
+    }
   },
 
   async deleteAnimal(id) {
@@ -498,6 +534,10 @@ module.exports = {
           contacts.address,
           contacts.lat,
           contacts.lng,
+          microchip.number AS chip_id,
+					microchip.brand AS chip_brand,
+					microchip.description AS chip_description,
+					microchip.location AS chip_location,
           COALESCE(JSON_AGG(DISTINCT tags.text) FILTER (WHERE tags.animal_id IS NOT NULL), NULL) AS tags,
           COALESCE(JSON_AGG(DISTINCT images.url) FILTER (WHERE images.animal_id IS NOT NULL), NULL) AS images,
           COALESCE(JSON_AGG(DISTINCT colors.color) FILTER (WHERE colors.animal_id IS NOT NULL), NULL) AS colors
@@ -506,10 +546,11 @@ module.exports = {
           LEFT JOIN tags ON a.id = tags.animal_id
           LEFT JOIN colors ON a.id = colors.animal_id
           LEFT JOIN images ON a.id = images.animal_id
+          LEFT JOIN microchip on a.id = microchip.animal_id
           LEFT JOIN users on a.user_id = users.id
           ${condQuery}
       WHERE a.adopted = false AND a.id = ${animalId}
-      GROUP BY a.id, contacts.id, users.id ${userId ? ',liked' : ''}
+      GROUP BY a.id, contacts.id, microchip.id, users.id ${userId ? ',liked' : ''}
       ORDER BY a.created_at DESC
     `
     );

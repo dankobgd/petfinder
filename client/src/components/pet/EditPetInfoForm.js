@@ -27,6 +27,10 @@ function EditPetInfoForm(props) {
   const defaultAttrs = attrs.filter((elm, idx) => petAttrs[idx] && elm);
   const defaultEnvs = envs.filter((elm, idx) => petEnvs[idx] && elm);
 
+  if (pet.chip_id) {
+    defaultAttrs.push('microchip');
+  }
+
   useEffect(() => {
     setFieldsValue({
       name: pet.name,
@@ -39,20 +43,12 @@ function EditPetInfoForm(props) {
       coatLength: pet.coat_length,
       size: pet.size,
       description: pet.description,
-
       mixedBreed: pet.mixed_breed ? ['mixedBreed'] : [],
       unknownBreed: pet.unknown_breed ? ['unknown_breed'] : [],
       attributes: defaultAttrs,
       environment: defaultEnvs,
-
       colors: pet.colors ? pet.colors : [],
       tags: pet.tags ? pet.tags : [],
-
-      // microchip: pet.microchip,
-      // chipId: pet.chipId,
-      // chipBrand: pet.chip_brand,
-      // chipLocation: pet.chip_location,
-      // chipDescription: pet.chip_description,
     });
     // eslint-disable-next-line
   }, [pet, setFieldsValue]);
@@ -312,30 +308,32 @@ function EditPetInfoForm(props) {
         )}
       </Form.Item>
 
-      {/* {getFieldValue('attributes').includes('microchip') ? (
+      {getFieldValue('attributes') && getFieldValue('attributes').includes('microchip') ? (
         <>
           <Form.Item style={verticalGap} label='Chip ID' hasFeedback>
             {getFieldDecorator('chipId', {
               rules: [{ required: true, message: 'Please input chip ID' }],
+              initialValue: pet.chip_id,
             })(<Input prefix={<Icon type='fire' />} placeholder='Microchip ID' />)}
           </Form.Item>
           <Form.Item style={verticalGap} label='Chip Brand' hasFeedback>
             {getFieldDecorator('chipBrand', {
               rules: [{ required: true, message: 'Please input chip brand' }],
+              initialValue: pet.chip_brand,
             })(<Input prefix={<Icon type='fire' />} placeholder='Microchip Brand' />)}
           </Form.Item>
           <Form.Item style={verticalGap} label='Chip location' hasFeedback>
-            {getFieldDecorator('chipLocation')(
-              <Input prefix={<Icon type='fire' />} placeholder='Microchip location' />
-            )}
+            {getFieldDecorator('chipLocation', {
+              initialValue: pet.chip_location,
+            })(<Input prefix={<Icon type='fire' />} placeholder='Microchip location' />)}
           </Form.Item>
           <Form.Item label='Chip Description' hasFeedback>
-            {getFieldDecorator('chipDescription')(
-              <Input prefix={<Icon type='fire' />} placeholder='Microchip description' />
-            )}
+            {getFieldDecorator('chipDescription', {
+              initialValue: pet.chip_description,
+            })(<Input prefix={<Icon type='fire' />} placeholder='Microchip description' />)}
           </Form.Item>
         </>
-      ) : null} */}
+      ) : null}
 
       <Typography.Title level={4} style={{ marginTop: '2rem' }}>
         Personal Message & Image

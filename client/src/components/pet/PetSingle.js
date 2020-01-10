@@ -264,6 +264,27 @@ function PetSingle({ arr, id }) {
               )}
             </div>
 
+            {pet.chip_id && (
+              <>
+                <div style={{ marginBottom: '1rem' }}>
+                  <Txt strong>Microchip ID: </Txt> <Txt>{pet.chip_id}</Txt>
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <Txt strong>Microchip Brand: </Txt> <Txt>{pet.chip_brand}</Txt>
+                </div>
+                {pet.chip_location && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <Txt strong>Microchip Location: </Txt> <Txt>{pet.chip_location}</Txt>
+                  </div>
+                )}
+                {pet.chip_description && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <Txt strong>Microchip Description: </Txt> <Txt>{pet.chip_description}</Txt>
+                  </div>
+                )}
+              </>
+            )}
+
             <Card>
               {pet.mine && (
                 <Tooltip title='Edit Contact Info'>
