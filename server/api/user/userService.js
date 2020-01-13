@@ -52,6 +52,7 @@ module.exports = {
           LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ?) liked ON true
       WHERE a.user_id = ?
       GROUP BY a.id, contacts.id, liked, microchip.id, users.id
+      ORDER BY a.created_at DESC
     `,
       [userId, userId]
     );
@@ -85,6 +86,7 @@ module.exports = {
           LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ?) liked ON true
       WHERE likes.user_id = ? AND a.id = likes.animal_id
       GROUP BY a.id, contacts.id, liked, users.id
+      ORDER BY a.liked_at DESC
     `,
       [userId, userId]
     );
@@ -123,6 +125,7 @@ module.exports = {
           LEFT JOIN LATERAL (SELECT true AS liked FROM likes WHERE a.id = likes.animal_id AND likes.user_id = ?) liked ON true
       WHERE a.adopted = true AND adopted.user_id = ?
       GROUP BY a.id, contacts.id, liked, microchip.id, users.id
+      ORDER BY a.adopted_at DESC
       `,
       [userId, userId]
     );

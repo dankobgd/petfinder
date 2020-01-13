@@ -29,17 +29,26 @@ function PetSingle({ arr, id }) {
   const editContactRef = useRef(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function checkPetCache() {
       if (!pet) {
         try {
           const result = await apiClient.get(`animals/${petId}`);
-          setPet(result.animal);
+          if (isMounted) {
+            setPet(result.animal);
+          }
         } catch (err) {
           console.error(err);
         }
       }
     }
+
     checkPetCache();
+
+    return () => {
+      isMounted = false;
+    };
   }, [pet, petId]);
 
   useEffect(() => {

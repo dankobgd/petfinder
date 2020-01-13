@@ -37,6 +37,8 @@ exports.up = knex =>
     // likes
     t.integer('likes_count').defaultTo(0);
 
+    t.timestamp('liked_at');
+    t.timestamp('adopted_at');
     t.timestamp('created_at')
       .notNullable()
       .defaultTo(knex.fn.now());

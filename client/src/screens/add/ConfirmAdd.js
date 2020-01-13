@@ -3,6 +3,7 @@ import { Typography, Result, Icon, Descriptions, Spin, message } from 'antd';
 import { navigate } from '@reach/router';
 import { PreviousStep, SuccessSubmitButton } from './StepperButton';
 import { identityActions } from '../../redux/identity';
+import { petsActions } from '../../redux/pets';
 import { toastActions } from '../../redux/toast';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -42,6 +43,7 @@ function ConfirmAdd({ formFields, current, prevStep }) {
     try {
       await dispatch(identityActions.createPet(data));
       await dispatch(identityActions.fetchUsersPets());
+      await dispatch(petsActions.fetchLatestAnimals());
       hideMsgLoading();
       navigate('./created');
       dispatch(toastActions.addToast({ type: 'success', msg: 'Added new pet for adoption' }));

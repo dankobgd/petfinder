@@ -62,8 +62,8 @@ const reducer = (state = initialState, action) => {
     case identityTypes.ADOPT_ANIMAL:
       return {
         ...state,
-        latest: state.latest.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
-        searchResults: state.searchResults.map(x => (x.id === action.payload ? { ...x, adopted: true } : x)),
+        latest: state.latest.filter(x => x.id !== action.payload),
+        searchResults: state.searchResults.filter(x => x.id !== action.payload),
       };
     case identityTypes.UPDATE_PET_SUCCESS:
       return {

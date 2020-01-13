@@ -365,7 +365,11 @@ module.exports = {
 
       await knex('animals')
         .where({ id: animal_id })
-        .increment('likes_count', 1);
+        .update({
+          likes_count: knex.raw('likes_count + 1'),
+          liked_at: knex.fn.now(),
+        });
+
       return { msg: 'Pet liked' };
     }
     throw new Error('Animal already liked');
@@ -381,9 +385,14 @@ module.exports = {
         .where({ user_id })
         .andWhere({ animal_id })
         .del();
+
       await knex('animals')
         .where({ id: animal_id })
-        .decrement('likes_count', 1);
+        .update({
+          likes_count: knex.raw('likes_count - 1'),
+          liked_at: null,
+        });
+
       return { msg: 'Pet unliked' };
     }
     throw new Error('Animal was not liked');
@@ -400,7 +409,7 @@ module.exports = {
     if (!res[0].adopted) {
       await knex('animals')
         .where({ id: animal_id })
-        .update({ adopted: true });
+        .update({ adopted: true, adopted_at: knex.fn.now() });
       return { msg: 'Adopted' };
     }
     throw new Error('Animal already adopted');
