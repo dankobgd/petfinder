@@ -103,24 +103,52 @@ const reducer = (state = initialState, action) => {
     case t.LIKE_ANIMAL: {
       return {
         ...state,
-        likedPets: state.likedPets.filter(x => x.id === action.payload),
+        likedPets: state.likedPets.filter(x => x.id === action.payload.animalId),
         postedPets: state.postedPets.map(x =>
-          x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x
+          x.id === action.payload.animalId
+            ? {
+                ...x,
+                liked: true,
+                likes_count: (x.likes_count += 1),
+                liked_by: [...x.liked_by, { id: action.payload.user.id, username: action.payload.user.username }],
+              }
+            : x
         ),
         adoptedPets: state.adoptedPets.map(x =>
-          x.id === action.payload ? { ...x, liked: true, likes_count: (x.likes_count += 1) } : x
+          x.id === action.payload.animalId
+            ? {
+                ...x,
+                liked: true,
+                likes_count: (x.likes_count += 1),
+                liked_by: [...x.liked_by, { id: action.payload.user.id, username: action.payload.user.username }],
+              }
+            : x
         ),
       };
     }
     case t.UNLIKE_ANIMAL: {
       return {
         ...state,
-        likedPets: state.likedPets.filter(x => x.id !== action.payload),
+        likedPets: state.likedPets.filter(x => x.id !== action.payload.animalId),
         postedPets: state.postedPets.map(x =>
-          x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x
+          x.id === action.payload.animalId
+            ? {
+                ...x,
+                liked: false,
+                likes_count: (x.likes_count -= 1),
+                liked_by: x.liked_by.filter(x => x.id !== action.payload.user.id),
+              }
+            : x
         ),
         adoptedPets: state.adoptedPets.map(x =>
-          x.id === action.payload ? { ...x, liked: false, likes_count: (x.likes_count -= 1) } : x
+          x.id === action.payload.animalId
+            ? {
+                ...x,
+                liked: false,
+                likes_count: (x.likes_count -= 1),
+                liked_by: x.liked_by.filter(x => x.id !== action.payload.user.id),
+              }
+            : x
         ),
       };
     }

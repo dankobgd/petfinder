@@ -1,61 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Tooltip, Row, Col } from 'antd';
 import { NextStep } from './StepperButton';
-import { cats, dogs, rabbits, birds, aquaticAndReptiles, smallAndFurry } from '../../data/pets';
 import getBase64 from '../../utils/getBase64';
+import { renderAutocompleteOpts } from '../../data/helpers';
 
-const { Option } = Select;
 const verticalGap = { marginBottom: 8 };
-
-const getBreedsList = (petType, petSpecies) => {
-  if (!petSpecies) return [];
-  const elm = petType.collection.find(x => x.species === petSpecies);
-  if (!elm) return [];
-  return elm.breed;
-};
-const getSpeciesList = petType => petType.collection.map(x => x.species);
-
-const renderAutocompleteOpts = (petType, petSpecies) => field => {
-  const colorsMap = type =>
-    ({
-      Dog: dogs.colors,
-      Cat: cats.colors,
-      Rabbit: rabbits.colors,
-      Bird: birds.colors,
-      SmallAndFurry: smallAndFurry.colors,
-      AquaticAndReptiles: aquaticAndReptiles.colors,
-    }[type]);
-
-  const breedsMap = type =>
-    ({
-      Dog: dogs.breeds,
-      Cat: cats.breeds,
-      Rabbit: rabbits.breeds,
-      Bird: getBreedsList(birds, petSpecies),
-      SmallAndFurry: getBreedsList(smallAndFurry, petSpecies),
-      AquaticAndReptiles: getBreedsList(aquaticAndReptiles, petSpecies),
-    }[type]);
-
-  const speciesMap = type =>
-    ({
-      Bird: getSpeciesList(birds, petSpecies),
-      SmallAndFurry: getSpeciesList(smallAndFurry, petSpecies),
-      AquaticAndReptiles: getSpeciesList(aquaticAndReptiles, petSpecies),
-    }[type]);
-
-  let list;
-  if (field === 'colors') list = colorsMap;
-  if (field === 'breeds') list = breedsMap;
-  if (field === 'species') list = speciesMap;
-
-  return petType
-    ? list(petType).map(item => (
-        <Option key={item} value={item}>
-          {item}
-        </Option>
-      ))
-    : null;
-};
 
 function PetInfoForm(props) {
   const { getFieldDecorator, getFieldValue, validateFields, setFieldsValue } = props.form;
@@ -97,6 +46,7 @@ function PetInfoForm(props) {
       primaryBreed: undefined,
       secondaryBreed: undefined,
       colors: undefined,
+      species: undefined,
     });
   };
 

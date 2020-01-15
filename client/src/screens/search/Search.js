@@ -9,6 +9,8 @@ import { uiActions } from '../../redux/ui';
 import { useSelector, useDispatch } from 'react-redux';
 import PetsList from '../../components/pet/PetsList';
 
+import { renderAutocompleteOpts, getAutocompleteList } from '../../data/helpers';
+
 const { Option } = Select;
 const { Search } = Input;
 
@@ -59,17 +61,27 @@ const resetSearchFilterURI = () => {
 function SearchPage() {
   const dispatch = useDispatch();
   const formState = useSelector(state => state.ui.searchForm);
-
   const searchResults = useSelector(state => state.pets.searchResults);
   const searchMeta = useSelector(state => state.pets.meta);
   const searchError = useSelector(state => state.error.message);
   const topSearchFilterCompleted = useSelector(state => state.ui.topSearchFilterCompleted);
 
+  const speciesRef = React.useRef(null);
+
   const handleChange = name => e => {
+    if (name === 'type') {
+      dispatch(uiActions.persistSearchForm({ species: undefined, breed: undefined }));
+    }
     if (name === 'days') {
       updateSearchFilterURI('days', e, dispatch);
       const queryStr = getQueryString();
       dispatch(petsActions.searchPetsByFilter(queryStr));
+    }
+    if (name === 'species') {
+      updateSearchFilterURI('species', e, dispatch);
+      const queryStr = getQueryString();
+      dispatch(petsActions.searchPetsByFilter(queryStr));
+      dispatch(uiActions.persistSearchForm({ breed: undefined }));
     }
     if (name === 'zip') {
       e.persist();
@@ -82,6 +94,16 @@ function SearchPage() {
   const searchPets = async () => {
     const { type, distance, zip, countryCode } = formState;
     const isEmpty = elm => elm === undefined || elm === '';
+
+    if (!speciesRef.current) {
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.delete('species');
+      urlParams.delete('breed');
+      const URI = buildURI(urlParams);
+      navigate(URI);
+      dispatch(uiActions.persistQueryString(URI));
+    }
+
     if (isEmpty(type)) {
       message.warn('Enter pet type');
     } else if (isEmpty(distance)) {
@@ -154,11 +176,18 @@ function SearchPage() {
     dispatch(petsActions.searchPetsByFilter(getQueryString()));
   };
 
+  const pickedType = formState['type'] || '';
+  const pickedSpecies = formState['species'] || '';
+
+  const renderOpts = renderAutocompleteOpts(pickedType, pickedSpecies);
+  const getAutocompList = getAutocompleteList(pickedType, pickedSpecies);
+
   return (
     <>
       <Layout style={{ padding: '0 24px' }}>
         <Layout.Content style={{ padding: 24, margin: 0 }}>
           <Row gutter={20}>
+            {/* TODO: onchange -> clear species field */}
             <Col xs={12} sm={12} md={4} lg={4} xl={4}>
               <Select
                 style={{ width: '100%' }}
@@ -170,7 +199,7 @@ function SearchPage() {
                 value={formState['type']}
                 size='large'
               >
-                {['Cat', 'Dog', 'Rabbit', 'Fish', 'Bird'].map(opt => (
+                {['Cat', 'Dog', 'Rabbit', 'Bird', 'SmallAndFurry', 'AquaticAndReptiles'].map(opt => (
                   <Option key={opt} value={opt}>
                     {opt}
                   </Option>
@@ -233,10 +262,36 @@ function SearchPage() {
                   </Button>
                 </Col>
               </Row>
+              {formState['type'] && !formState['type'].match(/Cat|Dog|Rabbit/g) ? (
+                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                  <label htmlFor='species'>Species</label>
+                  <Select
+                    ref={speciesRef}
+                    style={{ width: '100%' }}
+                    showSearch
+                    placeholder='Species'
+                    optionFilterProp='children'
+                    filterOption={(input, option) =>
+                      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
+                    onChange={handleChange('species')}
+                    value={formState['species']}
+                    size='large'
+                  >
+                    {renderOpts('species')}
+                  </Select>
+                </Col>
+              ) : null}
+
               <Row gutter={20} style={{ marginTop: '2.5rem' }}>
                 <Col xs={12} sm={12} md={4} lg={4} xl={4}>
                   <label htmlFor='breed'>Breed</label>
-                  <MultiSelect formState={formState} field='breed' onChange={handleMultiSelect} options={cats.breeds} />
+                  <MultiSelect
+                    formState={formState}
+                    field='breed'
+                    onChange={handleMultiSelect}
+                    options={getAutocompList('breeds')}
+                  />
                 </Col>
                 <Col xs={12} sm={12} md={4} lg={4} xl={4}>
                   <label htmlFor='age'>Age</label>

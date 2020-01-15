@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Typography, Divider, Button, notification, Tooltip, Drawer, Popconfirm, Icon } from 'antd';
+import { Card, Typography, Divider, Button, notification, Tooltip, Drawer, Popover, Popconfirm, Icon } from 'antd';
 import ImageGallery from 'react-image-gallery';
 import LeafletMap from './LeafletMap';
 import { useSelector, useDispatch } from 'react-redux';
@@ -21,12 +21,43 @@ const getImageThumb = originalUrl => {
   return thumb;
 };
 
+function LikedByUsersList({ users }) {
+  const listStyle = {
+    listStyleType: 'none',
+    marginBottom: '2px',
+  };
+  const itemStyle = {
+    fontSize: '16px',
+  };
+
+  return (
+    <ul style={listStyle}>
+      {users
+        ? users.map(({ id, username }) => (
+            <li style={itemStyle} key={id}>
+              {username}
+            </li>
+          ))
+        : null}
+    </ul>
+  );
+}
+
 function PetSingle({ arr, id }) {
   const dispatch = useDispatch();
   const petId = Number.parseInt(id, 10);
   const currentPet = useSelector(state => getProp(state, arr).find(p => p.id === petId));
+  const isAuthenticated = useSelector(state => state.identity.isAuthenticated);
+  const user = useSelector(state => state.identity.user);
   const [pet, setPet] = useState(currentPet);
   const editContactRef = useRef(null);
+
+  const handleLikePet = () => {
+    dispatch(identityActions.likeAnimal({ animalId: pet.id, user }));
+  };
+  const handleUnlikePet = () => {
+    dispatch(identityActions.unlikeAnimal({ animalId: pet.id, user }));
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -195,6 +226,30 @@ function PetSingle({ arr, id }) {
               </Tooltip>
             )}
 
+            {isAuthenticated &&
+              (pet.liked ? (
+                <Tooltip title='unlike pet'>
+                  <Icon
+                    type='heart'
+                    theme='twoTone'
+                    twoToneColor='#eb2f96'
+                    style={{ fontSize: '24px' }}
+                    onClick={handleUnlikePet}
+                  />
+                </Tooltip>
+              ) : (
+                <Tooltip title='like pet'>
+                  <Icon type='heart' style={{ fontSize: '24px' }} onClick={handleLikePet} />
+                </Tooltip>
+              ))}
+
+            {!!pet.likes_count && (
+              <Popover content={<LikedByUsersList users={pet.liked_by} />} title='Liked By'>
+                <span>
+                  likes: <strong>{pet.likes_count}</strong>
+                </span>
+              </Popover>
+            )}
             <div>
               <Title level={1}>{pet.name}</Title>
             </div>

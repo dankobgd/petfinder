@@ -182,6 +182,9 @@ module.exports = {
         SELECT
             ${userId ? '(CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,' : ''}
             ${userId ? 'liked,' : ''}
+            (SELECT JSON_AGG(JSON_BUILD_OBJECT('id', users.id, 'username', users.username)) FROM likes
+            INNER JOIN users ON likes.user_id = users.id
+            WHERE likes.animal_id = a.id) AS liked_by,
             COUNT(*) OVER() as total,
             (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(contacts.lat))
               * COS(RADIANS(contacts.lng) - RADIANS(?))
@@ -233,6 +236,11 @@ module.exports = {
         const value = Array.isArray(options.care) ? options.care : [options.care];
         const arr = value.map(x => _.snakeCase(x));
         arr.forEach(x => queries.push(`AND a.${x} = true`));
+      }
+
+      if (options.species) {
+        queries.push('AND a.species = ?');
+        bindings.push(options.species);
       }
 
       if (options.breed) {
@@ -321,6 +329,9 @@ module.exports = {
       SELECT
           ${userId ? '(CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,' : ''}
           ${userId ? 'liked,' : ''}
+          (SELECT JSON_AGG(JSON_BUILD_OBJECT('id', users.id, 'username', users.username)) FROM likes
+          INNER JOIN users ON likes.user_id = users.id
+          WHERE likes.animal_id = a.id) AS liked_by,
           a.*,
           contacts.phone,
           contacts.email,
@@ -535,6 +546,9 @@ module.exports = {
       SELECT
           ${userId ? '(CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,' : ''}
           ${userId ? 'liked,' : ''}
+          (SELECT JSON_AGG(JSON_BUILD_OBJECT('id', users.id, 'username', users.username)) FROM likes
+          INNER JOIN users ON likes.user_id = users.id
+          WHERE likes.animal_id = a.id) AS liked_by,
           a.*,
           contacts.phone,
           contacts.email,

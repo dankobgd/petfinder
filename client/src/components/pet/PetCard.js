@@ -7,13 +7,13 @@ import { identityActions } from '../../redux/identity';
 function PetCard({ pet, linkPrefix }) {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(state => state.identity.isAuthenticated);
+  const user = useSelector(state => state.identity.user);
 
   const handleLikePet = () => {
-    dispatch(identityActions.likeAnimal(pet.id));
+    dispatch(identityActions.likeAnimal({ animalId: pet.id, user }));
   };
-
   const handleUnlikePet = () => {
-    dispatch(identityActions.unlikeAnimal(pet.id));
+    dispatch(identityActions.unlikeAnimal({ animalId: pet.id, user }));
   };
 
   return (

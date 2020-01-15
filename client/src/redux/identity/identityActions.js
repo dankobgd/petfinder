@@ -238,19 +238,19 @@ export const deletePet = id => async dispatch => {
   }
 };
 
-export const likeAnimal = id => async dispatch => {
+export const likeAnimal = ({ animalId, user }) => async dispatch => {
   try {
-    await apiClient.post(`animals/${id}/like`);
-    dispatch({ type: t.LIKE_ANIMAL, payload: id });
+    await apiClient.post(`animals/${animalId}/like`);
+    dispatch({ type: t.LIKE_ANIMAL, payload: { animalId, user } });
   } catch (err) {
     dispatch(errorActions.getErrors(err));
   }
 };
 
-export const unlikeAnimal = id => async dispatch => {
+export const unlikeAnimal = ({ animalId, user }) => async dispatch => {
   try {
-    await apiClient.del(`animals/${id}/unlike`);
-    dispatch({ type: t.UNLIKE_ANIMAL, payload: id });
+    await apiClient.del(`animals/${animalId}/unlike`);
+    dispatch({ type: t.UNLIKE_ANIMAL, payload: { animalId, user } });
   } catch (err) {
     dispatch(errorActions.getErrors(err));
   }

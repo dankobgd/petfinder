@@ -27,6 +27,9 @@ module.exports = {
       SELECT
           (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,
           liked,
+          (SELECT JSON_AGG(JSON_BUILD_OBJECT('id', users.id, 'username', users.username)) FROM likes
+          INNER JOIN users ON likes.user_id = users.id
+          WHERE likes.animal_id = a.id) AS liked_by,
           a.*,
           contacts.phone,
           contacts.email,
@@ -64,6 +67,9 @@ module.exports = {
       SELECT
           (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,  
           liked,
+          (SELECT JSON_AGG(JSON_BUILD_OBJECT('id', users.id, 'username', users.username)) FROM likes
+          INNER JOIN users ON likes.user_id = users.id
+          WHERE likes.animal_id = a.id) AS liked_by,
           a.*,
           contacts.phone,
           contacts.email,
@@ -98,6 +104,9 @@ module.exports = {
       SELECT
           (CASE WHEN a.user_id = users.id and a.user_id = 1 THEN true END) as mine,
           liked,
+          (SELECT JSON_AGG(JSON_BUILD_OBJECT('id', users.id, 'username', users.username)) FROM likes
+          INNER JOIN users ON likes.user_id = users.id
+          WHERE likes.animal_id = a.id) AS liked_by,
           a.*,
           contacts.phone,
           contacts.email,
@@ -128,6 +137,16 @@ module.exports = {
       ORDER BY a.adopted_at DESC
       `,
       [userId, userId]
+    );
+  },
+
+  async getUsersWhoLikedPet(id) {
+    return knex.raw(
+      `
+      SELECT u.username from likes l
+      INNER JOIN users u on l.user_id = u.id
+      WHERE l.animal_id = ?`,
+      [id]
     );
   },
 };
