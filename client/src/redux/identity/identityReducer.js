@@ -110,7 +110,9 @@ const reducer = (state = initialState, action) => {
                 ...x,
                 liked: true,
                 likes_count: (x.likes_count += 1),
-                liked_by: [...x.liked_by, { id: action.payload.user.id, username: action.payload.user.username }],
+                liked_by: x.liked_by
+                  ? [...x.liked_by, { id: action.payload.user.id, username: action.payload.user.username }]
+                  : [{ id: action.payload.user.id, username: action.payload.user.username }],
               }
             : x
         ),
@@ -120,7 +122,9 @@ const reducer = (state = initialState, action) => {
                 ...x,
                 liked: true,
                 likes_count: (x.likes_count += 1),
-                liked_by: [...x.liked_by, { id: action.payload.user.id, username: action.payload.user.username }],
+                liked_by: x.liked_by
+                  ? [...x.liked_by, { id: action.payload.user.id, username: action.payload.user.username }]
+                  : [{ id: action.payload.user.id, username: action.payload.user.username }],
               }
             : x
         ),
