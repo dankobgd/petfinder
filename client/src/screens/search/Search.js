@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import PetsList from '../../components/pet/PetsList';
 
 import { renderAutocompleteOpts, getAutocompleteList } from '../../data/helpers';
+import { errorActions } from '../../redux/error';
 
 const { Option } = Select;
 const { Search } = Input;
@@ -65,7 +66,6 @@ function SearchPage() {
   const searchMeta = useSelector(state => state.pets.meta);
   const searchError = useSelector(state => state.error.message);
   const topSearchFilterCompleted = useSelector(state => state.ui.topSearchFilterCompleted);
-
   const speciesRef = React.useRef(null);
 
   const handleChange = name => e => {
@@ -121,6 +121,7 @@ function SearchPage() {
         const queryStr = getQueryString();
         await dispatch(petsActions.searchPetsByFilter(queryStr));
         dispatch(uiActions.toggleSearchFilter(true));
+        dispatch(errorActions.clearErrors());
       } catch (err) {
         dispatch(uiActions.toggleSearchFilter(false));
         dispatch(petsActions.clearSearch());
@@ -187,7 +188,6 @@ function SearchPage() {
       <Layout style={{ padding: '0 24px' }}>
         <Layout.Content style={{ padding: 24, margin: 0 }}>
           <Row gutter={20}>
-            {/* TODO: onchange -> clear species field */}
             <Col xs={12} sm={12} md={4} lg={4} xl={4}>
               <Select
                 style={{ width: '100%' }}
@@ -395,7 +395,7 @@ function SearchPage() {
       <div style={{ padding: '3rem' }}>
         <PetsList pets={searchResults} linkPrefix='../pet/' />
 
-        {!!searchResults.length && (
+        {!!searchResults.length && searchMeta && (
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
             <Pagination
               showSizeChanger

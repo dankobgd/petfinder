@@ -8,7 +8,7 @@ function Home() {
   const latest = useSelector(state => state.pets.latest);
 
   useEffect(() => {
-    if (!latest.length) {
+    if (!latest || !latest.length) {
       dispatch(petsActions.fetchLatestAnimals());
     }
   }, [dispatch, latest]);
