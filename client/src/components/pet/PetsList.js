@@ -7,7 +7,7 @@ function PetsList({ pets, linkPrefix = '' }) {
     <Row gutter={16} type='flex'>
       {pets && pets.length ? (
         pets.map(pet => (
-          <Col key={pet.id} xs={24} sm={12} md={8} lg={8} xl={6} style={{ height: '100%' }}>
+          <Col key={pet.id} xs={24} sm={12} md={8} lg={8} xl={6} style={{ height: '100%', marginBottom: '1rem' }}>
             <PetCard pet={pet} linkPrefix={linkPrefix} />
           </Col>
         ))

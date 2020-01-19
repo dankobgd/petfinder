@@ -155,7 +155,7 @@ function EditAccount(props) {
                       type='delete'
                       theme='twoTone'
                       twoToneColor='#eb2f96'
-                      style={{ fontSize: 30, cursor: 'pointer' }}
+                      style={{ fontSize: 30, cursor: 'pointer', marginBottom: '10px' }}
                     />
                   </Popconfirm>
                 </Tooltip>

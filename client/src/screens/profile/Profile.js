@@ -10,9 +10,16 @@ import CreatedPets from './CreatedPets';
 import LikedPets from './LikedPets';
 import AdoptedPets from './AdoptedPets';
 import PetSingle from '../../components/pet/PetSingle';
+import ProfileInfo from './ProfileInfo';
 
 const { SubMenu } = Menu;
 const { Sider, Content } = Layout;
+
+const generateBreadCrumbs = pathString => {
+  const parts = pathString.split('/');
+  parts.shift();
+  return parts.map(p => <Breadcrumb.Item key={p}>{p}</Breadcrumb.Item>);
+};
 
 function Profile() {
   const user = useSelector(state => state.identity.user);
@@ -20,12 +27,15 @@ function Profile() {
   return (
     <Layout style={{ minHeight: 'calc(100vh - 78px)' }}>
       <Sider breakpoint='lg' collapsedWidth='0' style={{ background: '#fff' }}>
-        <Menu
-          mode='inline'
-          defaultSelectedKeys={['add']}
-          defaultOpenKeys={['pets', 'settings']}
-          style={{ height: '100%', borderRight: 0 }}
-        >
+        <Menu mode='inline' style={{ height: '100%', borderRight: 0 }} defaultSelectedKeys={['profile']}>
+          <Menu.Item key='profile'>
+            <Link to='.'>
+              <span>
+                <Icon type='profile' />
+                Profile
+              </span>
+            </Link>
+          </Menu.Item>
           <SubMenu
             key='pets'
             title={
@@ -69,10 +79,10 @@ function Profile() {
 
       <Layout style={{ padding: '0 24px 24px' }}>
         <Breadcrumb style={{ margin: '16px 0' }}>
-          <Breadcrumb.Item>User</Breadcrumb.Item>
           <Breadcrumb.Item>
             <Typography.Text strong>{user.username}</Typography.Text>
           </Breadcrumb.Item>
+          {generateBreadCrumbs(window.location.pathname)}
         </Breadcrumb>
         <Content
           style={{
@@ -83,6 +93,7 @@ function Profile() {
           }}
         >
           <Router>
+            <PrivateRoute path='/' component={ProfileInfo} />
             <PrivateRoute path='add_pet' component={AddPet} />
             <PrivateRoute path='liked' component={LikedPets} />
             <PrivateRoute path='created' component={CreatedPets} />

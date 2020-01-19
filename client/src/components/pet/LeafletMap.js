@@ -29,6 +29,11 @@ function LeafletMap({ lat, lng, zoom, name }) {
         }),
       ],
     });
+
+    // cleanup remove the map
+    return () => {
+      mapRef.current.remove();
+    };
   }, [lat, lng, zoom]);
 
   // add marker

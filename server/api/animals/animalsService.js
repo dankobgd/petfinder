@@ -580,23 +580,15 @@ module.exports = {
   },
 
   async updateAnimalContact(animal_id, petData) {
-    const updateObject = {
-      phone: petData.phone,
-      email: petData.email,
-      country: petData.country,
-      city: petData.city,
-      address: petData.address,
-    };
-
     const animalId = await knex('contacts')
       .where({ animal_id })
-      .update(updateObject)
+      .update(petData)
       .returning('id');
 
     return {
       petData: {
         id: animalId[0],
-        ...updateObject,
+        ...petData,
       },
     };
   },

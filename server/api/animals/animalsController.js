@@ -1,6 +1,12 @@
 const createError = require('http-errors');
 const AnimalService = require('./animalsService');
 
+const extractZip = address =>
+  address
+    .split(',')
+    .reverse()[1]
+    .trim();
+
 // Return country short code
 exports.getCountryCode = async (req, res, next) => {
   const countrycode = await AnimalService.getCountryShortCode(req.body.loc);
@@ -53,22 +59,16 @@ exports.createAnimal = async (req, res, next) => {
     const galleryImagesData = await Promise.all(galleryImagesPromises);
     const galleryURIs = galleryImagesData.map(x => x.secure_url);
 
-    const results = await AnimalService.getCoordsFromAddress(req.body.address.trim());
-
-    const extractZip = address =>
-      address
-        .split(',')
-        .reverse()[1]
-        .trim();
+    const geoResults = await AnimalService.getCoordsFromAddress(req.body.address.trim());
 
     const data = {
       ...req.body,
       userId: req.user.sub,
       imageUrl: profileImageData.secure_url,
       gallery: galleryURIs,
-      lat: results[0].lat,
-      lng: results[0].lon,
-      zip: extractZip(results[0].display_name),
+      lat: geoResults[0].lat,
+      lng: geoResults[0].lon,
+      zip: extractZip(geoResults[0].display_name),
     };
 
     const petData = await AnimalService.createPet(data);
@@ -128,8 +128,17 @@ exports.updateAnimal = async (req, res, next) => {
 // Update pet contact
 exports.updateAnimalContact = async (req, res, next) => {
   const animalId = Number.parseInt(req.params.id, 10);
+  const { petData } = req.body;
   try {
-    const result = await AnimalService.updateAnimalContact(animalId, req.body.petData);
+    const updateObject = { ...petData };
+
+    if (petData.address) {
+      const geoResults = await AnimalService.getCoordsFromAddress(petData.address.trim());
+      updateObject.lat = geoResults[0].lat;
+      updateObject.lng = geoResults[0].lon;
+      updateObject.zip = extractZip(geoResults[0].display_name);
+    }
+    const result = await AnimalService.updateAnimalContact(animalId, updateObject);
     res.status(200).json(result);
   } catch (err) {
     next(createError.BadRequest(err.message));

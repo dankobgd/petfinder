@@ -147,6 +147,13 @@ function SearchPage() {
       updateSearchFilterURI('name', val, dispatch);
       dispatch(uiActions.persistSearchForm({ name: val }));
       dispatch(petsActions.searchPetsByFilter(getQueryString()));
+    } else {
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.delete('name');
+      const URI = buildURI(urlParams);
+      navigate(URI);
+      dispatch(petsActions.searchPetsByFilter(getQueryString()));
+      dispatch(uiActions.persistQueryString(URI));
     }
   };
 
@@ -360,6 +367,7 @@ function SearchPage() {
                     showSearch
                     placeholder='Any'
                     optionFilterProp='children'
+                    size='large'
                     filterOption={(input, option) =>
                       option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     }
@@ -376,7 +384,7 @@ function SearchPage() {
 
                 <Col xs={12} sm={12} md={4} lg={4} xl={4}>
                   <label htmlFor='name'>Pet Name</label>
-                  <Search placeholder='Pet Name' onSearch={onNameSearch} enterButton />
+                  <Search size='large' placeholder='Pet Name' onSearch={onNameSearch} enterButton />
                 </Col>
               </Row>
             </>
@@ -393,6 +401,8 @@ function SearchPage() {
       )}
 
       <div style={{ padding: '3rem' }}>
+        {searchMeta && <span>{getTotalResultsFound(formState['type'], searchMeta.totalRecords)}</span>}
+
         <PetsList pets={searchResults} linkPrefix='../pet/' />
 
         {!!searchResults.length && searchMeta && (
@@ -439,6 +449,22 @@ function MultiSelect({ field, onChange, options, formState }) {
       ))}
     </Select>
   );
+}
+
+function getTotalResultsFound(word, count) {
+  if (word.match(/Cat|Dog|Rabbit|Bird/g)) {
+    if (count === 0) return `No ${word}s found`;
+    if (count === 1) return `${count} ${word} found`;
+    if (count > 1) return `${count} ${word}s found`;
+  } else if (word === 'AquaticAndReptiles') {
+    if (count === 0) return `No Aquatic and Reptiles found`;
+    if (count === 1) return `${count} Aquatic And Reptiles found`;
+    if (count > 1) return `${count} Aquatic and Reptiles found`;
+  } else if (word === 'SmallAndFurry') {
+    if (count === 0) return `No Small and Furry animals found`;
+    if (count === 1) return `${count} Small and Furry animal found`;
+    if (count > 1) return `${count} Small and Furry animals found`;
+  }
 }
 
 export default Form.create()(SearchPage);
