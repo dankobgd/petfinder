@@ -62,9 +62,8 @@ function EditPetInfoForm(props) {
   const handleFormSubmit = e => {
     e.preventDefault();
     validateFields((err, values) => {
-      if (!err) {
-        dispatch(identityActions.updatePet(pet.id, values));
-      }
+      if (err) return;
+      dispatch(identityActions.updatePet(pet.id, values));
     });
   };
 

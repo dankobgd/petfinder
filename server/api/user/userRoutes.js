@@ -13,5 +13,6 @@ router.post('/change-password', requireJWT, mw.validate(passwordSchema), UserCon
 router.get('/pets', requireJWT, UserController.getUsersPets);
 router.get('/pets/liked', requireJWT, UserController.getLikedPets);
 router.get('/pets/adopted', requireJWT, UserController.getAdoptedPets);
+router.post('/pets/contact', UserController.sendContactEmail);
 
 module.exports = router;

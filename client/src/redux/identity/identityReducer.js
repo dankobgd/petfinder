@@ -8,6 +8,7 @@ const initialState = {
   postedPets: [],
   likedPets: [],
   adoptedPets: [],
+  sendingEmail: false,
 };
 
 const reducer = (state = initialState, action) => {
@@ -176,6 +177,11 @@ const reducer = (state = initialState, action) => {
         adoptedPets: state.adoptedPets.filter(x => x.id !== action.payload.id),
         postedPets: state.postedPets.filter(x => x.id !== action.payload.id),
       };
+    case t.SEND_CONTACT_EMAIL_REQUEST:
+      return { ...state, sendingEmail: true };
+    case t.SEND_CONTACT_EMAIL_SUCCESS:
+    case t.SEND_CONTACT_EMAIL_FAILURE:
+      return { ...state, sendingEmail: false };
     default:
       return state;
   }

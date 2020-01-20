@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from '@reach/router';
-import { Card, Icon, Tooltip } from 'antd';
+import { Card, Icon, Tooltip, message } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import { identityActions } from '../../redux/identity';
+
+message.config({ maxCount: 1 });
 
 function PetCard({ pet, linkPrefix }) {
   const dispatch = useDispatch();
@@ -41,8 +43,8 @@ function PetCard({ pet, linkPrefix }) {
           </span>
         )}
 
-        {isAuthenticated &&
-          (pet.liked ? (
+        {isAuthenticated ? (
+          pet.liked ? (
             <Tooltip title='unlike pet'>
               <Icon
                 type='heart'
@@ -60,7 +62,16 @@ function PetCard({ pet, linkPrefix }) {
                 onClick={handleLikePet}
               />
             </Tooltip>
-          ))}
+          )
+        ) : (
+          <Tooltip title='like pet'>
+            <Icon
+              type='heart'
+              style={{ position: 'absolute', bottom: '100%', right: 0, fontSize: '24px' }}
+              onClick={() => message.warn('Please login to like a pet')}
+            />
+          </Tooltip>
+        )}
       </div>
     </Card>
   );

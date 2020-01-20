@@ -508,6 +508,7 @@ module.exports = {
       tags: petData.tags,
       ...updateObject,
     };
+
     if (petData.attributes && petData.attributes.includes('microchip')) {
       return {
         petData: {
@@ -516,14 +517,13 @@ module.exports = {
         },
       };
     }
-    if (petData.attributes && !petData.attributes.includes('microchip')) {
-      return {
-        petData: {
-          ...ret,
-          chip_id: null,
-        },
-      };
-    }
+
+    return {
+      petData: {
+        ...ret,
+        chip_id: null,
+      },
+    };
   },
 
   async deleteAnimal(id) {

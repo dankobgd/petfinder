@@ -276,3 +276,15 @@ export const fetchAdoptedPets = () => async dispatch => {
     dispatch({ type: t.FETCH_ADOPTED_PETS_FAILURE });
   }
 };
+
+export const sendContactEmail = values => async dispatch => {
+  dispatch({ type: t.SEND_CONTACT_EMAIL_REQUEST });
+  try {
+    await apiClient.post('user/pets/contact', { data: values });
+    dispatch({ type: t.SEND_CONTACT_EMAIL_SUCCESS });
+    return Promise.resolve();
+  } catch (err) {
+    dispatch({ type: t.SEND_CONTACT_EMAIL_FAILURE });
+    return Promise.reject(err);
+  }
+};

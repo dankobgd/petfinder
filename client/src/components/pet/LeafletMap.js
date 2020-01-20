@@ -9,11 +9,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const mapStyle = {
-  width: '400px',
-  height: '320px',
-};
-
 function LeafletMap({ lat, lng, zoom, name }) {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
@@ -58,7 +53,7 @@ function LeafletMap({ lat, lng, zoom, name }) {
     });
   }, [name]);
 
-  return <div id='map' style={mapStyle} />;
+  return <div id='map' />;
 }
 
 export default LeafletMap;

@@ -92,3 +92,18 @@ exports.getAdoptedPets = async (req, res, next) => {
     return next(createError.BadRequest('Could not fetch pets'));
   }
 };
+// Send pet contact email
+exports.sendContactEmail = async (req, res, next) => {
+  try {
+    const emailCtx = {
+      from: req.body.email,
+      to: req.body.to,
+      subject: 'Pet Contact',
+      message: req.body.message,
+    };
+    await UserService.sendContactEmail(emailCtx);
+    res.status(200).json({ message: 'ok' });
+  } catch (err) {
+    return next(createError.BadRequest('Could not send contact email'));
+  }
+};

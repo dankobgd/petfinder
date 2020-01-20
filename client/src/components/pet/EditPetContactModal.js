@@ -4,7 +4,7 @@ import { Modal, Form, Input, Icon } from 'antd';
 const vGap = { marginBottom: 8 };
 
 function EditPetContactModal(props) {
-  const { visible, onCancel, onUpdate, form, pet } = props;
+  const { visible, onCancel, onOk, form, pet } = props;
   const { getFieldDecorator, setFieldsValue } = form;
 
   useEffect(() => {
@@ -20,7 +20,7 @@ function EditPetContactModal(props) {
   }, [pet, setFieldsValue]);
 
   return (
-    <Modal visible={visible} title='Update Contact Info' okText='Update' onCancel={onCancel} onOk={onUpdate}>
+    <Modal visible={visible} title='Update Contact Info' okText='Update' onCancel={onCancel} onOk={onOk}>
       <Form ayout={'vertical'}>
         <Form.Item style={vGap} label='Phone' hasFeedback>
           {getFieldDecorator('phone', {

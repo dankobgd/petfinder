@@ -1,5 +1,6 @@
 const knex = require('../../db/connection');
 const { cloudinaryUpload, cloudinaryDelete } = require('../../services/cloudinary');
+const mailer = require('../../services/mailer');
 
 module.exports = {
   async uploadUserAvatar(file) {
@@ -148,5 +149,9 @@ module.exports = {
       WHERE l.animal_id = ?`,
       [id]
     );
+  },
+
+  async sendContactEmail(data) {
+    return mailer.send('pet-contact', data);
   },
 };

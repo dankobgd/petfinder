@@ -55,7 +55,7 @@ module.exports.send = async function(templateName, opts) {
   }
 
   const mailOptions = {
-    from: `${config.app.title} <${config.email.from}>`,
+    from: opts.from || `${config.app.title} <${config.email.from}>`,
     to: opts.to,
     subject: opts.subject || 'No Subject',
     text,
