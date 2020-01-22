@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Result, Icon, Descriptions, Spin, message } from 'antd';
+import { Typography, Result, Icon, Descriptions, Spin, message, Tag } from 'antd';
 import { navigate } from '@reach/router';
 import { PreviousStep, SuccessSubmitButton } from './StepperButton';
 import { identityActions } from '../../redux/identity';
@@ -7,23 +7,95 @@ import { petsActions } from '../../redux/pets';
 import { toastActions } from '../../redux/toast';
 import { useSelector, useDispatch } from 'react-redux';
 
+const printGoodWith = provided => {
+  const source = ['good_with_cats', 'good_with_dogs', 'good_with_kids'];
+  const words = ['Good with Cats', 'Good With Dogs', 'Good With Kids'];
+  const filtered = source.filter(x => !provided.includes(x));
+  const tmp = source.map(x => filtered.indexOf(x));
+  const a = words.filter((_, idx) => idx === tmp[idx]);
+
+  return a.map(val => (
+    <div key={val}>
+      <Tag color='purple' style={{ marginBottom: 6 }}>
+        <Typography.Text>{val}</Typography.Text>
+      </Tag>
+      <br />
+    </div>
+  ));
+};
+
+function renderElements(items) {
+  return items.map(({ name, value }) => {
+    if (name === 'environment') {
+      return (
+        <Descriptions.Item label={<Typography.Text strong>Environment</Typography.Text>} key={value}>
+          {printGoodWith(value)}
+        </Descriptions.Item>
+      );
+    } else {
+      if (value && value.length) {
+        return (
+          <Descriptions.Item label={<Typography.Text strong>{name}</Typography.Text>} key={name}>
+            {Array.isArray(value) ? (
+              value.map(val => (
+                <div key={val}>
+                  <Tag color='purple' style={{ marginBottom: 6 }}>
+                    <Typography.Text>{val}</Typography.Text>
+                  </Tag>
+                  <br />
+                </div>
+              ))
+            ) : (
+              <Typography.Text>{value}</Typography.Text>
+            )}
+          </Descriptions.Item>
+        );
+      } else {
+        return null;
+      }
+    }
+  });
+}
+
 function DetailsList({ data }) {
-  const details = data.filter(d => d.name !== 'profileImage' && d.name !== 'galleryImages');
+  const f1 = ['profileImage', 'galleryImages', 'description'];
+  const f2 = ['attributes', 'environment', 'colors', 'tags'];
+  const details = data.filter(x => !f1.includes(x.name));
+
+  const info = details.filter(x => !f2.includes(x.name)).slice(0, -5);
+  const multi = details.filter(x => f2.includes(x.name));
+  const contacts = details.slice(Math.max(details.length - 5, 1));
+
   return (
     <div>
       <Descriptions
-        title='Pet Details Information List'
+        title='Pet Details'
         bordered
-        size='small'
-        column={{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }}
+        layout='vertical'
+        column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 1, xs: 1 }}
       >
-        {details.map(({ name, value }) =>
-          value && value.length ? (
-            <Descriptions.Item label={<Typography.Text strong>{name}</Typography.Text>} key={name}>
-              <Typography.Text>{value}</Typography.Text>
-            </Descriptions.Item>
-          ) : null
+        {renderElements(info)}
+      </Descriptions>
+
+      <Descriptions bordered layout='vertical' column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 1, xs: 1 }}>
+        {renderElements(multi)}
+      </Descriptions>
+
+      {data
+        .filter(x => x.name === 'description')
+        .map(
+          elm =>
+            elm.value && (
+              <Descriptions bordered layout='vertical' key={elm}>
+                <Descriptions.Item label={<Typography.Text strong>{elm.name}</Typography.Text>} key={elm.value}>
+                  <Typography.Text>{elm.value}</Typography.Text>
+                </Descriptions.Item>
+              </Descriptions>
+            )
         )}
+
+      <Descriptions bordered layout='vertical' column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 1, xs: 1 }}>
+        {renderElements(contacts)}
       </Descriptions>
     </div>
   );
@@ -52,17 +124,20 @@ function ConfirmAdd({ formFields, current, prevStep }) {
     }
   };
 
-  const antIcon = <Icon type='loading' style={{ fontSize: 24 }} spin />;
+  const spinner = <Icon type='loading' style={{ fontSize: 24 }} spin />;
 
   return (
     <div>
       <Result icon={<Icon type='smile' theme='twoTone' />} title='Success, do you wish to add a new pet for adoption' />
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        {loading && <Spin indicator={spinner} />}
+      </div>
       <DetailsList data={data} />
 
-      {loading && <Spin indicator={antIcon} />}
-
-      <PreviousStep current={current} onClick={prevStep} disabled={loading} />
-      <SuccessSubmitButton onClick={onSubmit} loading={loading} />
+      <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '2rem' }}>
+        <PreviousStep current={current} onClick={prevStep} disabled={loading} />
+        <SuccessSubmitButton onClick={onSubmit} loading={loading} style={{ marginLeft: 'auto' }} />
+      </div>
     </div>
   );
 }

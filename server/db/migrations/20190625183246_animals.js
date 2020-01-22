@@ -15,7 +15,7 @@ exports.up = knex =>
     t.string('coat_length').notNullable();
     t.string('size').notNullable();
     t.string('image_url').notNullable();
-    t.string('description');
+    t.text('description');
     t.boolean('adopted').notNullable();
 
     // attributes

@@ -379,7 +379,9 @@ function PetInfoForm(props) {
           <img alt='example' style={{ width: '100%' }} src={previewImageSrc} />
         </Modal>
 
-        <NextStep current={props.current} onClick={props.nextStep} />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+          <NextStep current={props.current} onClick={props.nextStep} />
+        </div>
       </Form>
     </Card>
   );

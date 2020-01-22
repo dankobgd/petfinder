@@ -22,7 +22,10 @@ function ContactInfoForm(props) {
 
         <Form.Item style={vGap} label='Email' hasFeedback>
           {getFieldDecorator('email', {
-            rules: [{ type: 'email', message: 'invalid email' }, { required: true, message: 'Please input email' }],
+            rules: [
+              { type: 'email', message: 'invalid email' },
+              { required: true, message: 'Please input email' },
+            ],
           })(<Input prefix={<Icon type='mail' />} placeholder='Email' />)}
         </Form.Item>
 
@@ -45,8 +48,11 @@ function ContactInfoForm(props) {
         </Form.Item>
 
         <PreviousStep />
-        <NextStep current={props.current} onClick={props.nextStep} />
-        <PreviousStep current={props.current} onClick={props.prevStep} />
+
+        <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem' }}>
+          <PreviousStep current={props.current} onClick={props.prevStep} />
+          <NextStep current={props.current} onClick={props.nextStep} style={{ marginLeft: 'auto' }} />
+        </div>
       </Form>
     </Card>
   );

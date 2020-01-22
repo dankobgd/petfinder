@@ -1,34 +1,42 @@
 import React from 'react';
-import { Button } from 'antd';
+import { Button, Icon } from 'antd';
 
-function PreviousStep({ current, onClick, ...rest }) {
+const btnStyles = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+function PreviousStep({ current, onClick, style, ...rest }) {
   return (
     <>
       {current > 0 && (
-        <Button type='primary' onClick={onClick} {...rest}>
-          Previous
+        <Button type='ghost' size='large' style={(btnStyles, { ...style })} onClick={onClick} {...rest}>
+          <Icon type='left-circle' theme='twoTone' style={{ fontSize: 24 }} />
+          <span>Back</span>
         </Button>
       )}
     </>
   );
 }
 
-function NextStep({ current, onClick, ...rest }) {
+function NextStep({ current, onClick, style, ...rest }) {
   return (
     <>
       {current < 2 && (
-        <Button type='primary' onClick={onClick} {...rest}>
-          Next
+        <Button type='ghost' size='large' onClick={onClick} style={(btnStyles, { ...style })} {...rest}>
+          <span>Next</span>
+          <Icon type='right-circle' theme='twoTone' style={{ fontSize: 24 }} />
         </Button>
       )}
     </>
   );
 }
 
-function SuccessSubmitButton({ onClick, ...rest }) {
+function SuccessSubmitButton({ onClick, style, ...rest }) {
   return (
-    <Button type='primary' onClick={onClick} {...rest}>
-      Add pet for adoption
+    <Button type='primary' size='large' onClick={onClick} style={(btnStyles, { ...style })} {...rest}>
+      Submit for adoption
     </Button>
   );
 }
