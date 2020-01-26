@@ -206,7 +206,7 @@ function SearchPage() {
                 value={formState['type']}
                 size='large'
               >
-                {['Cat', 'Dog', 'Rabbit', 'Bird', 'SmallAndFurry', 'AquaticAndReptiles'].map(opt => (
+                {['Cat', 'Dog', 'Rabbit', 'Bird', 'Small & Furry', 'Aquatic & Reptiles'].map(opt => (
                   <Option key={opt} value={opt}>
                     {opt}
                   </Option>
@@ -456,14 +456,14 @@ function getTotalResultsFound(word, count) {
     if (count === 0) return `No ${word}s found`;
     if (count === 1) return `${count} ${word} found`;
     if (count > 1) return `${count} ${word}s found`;
-  } else if (word === 'AquaticAndReptiles') {
-    if (count === 0) return `No Aquatic and Reptiles found`;
-    if (count === 1) return `${count} Aquatic And Reptiles found`;
-    if (count > 1) return `${count} Aquatic and Reptiles found`;
-  } else if (word === 'SmallAndFurry') {
-    if (count === 0) return `No Small and Furry animals found`;
-    if (count === 1) return `${count} Small and Furry animal found`;
-    if (count > 1) return `${count} Small and Furry animals found`;
+  } else if (word === 'Aquatic & Reptiles') {
+    if (count === 0) return `No Aquatic & Reptiles found`;
+    if (count === 1) return `${count} Aquatic & Reptiles found`;
+    if (count > 1) return `${count} Aquatic & Reptiles found`;
+  } else if (word === 'Small & Furry') {
+    if (count === 0) return `No Small & Furry animals found`;
+    if (count === 1) return `${count} Small & Furry animal found`;
+    if (count > 1) return `${count} Small & Furry animals found`;
   }
 }
 

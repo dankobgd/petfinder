@@ -355,14 +355,14 @@ function PetSingle({ arr, id }) {
 
                     <div>
                       <div style={{ marginBottom: '2rem' }}>
-                        <Typography.Title level={3}>About</Typography.Title> {'\n'}
+                        <Title level={3}>About</Title>
                       </div>
 
-                      <div style={{ marginBottom: '1rem' }}>
+                      {/* <div style={{ marginBottom: '1rem' }}>
                         <Txt strong>Coat Length: </Txt> <Txt>{pet.coat_length}</Txt>
-                      </div>
+                      </div> */}
 
-                      <div style={{ marginBottom: '1rem' }}>
+                      {/* <div style={{ marginBottom: '1rem' }}>
                         <Txt strong>Attributes: </Txt>
                         {petAttributes.map((item, idx) => (
                           <React.Fragment key={item}>
@@ -388,11 +388,13 @@ function PetSingle({ arr, id }) {
                             )}
                           </React.Fragment>
                         ))}
-                      </div>
+                      </div> */}
 
-                      <div style={{ marginBottom: '1rem' }}>
-                        <Txt strong>Colors: </Txt> <Txt>{pet.colors.join(', ')}</Txt>
-                      </div>
+                      {pet.colors.length && (
+                        <Txt style={{ marginBottom: '1rem' }}>
+                          <Txt strong>Colors: </Txt> <Txt>{pet.colors.join(', ')}</Txt>
+                        </Txt>
+                      )}
 
                       {pet.tags && pet.tags.length && (
                         <div style={{ marginBottom: '1rem' }}>

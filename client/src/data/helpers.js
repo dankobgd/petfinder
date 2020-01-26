@@ -18,8 +18,8 @@ const getAutocompleteList = (petType, petSpecies) => field => {
       Cat: cats.colors,
       Rabbit: rabbits.colors,
       Bird: birds.colors,
-      SmallAndFurry: smallAndFurry.colors,
-      AquaticAndReptiles: aquaticAndReptiles.colors,
+      'Small & Furry': smallAndFurry.colors,
+      'Aquatic & Reptiles': aquaticAndReptiles.colors,
     }[type]);
 
   const breedsMap = type =>
@@ -28,15 +28,15 @@ const getAutocompleteList = (petType, petSpecies) => field => {
       Cat: cats.breeds,
       Rabbit: rabbits.breeds,
       Bird: getBreedsList(birds, petSpecies),
-      SmallAndFurry: getBreedsList(smallAndFurry, petSpecies),
-      AquaticAndReptiles: getBreedsList(aquaticAndReptiles, petSpecies),
+      'Small & Furry': getBreedsList(smallAndFurry, petSpecies),
+      'Aquatic & Reptiles': getBreedsList(aquaticAndReptiles, petSpecies),
     }[type]);
 
   const speciesMap = type =>
     ({
       Bird: getSpeciesList(birds, petSpecies),
-      SmallAndFurry: getSpeciesList(smallAndFurry, petSpecies),
-      AquaticAndReptiles: getSpeciesList(aquaticAndReptiles, petSpecies),
+      'Small & Furry': getSpeciesList(smallAndFurry, petSpecies),
+      'Aquatic & Reptiles': getSpeciesList(aquaticAndReptiles, petSpecies),
     }[type]);
 
   let list;

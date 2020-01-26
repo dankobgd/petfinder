@@ -340,18 +340,7 @@ function PetInfoForm(props) {
           </div>
         </Form.Item>
 
-        <Form.Item
-          style={verticalGap}
-          _label='Select pet gallery images'
-          label={
-            <span>
-              Select pet gallery images&nbsp;
-              <Tooltip title='They describe your pet better and are seen in details page. You you can always add them later.'>
-                <Icon type='question-circle-o' />
-              </Tooltip>
-            </span>
-          }
-        >
+        <Form.Item style={verticalGap} label='Select pet gallery images'>
           <div className='dropbox'>
             {getFieldDecorator('galleryImages', {
               valuePropName: 'fileList',

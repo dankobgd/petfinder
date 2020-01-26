@@ -21,7 +21,7 @@ function request(method, url, config = {}, options = {}) {
   const { params, data, headers, maxContentLength } = config;
   const { raw } = options;
 
-  const onSuccess = response => (raw ? response : response.data);
+  const onSuccess = response => (raw || method === 'HEAD' ? response : response.data);
   const onError = error => error.response;
 
   return new Promise((resolve, reject) => {
@@ -54,6 +54,9 @@ const apiClient = {
   },
   del: (url, config, options) => {
     return request('DELETE', url, config, options);
+  },
+  head: (url, config, options) => {
+    return request('HEAD', url, config, options);
   },
 };
 

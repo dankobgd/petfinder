@@ -63,6 +63,7 @@ exports.getUsersPets = async (req, res, next) => {
 
   try {
     const pets = await UserService.getUsersPets(userId);
+    res.set('x-total-count', pets.rows.length);
     res.status(200).json({ pets: pets.rows });
   } catch (err) {
     return next(createError.BadRequest('Could not fetch pets'));
@@ -75,6 +76,7 @@ exports.getLikedPets = async (req, res, next) => {
 
   try {
     const pets = await UserService.getLikedPets(userId);
+    res.set('x-total-count', pets.rows.length);
     res.status(200).json({ pets: pets.rows });
   } catch (err) {
     return next(createError.BadRequest('Could not fetch pets'));
@@ -87,11 +89,13 @@ exports.getAdoptedPets = async (req, res, next) => {
 
   try {
     const pets = await UserService.getAdoptedPets(userId);
+    res.set('x-total-count', pets.rows.length);
     res.status(200).json({ pets: pets.rows });
   } catch (err) {
     return next(createError.BadRequest('Could not fetch pets'));
   }
 };
+
 // Send pet contact email
 exports.sendContactEmail = async (req, res, next) => {
   try {

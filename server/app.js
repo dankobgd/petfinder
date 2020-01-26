@@ -11,7 +11,11 @@ const app = express();
 initCloudinaryConfig();
 mw.requestLogger(app);
 
-app.use(cors());
+app.use(
+  cors({
+    exposedHeaders: ['x-total-count'],
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
