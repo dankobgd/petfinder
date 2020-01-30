@@ -61,19 +61,17 @@ function AddPet(props) {
     {
       title: 'Success',
       content: <ConfirmAdd formFields={formState.fields} current={current} prevStep={prevStep} />,
-      icon: <Icon type='smile-o' />,
+      icon: <Icon type='check-circle' />,
     },
   ];
 
   return (
     <div>
       <Row type='flex' style={{ justifyContent: 'center' }}>
-        <Col sm={24} md={20} lg={14} xl={12}>
+        <Col sm={24} md={20} lg={18} xl={16}>
           <Steps size='small' current={current}>
             {steps.map(({ title, icon, content }) => (
-              <Step key={title} title={title} icon={icon}>
-                {content}
-              </Step>
+              <Step key={title} title={title} icon={icon} />
             ))}
           </Steps>
 

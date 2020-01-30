@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Statistic } from 'antd';
-import { PieChart, Pie, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Tooltip } from 'recharts';
 import apiClient from '../../utils/apiClient';
 
 // ###################################################################

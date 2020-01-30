@@ -358,42 +358,41 @@ function PetSingle({ arr, id }) {
                         <Title level={3}>About</Title>
                       </div>
 
-                      {/* <div style={{ marginBottom: '1rem' }}>
+                      <div style={{ marginBottom: '1rem' }}>
                         <Txt strong>Coat Length: </Txt> <Txt>{pet.coat_length}</Txt>
-                      </div> */}
-
-                      {/* <div style={{ marginBottom: '1rem' }}>
-                        <Txt strong>Attributes: </Txt>
-                        {petAttributes.map((item, idx) => (
-                          <React.Fragment key={item}>
-                            <Txt>{item}</Txt>{' '}
-                            {idx !== petAttributes.length - 1 && (
-                              <>
-                                <Dot />{' '}
-                              </>
-                            )}
-                          </React.Fragment>
-                        ))}
                       </div>
 
-                      <div style={{ marginBottom: '1rem' }}>
-                        <Txt strong>Good In Home With: </Txt>
-                        {petGoodWith.map((item, idx) => (
-                          <React.Fragment key={item}>
-                            <Txt>{item}</Txt>
-                            {idx !== petGoodWith.length - 1 && (
-                              <>
-                                <Dot />
-                              </>
-                            )}
-                          </React.Fragment>
-                        ))}
-                      </div> */}
+                      {petAttributes && petAttributes.length && (
+                        <div style={{ marginBottom: '1rem' }}>
+                          <Txt strong>Attributes: </Txt>
+                          {petAttributes.map((item, idx) => (
+                            <span key={item}>
+                              <Txt>{item}</Txt> {idx < petAttributes.length - 1 && <Dot />}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
-                      {pet.colors.length && (
-                        <Txt style={{ marginBottom: '1rem' }}>
-                          <Txt strong>Colors: </Txt> <Txt>{pet.colors.join(', ')}</Txt>
-                        </Txt>
+                      {petGoodWith && petGoodWith.length && (
+                        <div style={{ marginBottom: '1rem' }}>
+                          <Txt strong>Good In Home With: </Txt>
+                          {petGoodWith.map((item, idx) => (
+                            <span key={item}>
+                              <Txt>{item}</Txt> {idx < petGoodWith.length - 1 && <Dot />}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {pet.colors && pet.colors.length && (
+                        <div style={{ marginBottom: '1rem' }}>
+                          <Txt style={{ marginBottom: '1rem' }}>
+                            <Txt strong>Colors: </Txt>
+                            {pet.colors.map(c => (
+                              <span key={c}>{c}</span>
+                            ))}
+                          </Txt>
+                        </div>
                       )}
 
                       {pet.tags && pet.tags.length && (
@@ -593,7 +592,7 @@ function Title({ children, style, ...rest }) {
   );
 }
 function Dot() {
-  return <span style={{ fontSize: 20, display: 'inline-flex', margin: '0 6px' }}>&bull;</span>;
+  return <span style={{ fontSize: 20, display: 'inline-flex', margin: '0px 6px' }}>&bull;</span>;
 }
 
 export default PetSingle;

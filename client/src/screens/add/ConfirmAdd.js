@@ -128,7 +128,10 @@ function ConfirmAdd({ formFields, current, prevStep }) {
 
   return (
     <div>
-      <Result icon={<Icon type='smile' theme='twoTone' />} title='Success, do you wish to add a new pet for adoption' />
+      <Result
+        icon={<Icon type='check-circle' theme='twoTone' />}
+        title='Success, do you wish to add a new pet for adoption'
+      />
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         {loading && <Spin indicator={spinner} />}
       </div>
