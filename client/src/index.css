@@ -84,3 +84,15 @@ code {
     margin-left: 0;
   }
 }
+
+/* big radio for pet type */
+.big-radio > div > div > .ant-radio-button-wrapper {
+  width: 220px;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.big-radio > div > div > .ant-radio-button-wrapper:hover {
+  background-color: #f8f8f8;
+}

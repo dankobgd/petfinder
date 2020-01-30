@@ -3,17 +3,19 @@ import { Form, Select, Input, Icon, Checkbox, Typography, Radio, Tooltip, Row, C
 import { cats, dogs } from '../../data/pets';
 import { useDispatch } from 'react-redux';
 import { identityActions } from '../../redux/identity';
+import { renderAutocompleteOpts } from '../../data/helpers';
 
 const { Option } = Select;
 const verticalGap = { marginBottom: 8 };
 
 function EditPetInfoForm(props) {
   const dispatch = useDispatch();
-
   const { getFieldDecorator, getFieldValue, validateFields, setFieldsValue } = props.form;
   const { pet } = props;
   const [breedRequired, setBreedRequired] = useState(true);
   const [unknownBreedToggled, setUnknownBreedToggled] = useState(false);
+
+  const renderOpts = renderAutocompleteOpts(pet.type, pet.species);
 
   const handleUnknownBreedToggle = () => {
     setBreedRequired(prev => !prev);
@@ -34,8 +36,6 @@ function EditPetInfoForm(props) {
   useEffect(() => {
     setFieldsValue({
       name: pet.name,
-      type: pet.type,
-      species: pet.species,
       gender: pet.gender,
       age: pet.age,
       primaryBreed: pet.primary_breed,
@@ -43,8 +43,8 @@ function EditPetInfoForm(props) {
       coatLength: pet.coat_length,
       size: pet.size,
       description: pet.description,
-      mixedBreed: pet.mixed_breed ? ['mixedBreed'] : [],
-      unknownBreed: pet.unknown_breed ? ['unknown_breed'] : [],
+      mixedBreed: pet.mixed_breed,
+      unknownBreed: pet.unknown_breed,
       attributes: defaultAttrs,
       environment: defaultEnvs,
       colors: pet.colors ? pet.colors : [],
@@ -79,20 +79,6 @@ function EditPetInfoForm(props) {
         })(<Input prefix={<Icon type='fire' />} placeholder='Name' />)}
       </Form.Item>
 
-      <Form.Item style={verticalGap} label='Type' hasFeedback className='custom-feedback'>
-        {getFieldDecorator('type', {
-          rules: [{ required: true, message: 'Please select animal type' }],
-        })(
-          <Radio.Group buttonStyle='solid'>
-            <Radio.Button value='Cat'>Cat</Radio.Button>
-            <Radio.Button value='Dog'>Dog</Radio.Button>
-            <Radio.Button value='Rabbit'>Rabbit</Radio.Button>
-            <Radio.Button value='Bird'>Bird</Radio.Button>
-            <Radio.Button value='Fish'>Fish</Radio.Button>
-          </Radio.Group>
-        )}
-      </Form.Item>
-
       <Form.Item style={verticalGap} label='Gender' hasFeedback className='custom-feedback'>
         {getFieldDecorator('gender', {
           rules: [{ required: true, message: 'Please select animal gender' }],
@@ -117,12 +103,6 @@ function EditPetInfoForm(props) {
         )}
       </Form.Item>
 
-      <Form.Item label='Species' hasFeedback>
-        {getFieldDecorator('species', {
-          rules: [{ required: true, message: 'Please input animal species' }],
-        })(<Input prefix={<Icon type='fire' />} placeholder='Species' />)}
-      </Form.Item>
-
       <Typography.Title level={4} style={{ marginTop: '2rem' }}>
         Additional details
       </Typography.Title>
@@ -137,19 +117,7 @@ function EditPetInfoForm(props) {
             optionFilterProp='children'
             filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
           >
-            {getFieldValue('type') === 'Dog'
-              ? dogs.breeds.map(dog => (
-                  <Option key={dog} value={dog}>
-                    {dog}
-                  </Option>
-                ))
-              : getFieldValue('type') === 'Cat'
-              ? cats.breeds.map(cat => (
-                  <Option key={cat} value={cat}>
-                    {cat}
-                  </Option>
-                ))
-              : null}
+            {renderOpts('breeds')}
           </Select>
         )}
       </Form.Item>
@@ -162,42 +130,26 @@ function EditPetInfoForm(props) {
             optionFilterProp='children'
             filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
           >
-            {getFieldValue('type') === 'Dog'
-              ? dogs.breeds.map(dog => (
-                  <Option key={dog} value={dog}>
-                    {dog}
-                  </Option>
-                ))
-              : getFieldValue('type') === 'Cat'
-              ? cats.breeds.map(cat => (
-                  <Option key={cat} value={cat}>
-                    {cat}
-                  </Option>
-                ))
-              : null}
+            {renderOpts('breeds')}
           </Select>
         )}
       </Form.Item>
 
       <Row>
         <Col span={12}>
-          <Form.Item style={verticalGap}>
-            {getFieldDecorator('mixedBreed')(
-              <Checkbox.Group>
-                <Checkbox value='mixedBreed'>Mixed Breed</Checkbox>
-              </Checkbox.Group>
-            )}
+          <Form.Item>
+            {getFieldDecorator('mixedBreed', {
+              valuePropName: 'checked',
+              initialValue: false,
+            })(<Checkbox>Mixed breed</Checkbox>)}
           </Form.Item>
         </Col>
         <Col span={12}>
-          <Form.Item style={verticalGap}>
-            {getFieldDecorator('unknownBreed')(
-              <Checkbox.Group>
-                <Checkbox value='unknownBreed' checked={breedRequired} onChange={handleUnknownBreedToggle}>
-                  Unknown Breed
-                </Checkbox>
-              </Checkbox.Group>
-            )}
+          <Form.Item>
+            {getFieldDecorator('unknownBreed', {
+              valuePropName: 'checked',
+              initialValue: false,
+            })(<Checkbox onChange={handleUnknownBreedToggle}>Unknown breed</Checkbox>)}
           </Form.Item>
         </Col>
       </Row>

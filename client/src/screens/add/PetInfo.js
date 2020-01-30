@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Tooltip, Row, Col } from 'antd';
+import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Row, Col } from 'antd';
 import getBase64 from '../../utils/getBase64';
 import { renderAutocompleteOpts } from '../../data/helpers';
 
 const verticalGap = { marginBottom: 8 };
 
 function PetInfoForm(props) {
-  const { getFieldDecorator, getFieldValue, validateFields, setFieldsValue } = props.form;
+  const { getFieldDecorator, getFieldValue, validateFields } = props.form;
   const [breedRequired, setBreedRequired] = useState(true);
   const [unknownBreedToggled, setUnknownBreedToggled] = useState(false);
   const [previewImageSrc, setPreviewImageSrc] = useState('');
   const [previewImageVisible, setPreviewImageVisible] = useState(false);
 
-  const renderOpts = renderAutocompleteOpts(getFieldValue('type'), getFieldValue('species'));
+  const renderOpts = renderAutocompleteOpts(props.type.value, props.species.value);
 
   const handleUnknownBreedToggle = () => {
     setBreedRequired(prev => !prev);
@@ -24,7 +24,9 @@ function PetInfoForm(props) {
     return e && e.fileList;
   };
 
-  const handlePreviewCancel = () => setPreviewImageVisible(false);
+  const handlePreviewCancel = () => {
+    setPreviewImageVisible(false);
+  };
 
   const handlePreviewGallery = async file => {
     if (!file.url && !file.preview) {
@@ -39,15 +41,6 @@ function PetInfoForm(props) {
       validateFields(['primaryBreed'], { force: true });
     }
   }, [unknownBreedToggled, validateFields]);
-
-  const clearNonexistingFields = () => {
-    setFieldsValue({
-      primaryBreed: undefined,
-      secondaryBreed: undefined,
-      colors: undefined,
-      species: undefined,
-    });
-  };
 
   return (
     <Card>
@@ -65,38 +58,6 @@ function PetInfoForm(props) {
             rules: [{ required: true, message: 'Please input animal name' }],
           })(<Input prefix={<Icon type='fire' />} placeholder='Name' />)}
         </Form.Item>
-
-        <Form.Item style={verticalGap} label='Type' hasFeedback className='custom-feedback'>
-          {getFieldDecorator('type', {
-            rules: [{ required: true, message: 'Please select animal type' }],
-          })(
-            <Radio.Group buttonStyle='solid' onChange={clearNonexistingFields}>
-              <Radio.Button value='Cat'>Cat</Radio.Button>
-              <Radio.Button value='Dog'>Dog</Radio.Button>
-              <Radio.Button value='Rabbit'>Rabbit</Radio.Button>
-              <Radio.Button value='Bird'>Bird</Radio.Button>
-              <Radio.Button value='SmallAndFurry'>Small & Furry</Radio.Button>
-              <Radio.Button value='AquaticAndReptiles'>Aquatic & Reptiles</Radio.Button>
-            </Radio.Group>
-          )}
-        </Form.Item>
-
-        {getFieldValue('type') && !getFieldValue('type').match(/Cat|Dog|Rabbit/g) ? (
-          <Form.Item style={verticalGap} label='Species' hasFeedback>
-            {getFieldDecorator('species', {
-              rules: [{ required: true, message: 'Please select species' }],
-            })(
-              <Select
-                showSearch
-                placeholder='Select species'
-                optionFilterProp='children'
-                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-              >
-                {renderOpts('species')}
-              </Select>
-            )}
-          </Form.Item>
-        ) : null}
 
         <Form.Item style={verticalGap} label='Gender' hasFeedback className='custom-feedback'>
           {getFieldDecorator('gender', {
@@ -156,23 +117,19 @@ function PetInfoForm(props) {
 
         <Row>
           <Col span={12}>
-            <Form.Item style={verticalGap}>
-              {getFieldDecorator('mixedBreed')(
-                <Checkbox.Group>
-                  <Checkbox value='mixedBreed'>Mixed Breed</Checkbox>
-                </Checkbox.Group>
-              )}
+            <Form.Item>
+              {getFieldDecorator('mixedBreed', {
+                valuePropName: 'checked',
+                initialValue: false,
+              })(<Checkbox>Mixed breed</Checkbox>)}
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item style={verticalGap}>
-              {getFieldDecorator('unknownBreed')(
-                <Checkbox.Group>
-                  <Checkbox value='unknownBreed' checked={breedRequired} onChange={handleUnknownBreedToggle}>
-                    Unknown Breed
-                  </Checkbox>
-                </Checkbox.Group>
-              )}
+            <Form.Item>
+              {getFieldDecorator('unknownBreed', {
+                valuePropName: 'checked',
+                initialValue: false,
+              })(<Checkbox onChange={handleUnknownBreedToggle}>Unknown breed</Checkbox>)}
             </Form.Item>
           </Col>
         </Row>
@@ -203,17 +160,7 @@ function PetInfoForm(props) {
           )}
         </Form.Item>
 
-        <Form.Item
-          label={
-            <span>
-              Animal Color&nbsp;
-              <Tooltip title='select colors by hierarchy in order: primary -> secondary -> tertiary etc'>
-                <Icon type='question-circle-o' />
-              </Tooltip>
-            </span>
-          }
-          hasFeedback
-        >
+        <Form.Item label='colors' hasFeedback>
           {getFieldDecorator('colors', {
             rules: [{ required: true, message: 'Please select animal colors', type: 'array' }],
           })(
@@ -270,7 +217,7 @@ function PetInfoForm(props) {
           )}
         </Form.Item>
 
-        {getFieldValue('attributes').includes('microchip') ? (
+        {getFieldValue('attributes').includes('microchip') && (
           <>
             <Form.Item style={verticalGap} label='Chip ID' hasFeedback>
               {getFieldDecorator('chipId', {
@@ -293,7 +240,7 @@ function PetInfoForm(props) {
               )}
             </Form.Item>
           </>
-        ) : null}
+        )}
 
         <Typography.Title level={4} style={{ marginTop: '2rem' }}>
           Personal Message & Image

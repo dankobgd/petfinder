@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { identityActions } from '../../redux/identity';
 import { toastActions } from '../../redux/toast';
 import { petsActions } from '../../redux/pets';
+import PetKind from './PetKind';
 import PetInfo from './PetInfo';
 import ContactInfo from './ContactInfo';
 import ConfirmAdd from './ConfirmAdd';
@@ -57,6 +58,11 @@ function AddPet() {
   };
 
   const steps = [
+    {
+      title: 'Pet Kind',
+      content: <PetKind {...formState.fields} onChange={handleFormChange} ref={formRef} />,
+      icon: <Icon type='select' />,
+    },
     {
       title: 'Pet Info',
       content: <PetInfo {...formState.fields} onChange={handleFormChange} ref={formRef} />,
