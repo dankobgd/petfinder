@@ -1,11 +1,5 @@
 import React from 'react';
-import { Typography, Result, Icon, Descriptions, Spin, message, Tag } from 'antd';
-import { navigate } from '@reach/router';
-import { PreviousStep, SuccessSubmitButton } from './StepperButton';
-import { identityActions } from '../../redux/identity';
-import { petsActions } from '../../redux/pets';
-import { toastActions } from '../../redux/toast';
-import { useSelector, useDispatch } from 'react-redux';
+import { Typography, Result, Icon, Descriptions, Spin, Tag } from 'antd';
 
 const printGoodWith = provided => {
   const source = ['good_with_cats', 'good_with_dogs', 'good_with_kids'];
@@ -101,46 +95,23 @@ function DetailsList({ data }) {
   );
 }
 
-function ConfirmAdd({ formFields, current, prevStep }) {
-  const loading = useSelector(state => state.identity.isLoading);
-  const dispatch = useDispatch();
-
+function ConfirmAdd({ formFields, loading }) {
   const data = Object.entries(formFields)
     .map(([name, obj]) => ({ name, value: obj.value }))
     .filter(elm => elm.name !== 'onChange');
-
-  const onSubmit = async () => {
-    const hideMsgLoading = message.loading('Creating new pet listing', 0);
-
-    try {
-      await dispatch(identityActions.createPet(data));
-      await dispatch(identityActions.fetchUsersPets());
-      await dispatch(petsActions.fetchLatestAnimals());
-      hideMsgLoading();
-      navigate('./created');
-      dispatch(toastActions.addToast({ type: 'success', msg: 'Added new pet for adoption' }));
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const spinner = <Icon type='loading' style={{ fontSize: 24 }} spin />;
 
   return (
     <div>
       <Result
-        icon={<Icon type='check-circle' theme='twoTone' />}
+        icon={<Icon type='check-circle' theme='twoTone' twoToneColor='#52c41a' />}
         title='Success, do you wish to add a new pet for adoption'
       />
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         {loading && <Spin indicator={spinner} />}
       </div>
       <DetailsList data={data} />
-
-      <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '2rem' }}>
-        <PreviousStep current={current} onClick={prevStep} disabled={loading} />
-        <SuccessSubmitButton onClick={onSubmit} loading={loading} style={{ marginLeft: 'auto' }} />
-      </div>
     </div>
   );
 }

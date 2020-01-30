@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Tooltip, Row, Col } from 'antd';
-import { NextStep } from './StepperButton';
 import getBase64 from '../../utils/getBase64';
 import { renderAutocompleteOpts } from '../../data/helpers';
 
@@ -367,10 +366,6 @@ function PetInfoForm(props) {
         <Modal visible={previewImageVisible} footer={null} onCancel={handlePreviewCancel}>
           <img alt='example' style={{ width: '100%' }} src={previewImageSrc} />
         </Modal>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-          <NextStep current={props.current} onClick={props.nextStep} />
-        </div>
       </Form>
     </Card>
   );

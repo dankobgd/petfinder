@@ -1,6 +1,5 @@
 import React from 'react';
 import { Form, Input, Icon, Typography, Card } from 'antd';
-import { PreviousStep, NextStep } from './StepperButton';
 
 const vGap = { marginBottom: 8 };
 
@@ -46,13 +45,6 @@ function ContactInfoForm(props) {
             rules: [{ required: true, message: 'Please input address' }],
           })(<Input prefix={<Icon type='fire' />} placeholder='Address' />)}
         </Form.Item>
-
-        <PreviousStep />
-
-        <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem' }}>
-          <PreviousStep current={props.current} onClick={props.prevStep} />
-          <NextStep current={props.current} onClick={props.nextStep} style={{ marginLeft: 'auto' }} />
-        </div>
       </Form>
     </Card>
   );
