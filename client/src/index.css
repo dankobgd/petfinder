@@ -96,3 +96,19 @@ code {
 .big-radio > div > div > .ant-radio-button-wrapper:hover {
   background-color: #f8f8f8;
 }
+
+/* pet card skeleton */
+.pet-card-skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pet-card-skeleton > .ant-skeleton-header {
+  width: 100%;
+}
+.pet-card-skeleton
+  > .ant-skeleton-header
+  > span.ant-skeleton-avatar.ant-skeleton-avatar-lg.ant-skeleton-avatar-square {
+  width: 100%;
+  height: 250px;
+}
