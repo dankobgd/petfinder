@@ -210,8 +210,8 @@ function SearchPage() {
     <>
       <Layout style={{ padding: '0 24px' }}>
         <Layout.Content style={{ padding: 24, margin: 0 }}>
-          <Row gutter={20}>
-            <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+          <Row type='flex' gutter={20} style={{ justifyContent: 'center' }}>
+            <Col xs={24} sm={12} md={8} lg={6} xl={4} style={{ margin: '1rem 0' }}>
               <Select
                 style={{ width: '100%' }}
                 showSearch
@@ -229,7 +229,7 @@ function SearchPage() {
                 ))}
               </Select>
             </Col>
-            <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+            <Col xs={24} sm={12} md={8} lg={6} xl={4} style={{ margin: '1rem 0' }}>
               <Select
                 style={{ width: '100%' }}
                 showSearch
@@ -247,7 +247,7 @@ function SearchPage() {
                 ))}
               </Select>
             </Col>
-            <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+            <Col xs={24} sm={12} md={8} lg={6} xl={4} style={{ margin: '1rem 0' }}>
               <Input.Group compact>
                 <Input
                   prefix={<Icon type='search' />}
@@ -269,7 +269,7 @@ function SearchPage() {
                 />
               </Input.Group>
             </Col>
-            <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+            <Col xs={24} sm={12} md={8} lg={6} xl={4} style={{ margin: '1rem 0' }}>
               <Button type='primary' size='large' onClick={searchPets}>
                 Search
               </Button>
@@ -278,36 +278,29 @@ function SearchPage() {
 
           {topSearchFilterCompleted && (
             <>
-              <Row gutter={20} style={{ marginTop: '2.5rem' }}>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4} offset={20}>
-                  <Button icon='close' onClick={resetFilters}>
-                    Reset Filters
-                  </Button>
-                </Col>
-              </Row>
-              {formState['type'] && !formState['type'].match(/Cat|Dog|Rabbit/g) ? (
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
-                  <label htmlFor='species'>Species</label>
-                  <Select
-                    ref={speciesRef}
-                    style={{ width: '100%' }}
-                    showSearch
-                    placeholder='Species'
-                    optionFilterProp='children'
-                    filterOption={(input, option) =>
-                      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
-                    onChange={handleChange('species')}
-                    value={formState['species']}
-                    size='large'
-                  >
-                    {renderOpts('species')}
-                  </Select>
-                </Col>
-              ) : null}
+              <Row type='flex' gutter={20} style={{ marginTop: '2.5rem', justifyContent: 'flex-start' }}>
+                {formState['type'] && !formState['type'].match(/Cat|Dog|Rabbit/g) && (
+                  <Col xs={24} sm={12} md={8} lg={6} xl={4}>
+                    <label htmlFor='species'>Species</label>
+                    <Select
+                      ref={speciesRef}
+                      style={{ width: '100%' }}
+                      showSearch
+                      placeholder='Species'
+                      optionFilterProp='children'
+                      filterOption={(input, option) =>
+                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      }
+                      onChange={handleChange('species')}
+                      value={formState['species']}
+                      size='large'
+                    >
+                      {renderOpts('species')}
+                    </Select>
+                  </Col>
+                )}
 
-              <Row gutter={20} style={{ marginTop: '2.5rem' }}>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='breed'>Breed</label>
                   <MultiSelect
                     formState={formState}
@@ -316,7 +309,7 @@ function SearchPage() {
                     options={getAutocompList('breeds')}
                   />
                 </Col>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='age'>Age</label>
                   <MultiSelect
                     formState={formState}
@@ -325,7 +318,7 @@ function SearchPage() {
                     options={['Baby', 'Young', 'Adult', 'Senior']}
                   />
                 </Col>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='size'>Size</label>
                   <MultiSelect
                     formState={formState}
@@ -334,7 +327,7 @@ function SearchPage() {
                     options={['Small', 'Medium', 'Large', 'XL']}
                   />
                 </Col>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='gender'>Gender</label>
                   <MultiSelect
                     formState={formState}
@@ -343,7 +336,7 @@ function SearchPage() {
                     options={['Male', 'Female']}
                   />
                 </Col>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='goodWith'>Good With</label>
                   <MultiSelect
                     formState={formState}
@@ -354,7 +347,7 @@ function SearchPage() {
                 </Col>
               </Row>
               <Row gutter={20} style={{ marginTop: '1.5rem' }}>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='care'>Care & Behaviour</label>
                   <MultiSelect
                     formState={formState}
@@ -363,7 +356,7 @@ function SearchPage() {
                     options={['House Trained', 'Declawed', 'Special Needs', 'Vaccinated', 'Spayed/Neutered']}
                   />
                 </Col>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='coatLength'>Coat Length</label>
                   <MultiSelect
                     formState={formState}
@@ -372,11 +365,11 @@ function SearchPage() {
                     options={['Hairless', 'Short', 'Medium', 'Long']}
                   />
                 </Col>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='color'>Color</label>
                   <MultiSelect formState={formState} field='color' onChange={handleMultiSelect} options={cats.colors} />
                 </Col>
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='days'>Days on Petfinder</label>
                   <Select
                     style={{ width: '100%' }}
@@ -398,7 +391,7 @@ function SearchPage() {
                   </Select>
                 </Col>
 
-                <Col xs={12} sm={12} md={4} lg={4} xl={4}>
+                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='name'>Pet Name</label>
                   <Search
                     size='large'
@@ -408,6 +401,12 @@ function SearchPage() {
                     onSearch={onNameSearch}
                     enterButton
                   />
+                </Col>
+
+                <Col xs={24} sm={12} md={8} lg={6} xl={4} style={{ marginTop: 20 }}>
+                  <Button type='danger' icon='close' onClick={resetFilters} size='large'>
+                    Reset Filters
+                  </Button>
                 </Col>
               </Row>
             </>
