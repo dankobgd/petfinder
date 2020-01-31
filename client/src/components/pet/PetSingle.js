@@ -362,7 +362,7 @@ function PetSingle({ arr, id }) {
                         <Txt strong>Coat Length: </Txt> <Txt>{pet.coat_length}</Txt>
                       </div>
 
-                      {petAttributes && petAttributes.length && (
+                      {petAttributes && petAttributes.length > 0 && (
                         <div style={{ marginBottom: '1rem' }}>
                           <Txt strong>Attributes: </Txt>
                           {petAttributes.map((item, idx) => (
@@ -373,7 +373,7 @@ function PetSingle({ arr, id }) {
                         </div>
                       )}
 
-                      {petGoodWith && petGoodWith.length && (
+                      {petGoodWith && petGoodWith.length > 0 && (
                         <div style={{ marginBottom: '1rem' }}>
                           <Txt strong>Good In Home With: </Txt>
                           {petGoodWith.map((item, idx) => (
@@ -384,7 +384,7 @@ function PetSingle({ arr, id }) {
                         </div>
                       )}
 
-                      {pet.colors && pet.colors.length && (
+                      {pet.colors && pet.colors.length > 0 && (
                         <div style={{ marginBottom: '1rem' }}>
                           <Txt style={{ marginBottom: '1rem' }}>
                             <Txt strong>Colors: </Txt>
@@ -395,7 +395,7 @@ function PetSingle({ arr, id }) {
                         </div>
                       )}
 
-                      {pet.tags && pet.tags.length && (
+                      {pet.tags && pet.tags.length > 0 && (
                         <div style={{ marginBottom: '1rem' }}>
                           <Txt style={{ marginBottom: '1rem' }}>
                             <Txt strong>Tags: </Txt>

@@ -22,6 +22,25 @@ const reducer = (state = initialState, action) => {
           ...action.payload.searchForm,
         },
       };
+    case t.REMOVE_FROM_SEARCH_FORM:
+      const copy = { ...state.searchForm };
+      if (action.payload.key !== 'days' && action.payload.key !== 'name') {
+        return {
+          ...state,
+          searchForm: {
+            ...copy,
+            [action.payload.key]: copy[action.payload.key].filter(x => x !== action.payload.val),
+          },
+        };
+      } else {
+        return {
+          ...state,
+          searchForm: {
+            ...copy,
+            [action.payload.key]: undefined,
+          },
+        };
+      }
     case t.CLEAR_SEARCH_FORM:
       return {
         ...state,

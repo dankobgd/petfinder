@@ -24,7 +24,7 @@ function PetCard({ pet, linkPrefix }) {
   };
 
   return (
-    <LazyLoad key={pet.id} height={'100%'} placeholder={placeholder} throttle={1000}>
+    <LazyLoad key={pet.id} height={'100%'} offset={100} placeholder={placeholder} throttle={500}>
       <Card
         style={{ height: '100%', borderRadius: 20 }}
         cover={

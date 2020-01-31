@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Row, Col, Form, Input, Select, Button, Icon, Layout, message, Alert, Pagination } from 'antd';
+import { Row, Col, Form, Input, Select, Button, Icon, Layout, message, Alert, Pagination, Tag, Tooltip } from 'antd';
 import { cats } from '../../data/pets';
 import { navigate } from '@reach/router';
 import initialFormState from './initialFormState';
@@ -66,7 +66,13 @@ function SearchPage() {
   const searchMeta = useSelector(state => state.pets.meta);
   const searchError = useSelector(state => state.error.message);
   const topSearchFilterCompleted = useSelector(state => state.ui.topSearchFilterCompleted);
+  const searchForm = useSelector(state => state.ui.searchForm);
+
   const speciesRef = React.useRef(null);
+
+  const handleNameChange = e => {
+    dispatch(uiActions.persistSearchForm({ name: e.target.value }));
+  };
 
   const handleChange = name => e => {
     if (name === 'type') {
@@ -189,6 +195,16 @@ function SearchPage() {
 
   const renderOpts = renderAutocompleteOpts(pickedType, pickedSpecies);
   const getAutocompList = getAutocompleteList(pickedType, pickedSpecies);
+
+  const removeSingleFilter = (key, val) => {
+    dispatch(uiActions.removeFromSearchForm(key, val));
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete(key);
+    const URI = buildURI(urlParams);
+    navigate(URI);
+    dispatch(petsActions.searchPetsByFilter(getQueryString()));
+    dispatch(uiActions.persistQueryString(URI));
+  };
 
   return (
     <>
@@ -384,7 +400,14 @@ function SearchPage() {
 
                 <Col xs={12} sm={12} md={4} lg={4} xl={4}>
                   <label htmlFor='name'>Pet Name</label>
-                  <Search size='large' placeholder='Pet Name' onSearch={onNameSearch} enterButton />
+                  <Search
+                    size='large'
+                    placeholder='Pet Name'
+                    value={formState['name']}
+                    onChange={handleNameChange}
+                    onSearch={onNameSearch}
+                    enterButton
+                  />
                 </Col>
               </Row>
             </>
@@ -401,7 +424,53 @@ function SearchPage() {
       )}
 
       <div style={{ padding: '3rem' }}>
-        {searchMeta && <span>{getTotalResultsFound(formState['type'], searchMeta.totalRecords)}</span>}
+        {searchMeta && (
+          <span
+            style={{
+              padding: '8px 12px',
+              marginBottom: '1rem',
+              fontSize: 18,
+              background: '#f8f8f8',
+              borderRadius: 6,
+              border: '1px solid #c4c4c4',
+            }}
+          >
+            {getTotalResultsFound(formState['type'], searchMeta.totalRecords)}
+          </span>
+        )}
+
+        {topSearchFilterCompleted && searchForm && Object.keys(searchError.length) && (
+          <div style={{ border: '1px solid #e6daff', padding: '1rem', marginBottom: '2rem', borderRadius: '8px' }}>
+            {Object.entries(searchForm).map(([key, val]) =>
+              Array.isArray(val)
+                ? val.length > 0 &&
+                  val.map(v => (
+                    <Tooltip title={key} key={v}>
+                      <Tag
+                        color={!key.match(/type|distance|zip|countryCode/g) ? 'purple' : 'green'}
+                        className='search-filter-tag'
+                        closable={!key.match(/type|distance|zip|countryCode/g)}
+                        onClose={() => removeSingleFilter(key, v)}
+                      >
+                        {v}
+                      </Tag>
+                    </Tooltip>
+                  ))
+                : val && (
+                    <Tooltip title={key} key={val}>
+                      <Tag
+                        color={!key.match(/type|distance|zip|countryCode/g) ? 'purple' : 'green'}
+                        className='search-filter-tag'
+                        closable={!key.match(/type|distance|zip|countryCode/g)}
+                        onClose={() => removeSingleFilter(key, val)}
+                      >
+                        {val}
+                      </Tag>
+                    </Tooltip>
+                  )
+            )}
+          </div>
+        )}
 
         <PetsList pets={searchResults} linkPrefix='../pet/' />
 
