@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Row, Col } from 'antd';
-import getBase64 from '../../utils/getBase64';
-import { renderAutocompleteOpts } from '../../data/helpers';
+import getBase64 from '../../../../utils/getBase64';
+import { renderAutocompleteOpts } from '../../../../data/helpers';
 
 const verticalGap = { marginBottom: 8 };
 

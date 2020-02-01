@@ -1,16 +1,8 @@
 import React from 'react';
 import { Layout, Menu, Breadcrumb, Icon, Typography } from 'antd';
 import { useSelector } from 'react-redux';
-import { PrivateRoute } from '../../components/authorization';
-import { Router, Link } from '@reach/router';
-import AddPet from '../../screens/add/AddPet';
-import EditAccount from './EditAccount';
-import ChangePassword from './ChangePassword';
-import CreatedPets from './CreatedPets';
-import LikedPets from './LikedPets';
-import AdoptedPets from './AdoptedPets';
-import PetSingle from '../../components/pet/PetSingle';
-import ProfileInfo from './ProfileInfo';
+import { Link } from '@reach/router';
+import ProfileRoutes from './ProfileRoutes';
 
 const { SubMenu } = Menu;
 const { Sider, Content } = Layout;
@@ -92,18 +84,7 @@ function Profile() {
             minHeight: 280,
           }}
         >
-          <Router>
-            <PrivateRoute path='/' component={ProfileInfo} />
-            <PrivateRoute path='add_pet' component={AddPet} />
-            <PrivateRoute path='liked' component={LikedPets} />
-            <PrivateRoute path='created' component={CreatedPets} />
-            <PrivateRoute path='adopted' component={AdoptedPets} />
-            <PrivateRoute path='liked/:id/:name' component={p => <PetSingle arr='identity.likedPets' {...p} />} />
-            <PrivateRoute path='created/:id/:name' component={p => <PetSingle arr='identity.postedPets' {...p} />} />
-            <PrivateRoute path='adopted/:id/:name' component={p => <PetSingle arr='identity.adoptedPets' {...p} />} />
-            <PrivateRoute path='account' component={EditAccount} />
-            <PrivateRoute path='change_password' component={ChangePassword} />
-          </Router>
+          <ProfileRoutes />
         </Content>
       </Layout>
     </Layout>

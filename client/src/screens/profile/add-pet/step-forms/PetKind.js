@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Radio, Typography, Row, Col, Select } from 'antd';
 
-import { renderAutocompleteOpts } from '../../data/helpers';
+import { renderAutocompleteOpts } from '../../../../data/helpers';
 
 function PetKindForm(props) {
   const { getFieldDecorator, getFieldValue } = props.form;

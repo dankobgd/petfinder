@@ -1,4 +1,4 @@
-export const initialFormState = {
+export default {
   fields: {
     name: { value: undefined },
     type: { value: undefined },

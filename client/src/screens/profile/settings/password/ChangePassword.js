@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Icon, Input, Button, Card, Divider, Col, Row, Typography, Alert } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { identityActions } from '../../redux/identity';
-import { toastActions } from '../../redux/toast';
+import { identityActions } from '../../../../redux/identity';
+import { toastActions } from '../../../../redux/toast';
 
 function ChangePassword(props) {
   const {

@@ -2,17 +2,14 @@ import React, { useState, useRef } from 'react';
 import { Steps, Icon, Form, Row, Col, message } from 'antd';
 import { navigate } from '@reach/router';
 import { useSelector, useDispatch } from 'react-redux';
-import { identityActions } from '../../redux/identity';
-import { toastActions } from '../../redux/toast';
-import { petsActions } from '../../redux/pets';
-import PetKind from './PetKind';
-import PetInfo from './PetInfo';
-import ContactInfo from './ContactInfo';
-import ConfirmAdd from './ConfirmAdd';
-import { initialFormState } from './InitialFormState';
-import StepperButtons from './StepperButtons';
 
-function AddPet() {
+import { identityActions } from '../../../redux/identity';
+import { toastActions } from '../../../redux/toast';
+import { petsActions } from '../../../redux/pets';
+import { PetKind, PetInfo, ContactInfo, ConfirmAdd } from './step-forms';
+import { initialFormState, StepperButtons } from './wizard';
+
+function AddPetWizard() {
   const dispatch = useDispatch();
   const loading = useSelector(state => state.identity.isLoading);
   const [current, setCurrent] = useState(0);
@@ -106,4 +103,4 @@ function AddPet() {
   );
 }
 
-export default Form.create()(AddPet);
+export default Form.create()(AddPetWizard);

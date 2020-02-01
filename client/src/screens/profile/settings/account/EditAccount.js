@@ -16,9 +16,9 @@ import {
   Alert,
 } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { identityActions } from '../../redux/identity';
-import { toastActions } from '../../redux/toast';
-import getBase64 from '../../utils/getBase64';
+import { identityActions } from '../../../../redux/identity';
+import { toastActions } from '../../../../redux/toast';
+import getBase64 from '../../../../utils/getBase64';
 
 function EditAccount(props) {
   const { getFieldDecorator, validateFieldsAndScroll, getFieldValue, getFieldsValue, setFields } = props.form;

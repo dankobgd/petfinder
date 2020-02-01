@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import PetsList from '../../components/pet/PetsList';
+import PetsList from '../../../components/pet/PetsList';
 import { useSelector, useDispatch } from 'react-redux';
-import { identityActions } from '../../redux/identity';
+import { identityActions } from '../../../redux/identity';
 
 function AdoptedPets() {
   const dispatch = useDispatch();
