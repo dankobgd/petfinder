@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { identityActions } from '../redux/identity';
+import { identityActions } from '../../../redux/identity';
 import { Form, Icon, Input, Col, Row, Divider, Tooltip, Button, Card, Typography, Alert } from 'antd';
 
 const { Title } = Typography;

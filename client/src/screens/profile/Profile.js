@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Menu, Breadcrumb, Icon, Typography } from 'antd';
 import { useSelector } from 'react-redux';
-import { PrivateRoute } from '../../components/route/Auth';
+import { PrivateRoute } from '../../components/authorization';
 import { Router, Link } from '@reach/router';
 import AddPet from '../../screens/add/AddPet';
 import EditAccount from './EditAccount';

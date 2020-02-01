@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Layout } from 'antd';
-import { petsActions } from '../redux/pets';
-import PetsList from '../components/pet/PetsList';
+import { petsActions } from '../../redux/pets';
+import PetsList from '../../components/pet/PetsList';
 
 const { Content } = Layout;
 

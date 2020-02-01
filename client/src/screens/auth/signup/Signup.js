@@ -1,31 +1,40 @@
 import React, { useState, useEffect } from 'react';
+import { Link, navigate } from '@reach/router';
+import { Form, Input, Tooltip, Icon, Button, Card, Divider, Row, Col, Typography, Alert } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { navigate } from '@reach/router';
-import { identityActions } from '../redux/identity';
-import { toastActions } from '../redux/toast';
-import { Form, Icon, Input, Col, Row, Divider, Tooltip, Button, Card, Typography, Alert } from 'antd';
+import { identityActions } from '../../../redux/identity';
+import { toastActions } from '../../../redux/toast';
 
-const { Title } = Typography;
-
-function ResetPasswordForm(props) {
+function SignupForm(props) {
   const {
     getFieldDecorator,
-    validateFields,
-    validateFieldsAndScroll,
+    getFieldValue,
     getFieldsValue,
     setFields,
-    getFieldValue,
+    validateFieldsAndScroll,
+    validateFields,
   } = props.form;
 
-  const { resetToken } = props;
-
-  const [showEmailSentSuccess, setShowEmailSentSuccess] = useState(false);
-  const [showServerError, setShowServerError] = useState(false);
   const [confirmDirty, setConfirmDirty] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [showServerError, setShowServerError] = useState(false);
 
   const dispatch = useDispatch();
   const UIError = useSelector(state => state.error);
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    validateFieldsAndScroll(async (formErrors, formData) => {
+      if (!formErrors) {
+        try {
+          await dispatch(identityActions.userSignupRequest(formData));
+          dispatch(toastActions.addToast({ type: 'success', msg: 'You register successfully' }));
+          navigate('/');
+        } catch (err) {
+          setShowServerError(true);
+        }
+      }
+    });
+  };
 
   useEffect(() => {
     if (showServerError) {
@@ -40,37 +49,16 @@ function ResetPasswordForm(props) {
         });
 
         setFields(errorsMap);
-      } else if (UIError.status === 400) {
-        if (UIError.message.startsWith('No user')) {
-          setFields({
-            email: {
-              value: getFieldValue('email'),
-              errors: [new Error(UIError.message)],
-            },
-          });
-        }
+      } else if (UIError.message.startsWith('Email')) {
+        setFields({
+          email: {
+            value: getFieldValue('email'),
+            errors: [new Error(UIError.message)],
+          },
+        });
       }
     }
-  }, [UIError, UIError.status, showServerError, getFieldValue, getFieldsValue, setFields]);
-
-  const handleSubmit = e => {
-    e.preventDefault();
-    validateFieldsAndScroll(async (formErrors, formData) => {
-      if (!formErrors) {
-        try {
-          setLoading(true);
-          await dispatch(identityActions.resetPasswordRequest({ ...formData, resetToken }));
-          dispatch(toastActions.addToast({ type: 'success', msg: 'Your password has been changed' }));
-          setShowEmailSentSuccess(true);
-          navigate('/login');
-          setLoading(false);
-        } catch (err) {
-          setShowServerError(true);
-          setLoading(false);
-        }
-      }
-    });
-  };
+  }, [UIError, UIError.status, getFieldValue, getFieldsValue, setFields, showServerError]);
 
   const handleConfirmBlur = e => {
     const { value } = e.target;
@@ -95,29 +83,52 @@ function ResetPasswordForm(props) {
   return (
     <Row type='flex' style={{ justifyContent: 'center', marginTop: '4rem' }}>
       <Col xs={24} sm={20} md={16} lg={12} xl={8}>
-        {showEmailSentSuccess ? (
-          <Alert message='Success' description='Email has been sent' type='success' showIcon closable />
+        {showServerError ? (
+          <Alert message='Error' description='Authentication Error' type='error' showIcon closable />
         ) : null}
-        {showServerError ? <Alert message='Error' description='Email not sent' type='error' showIcon closable /> : null}
 
         <Card>
-          <Title level={2} style={{ textAlign: 'center' }}>
-            Reset Password
-          </Title>
+          <Typography.Title level={2} style={{ textAlign: 'center' }}>
+            Signup
+          </Typography.Title>
           <Divider />
 
-          <Form layout='vertical' onSubmit={handleSubmit}>
+          <Form layout={'vertical'} onSubmit={handleSubmit}>
             <Form.Item
               label={
                 <span>
-                  Password&nbsp;
-                  <Tooltip title='Your new password'>
+                  Username&nbsp;
+                  <Tooltip title='How other users will see you'>
                     <Icon type='question-circle-o' />
                   </Tooltip>
                 </span>
               }
               hasFeedback
             >
+              {getFieldDecorator('username', {
+                rules: [
+                  { required: true, message: 'Please input your username!', whitespace: true },
+                  { min: 2, message: 'Minimum 3 characters required' },
+                ],
+              })(<Input prefix={<Icon type='user' style={{ fontSize: 13 }} />} placeholder='Username' size='large' />)}
+            </Form.Item>
+
+            <Form.Item label='E-mail' hasFeedback>
+              {getFieldDecorator('email', {
+                rules: [
+                  {
+                    type: 'email',
+                    message: 'The input is not valid E-mail!',
+                  },
+                  {
+                    required: true,
+                    message: 'Please input your E-mail!',
+                  },
+                ],
+              })(<Input prefix={<Icon type='mail' style={{ fontSize: 13 }} />} placeholder='Email' size='large' />)}
+            </Form.Item>
+
+            <Form.Item label='Password' hasFeedback>
               {getFieldDecorator('password', {
                 rules: [
                   {
@@ -161,9 +172,15 @@ function ResetPasswordForm(props) {
             </Form.Item>
 
             <Form.Item>
-              <Button type='primary' htmlType='submit' loading={loading}>
-                Submit
+              <Button type='primary' size='large' htmlType='submit'>
+                Sign up
               </Button>
+
+              <div style={{ marginTop: '2rem' }}>
+                <Typography.Text type='secondary'>
+                  Already have an account? <Link to='/login'>Login now</Link>
+                </Typography.Text>
+              </div>
             </Form.Item>
           </Form>
         </Card>
@@ -172,4 +189,4 @@ function ResetPasswordForm(props) {
   );
 }
 
-export default Form.create({ name: 'ResetPasswordForm' })(ResetPasswordForm);
+export default Form.create()(SignupForm);
