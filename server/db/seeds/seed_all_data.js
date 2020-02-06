@@ -5,6 +5,7 @@ const { animals } = require('./animals.json');
 
 const nullable = val => (Math.random() < 0.5 ? val : null);
 const genArr = (length, seedFn) => Array.from({ length }, seedFn);
+const isCommonAnimal = t => t && t.match(/Cat|Dog|Rabbit/g);
 
 const testUser = {
   username: 'test',
@@ -42,31 +43,56 @@ const createColors = ids => ({
   color: getRandomItem(data.cat.colors),
 });
 
-const createAnimals = (elm, idsArr) => ({
-  user_id: faker.random.arrayElement(idsArr),
-  name: elm.name || faker.name.findName(),
-  type: elm.type,
-  species: elm.species,
-  gender: elm.gender,
-  age: elm.age,
-  size: elm.size,
-  coat_length: getRandomItem(data.common.coatLength),
-  image_url: elm.photos[0].full || elm.photos[0].large || elm.photos[0].medium || elm.photos[0].small,
-  description: elm.description || faker.lorem.sentence(),
-  declawed: faker.random.boolean(),
-  vaccinated: faker.random.boolean(),
-  house_trained: faker.random.boolean(),
-  special_needs: faker.random.boolean(),
-  spayed_neutered: faker.random.boolean(),
-  good_with_kids: faker.random.boolean(),
-  good_with_cats: faker.random.boolean(),
-  good_with_dogs: faker.random.boolean(),
-  primary_breed: elm.breeds.primary,
-  secondary_breed: elm.breeds.secondary,
-  mixed_breed: elm.breeds.mixed,
-  unknown_breed: elm.breeds.unknown,
-  adopted: false,
-});
+const createAnimals = (elm, idsArr) => {
+  const { type } = elm;
+  if (isCommonAnimal(type)) {
+    return {
+      user_id: faker.random.arrayElement(idsArr),
+      name: elm.name || faker.name.findName(),
+      type,
+      species: elm.species,
+      gender: elm.gender,
+      age: elm.age,
+      size: elm.size,
+      coat_length: getRandomItem(data.common.coatLength),
+      image_url: elm.photos[0].full || elm.photos[0].large || elm.photos[0].medium || elm.photos[0].small,
+      description: elm.description || faker.lorem.sentence(),
+      declawed: faker.random.boolean(),
+      vaccinated: faker.random.boolean(),
+      house_trained: faker.random.boolean(),
+      special_needs: faker.random.boolean(),
+      spayed_neutered: faker.random.boolean(),
+      good_with_kids: faker.random.boolean(),
+      good_with_cats: faker.random.boolean(),
+      good_with_dogs: faker.random.boolean(),
+      primary_breed: elm.breeds.primary,
+      secondary_breed: elm.breeds.secondary,
+      mixed_breed: !!(elm.breeds.primary && elm.breeds.secondary),
+      unknown_breed: elm.breeds.unknown,
+      adopted: false,
+      created_at: faker.date.recent(90),
+    };
+  }
+  return {
+    user_id: faker.random.arrayElement(idsArr),
+    name: elm.name || faker.name.findName(),
+    type,
+    species: elm.species,
+    gender: elm.gender,
+    age: elm.age,
+    size: elm.size,
+    image_url: elm.photos[0].full || elm.photos[0].large || elm.photos[0].medium || elm.photos[0].small,
+    description: elm.description || faker.lorem.sentence(),
+    vaccinated: faker.random.boolean(),
+    special_needs: faker.random.boolean(),
+    primary_breed: elm.breeds.primary,
+    secondary_breed: elm.breeds.secondary,
+    mixed_breed: elm.breeds.primary && elm.breeds.secondary,
+    unknown_breed: elm.breeds.unknown,
+    adopted: false,
+    created_at: faker.date.recent(90),
+  };
+};
 
 exports.seed = async knex => {
   // eslint-disable-next-line

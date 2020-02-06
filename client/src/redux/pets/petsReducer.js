@@ -79,7 +79,7 @@ const reducer = (state = initialState, action) => {
               }
             : x
         ),
-        searchResults: state.latest.map(x =>
+        searchResults: state.searchResults.map(x =>
           x.id === action.payload.animalId
             ? {
                 ...x,

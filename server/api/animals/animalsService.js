@@ -81,25 +81,25 @@ module.exports = {
     const target = [
       'declawed',
       'house_trained',
+      'special_needs',
       'vaccinated',
       'spayed_neutered',
-      'special_needs',
       'good_with_kids',
       'good_with_cats',
       'good_with_dogs',
     ];
 
-    const providedAttrs = data.attributes ? data.attributes.split(',') : [];
-    const providedEnv = data.environment ? data.environment.split(',') : [];
+    const providedAttrs = data.attributes.length > 0 ? data.attributes : [];
+    const providedEnv = data.environment.length > 0 ? data.environment : [];
     const provided = [...providedAttrs, ...providedEnv];
     const petCharacteristics = {};
 
-    _.intersection(target, provided).forEach(item => {
-      if (item.startsWith('good')) {
-        petCharacteristics[[item]] = Number(!item);
-      } else {
-        petCharacteristics[[item]] = Number(!!item);
-      }
+    target.forEach(elm => {
+      if (elm.startsWith('good_with')) {
+        if (provided.includes(elm)) petCharacteristics[elm] = false;
+        else petCharacteristics[elm] = true;
+      } else if (provided.includes(elm)) petCharacteristics[elm] = true;
+      else petCharacteristics[elm] = false;
     });
 
     const insertAnimalObj = {
@@ -115,8 +115,8 @@ module.exports = {
       image_url: data.imageUrl,
       primary_breed: data.primaryBreed,
       secondary_breed: data.secondaryBreed,
-      mixed_breed: Number(!!data.mixedBreed),
-      unknown_breed: Number(!!data.unknownBreed),
+      mixed_breed: !!(data.petData && data.secondaryBreed),
+      unknown_breed: !!data.unknownBreed,
       adopted: false,
       ...petCharacteristics,
     };
@@ -225,6 +225,7 @@ module.exports = {
       applyFilter('a.gender', options.gender);
       applyFilter('a.coat_length', options.coatLength);
       applyFilter('a.size', options.size);
+      applyFilter('colors.color', options.color);
 
       if (options.goodWith) {
         const value = Array.isArray(options.goodWith) ? options.goodWith : [options.goodWith];
@@ -272,19 +273,6 @@ module.exports = {
         );
         bindings.push(searchLatitude, searchLongitude, searchLatitude, searchDistance);
       }
-
-      if (options.color) {
-        const clausePrefix = specifiedDistance ? 'AND' : 'HAVING';
-        const value = Array.isArray(options.color) ? options.color : [options.color];
-        const fmt = value.map(elm => `'"${elm}"'`).join(', ');
-        queries.push(`${clausePrefix} JSON_AGG(DISTINCT colors.color)::jsonb @> ANY (ARRAY [${fmt}]::jsonb[])`);
-      }
-
-      /**
-       * Other solution: -> HAVING JSON_AGG(DISTINCT colors.color)::jsonb ?| ARRAY['Black', 'White', 'Other']
-       * figure out how to escape `?|` operator because `?` is used as interpolation in node-pg and knex
-       * or just create custom operator
-       */
 
       /**
        * Pagination meta
@@ -438,17 +426,17 @@ module.exports = {
       'good_with_dogs',
     ];
 
-    const providedAttrs = petData.attributes ? petData.attributes : [];
-    const providedEnv = petData.environment ? petData.environment : [];
+    const providedAttrs = petData.attributes.length > 0 ? petData.attributes : [];
+    const providedEnv = petData.environment.length > 0 ? petData.environment : [];
     const provided = [...providedAttrs, ...providedEnv];
     const petCharacteristics = {};
 
-    _.intersection(target, provided).forEach(item => {
-      if (item.startsWith('good')) {
-        petCharacteristics[[item]] = !item;
-      } else {
-        petCharacteristics[[item]] = !!item;
-      }
+    target.forEach(elm => {
+      if (elm.startsWith('good_with')) {
+        if (provided.includes(elm)) petCharacteristics[elm] = false;
+        else petCharacteristics[elm] = true;
+      } else if (provided.includes(elm)) petCharacteristics[elm] = true;
+      else petCharacteristics[elm] = false;
     });
 
     const updateObject = {
@@ -463,7 +451,7 @@ module.exports = {
       description: petData.description,
       primary_breed: petData.primaryBreed,
       secondary_breed: petData.secondaryBreed,
-      mixed_breed: !!petData.mixedBreed,
+      mixed_breed: !!(petData.primaryBreed && petData.secondaryBreed),
       unknown_breed: !!petData.unknownBreed,
       ...petCharacteristics,
     };
@@ -475,55 +463,57 @@ module.exports = {
       chip_description: petData.chipDescription,
     };
 
-    const animalId = await knex('animals')
-      .where({ id: animal_id })
-      .update(updateObject)
-      .returning('id');
+    try {
+      const animalId = await knex('animals')
+        .where({ id: animal_id })
+        .update(updateObject)
+        .returning('id');
 
-    await Promise.all(petData.colors.map(color => knex('colors').insert({ animal_id: animalId[0], color })));
+      await Promise.all(petData.colors.map(color => knex('colors').insert({ animal_id: animalId[0], color })));
 
-    if (petData.attributes && petData.attributes.includes('microchip')) {
-      await knex('microchip')
-        .where({ animal_id })
-        .update({
-          number: petData.chipId,
-          brand: petData.chipBrand,
-          location: petData.chipLocation,
-          description: petData.chipDescription,
-        });
-    }
-    if (petData.attributes && !petData.attributes.includes('microchip')) {
-      await knex('microchip')
-        .where({ animal_id })
-        .del();
-    }
+      if (petData.attributes && !petData.attributes.includes('microchip')) {
+        await knex('microchip')
+          .where({ animal_id })
+          .del();
+      }
 
-    if (petData.tags && petData.tags.length) {
-      await Promise.all(petData.tags.map(text => knex('tags').insert({ animal_id: animalId[0], text })));
-    }
+      if (petData.tags && petData.tags.length) {
+        await Promise.all(petData.tags.map(text => knex('tags').insert({ animal_id: animalId[0], text })));
+      }
 
-    const ret = {
-      id: animalId[0],
-      colors: petData.colors,
-      tags: petData.tags,
-      ...updateObject,
-    };
+      const ret = {
+        id: animalId[0],
+        colors: petData.colors,
+        tags: petData.tags,
+        ...updateObject,
+      };
 
-    if (petData.attributes && petData.attributes.includes('microchip')) {
+      if (petData.attributes && petData.attributes.includes('microchip')) {
+        await knex('microchip')
+          .where({ animal_id })
+          .update({
+            number: petData.chipId,
+            brand: petData.chipBrand,
+            location: petData.chipLocation,
+            description: petData.chipDescription,
+          });
+
+        return {
+          petData: {
+            ...ret,
+            ...chipUpdateObj,
+          },
+        };
+      }
       return {
         petData: {
           ...ret,
-          ...chipUpdateObj,
+          chip_id: null,
         },
       };
+    } catch (err) {
+      throw err;
     }
-
-    return {
-      petData: {
-        ...ret,
-        chip_id: null,
-      },
-    };
   },
 
   async deleteAnimal(id) {
@@ -580,16 +570,20 @@ module.exports = {
   },
 
   async updateAnimalContact(animal_id, petData) {
-    const animalId = await knex('contacts')
-      .where({ animal_id })
-      .update(petData)
-      .returning('id');
+    try {
+      const animalId = await knex('contacts')
+        .where({ animal_id })
+        .update(petData)
+        .returning('id');
 
-    return {
-      petData: {
-        id: animalId[0],
-        ...petData,
-      },
-    };
+      return {
+        petData: {
+          id: animalId[0],
+          ...petData,
+        },
+      };
+    } catch (err) {
+      throw err;
+    }
   },
 };

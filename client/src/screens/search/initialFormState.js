@@ -1,5 +1,6 @@
 export default {
   type: undefined,
+  species: undefined,
   distance: 'Anywhere',
   zip: undefined,
   countryCode: undefined,

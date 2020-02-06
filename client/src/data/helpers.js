@@ -59,4 +59,6 @@ const renderAutocompleteOpts = (petType, petSpecies) => field => {
     : null;
 };
 
-export { renderAutocompleteOpts, getAutocompleteList };
+const isCommonAnimal = t => t && t.match(/Cat|Dog|Rabbit/g);
+
+export { renderAutocompleteOpts, getAutocompleteList, isCommonAnimal };

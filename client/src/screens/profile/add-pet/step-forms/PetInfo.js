@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Select, Input, Upload, Icon, Checkbox, Typography, Card, Radio, Modal, Row, Col } from 'antd';
 import getBase64 from '../../../../utils/getBase64';
-import { renderAutocompleteOpts } from '../../../../data/helpers';
+import { renderAutocompleteOpts, isCommonAnimal } from '../../../../data/helpers';
 
 const verticalGap = { marginBottom: 8 };
 
@@ -13,6 +13,7 @@ function PetInfoForm(props) {
   const [previewImageVisible, setPreviewImageVisible] = useState(false);
 
   const renderOpts = renderAutocompleteOpts(props.type.value, props.species.value);
+  const isCommonPet = isCommonAnimal(props.type.value);
 
   const handleUnknownBreedToggle = () => {
     setBreedRequired(prev => !prev);
@@ -115,37 +116,27 @@ function PetInfoForm(props) {
           )}
         </Form.Item>
 
-        <Row>
-          <Col span={12}>
-            <Form.Item>
-              {getFieldDecorator('mixedBreed', {
-                valuePropName: 'checked',
-                initialValue: false,
-              })(<Checkbox>Mixed breed</Checkbox>)}
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item>
-              {getFieldDecorator('unknownBreed', {
-                valuePropName: 'checked',
-                initialValue: false,
-              })(<Checkbox onChange={handleUnknownBreedToggle}>Unknown breed</Checkbox>)}
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item style={verticalGap} label='Coat Length' hasFeedback className='custom-feedback'>
-          {getFieldDecorator('coatLength', {
-            rules: [{ required: true, message: 'Please select animal coat length' }],
-          })(
-            <Radio.Group placeholder='Select coat length' buttonStyle='solid'>
-              <Radio.Button value='Hairless'>Hairless</Radio.Button>
-              <Radio.Button value='Short'>Short</Radio.Button>
-              <Radio.Button value='Medium'>Medium</Radio.Button>
-              <Radio.Button value='Long'>Long</Radio.Button>
-            </Radio.Group>
-          )}
+        <Form.Item>
+          {getFieldDecorator('unknownBreed', {
+            valuePropName: 'checked',
+            initialValue: false,
+          })(<Checkbox onChange={handleUnknownBreedToggle}>Unknown breed</Checkbox>)}
         </Form.Item>
+
+        {isCommonPet && (
+          <Form.Item style={verticalGap} label='Coat Length' hasFeedback className='custom-feedback'>
+            {getFieldDecorator('coatLength', {
+              rules: [{ required: true, message: 'Please select animal coat length' }],
+            })(
+              <Radio.Group placeholder='Select coat length' buttonStyle='solid'>
+                <Radio.Button value='Hairless'>Hairless</Radio.Button>
+                <Radio.Button value='Short'>Short</Radio.Button>
+                <Radio.Button value='Medium'>Medium</Radio.Button>
+                <Radio.Button value='Long'>Long</Radio.Button>
+              </Radio.Group>
+            )}
+          </Form.Item>
+        )}
 
         <Form.Item style={verticalGap} label='Size when grown' hasFeedback className='custom-feedback'>
           {getFieldDecorator('size', {
@@ -184,17 +175,23 @@ function PetInfoForm(props) {
           {getFieldDecorator('attributes')(
             <Checkbox.Group style={{ width: '100%' }}>
               <Row>
-                <Col span={8}>
-                  <Checkbox value='declawed'>Declawed</Checkbox>
-                </Col>
-                <Col span={8}>
-                  <Checkbox value='house_trained'>House Trained</Checkbox>
-                </Col>
+                {isCommonPet && (
+                  <Col span={8}>
+                    <Checkbox value='declawed'>Declawed</Checkbox>
+                  </Col>
+                )}
+                {isCommonPet && (
+                  <Col span={8}>
+                    <Checkbox value='house_trained'>House Trained</Checkbox>
+                  </Col>
+                )}
+                {isCommonPet && (
+                  <Col span={8}>
+                    <Checkbox value='spayed_neutered'>Spayed/Neutered</Checkbox>
+                  </Col>
+                )}
                 <Col span={8}>
                   <Checkbox value='vaccinated'>Vaccinated</Checkbox>
-                </Col>
-                <Col span={8}>
-                  <Checkbox value='spayed_neutered'>Spayed/Neutered</Checkbox>
                 </Col>
                 <Col span={8}>
                   <Checkbox value='special_needs'>Special Needs</Checkbox>
@@ -207,15 +204,17 @@ function PetInfoForm(props) {
           )}
         </Form.Item>
 
-        <Form.Item label="Doesn't like to be with">
-          {getFieldDecorator('environment')(
-            <Checkbox.Group>
-              <Checkbox value='good_with_kids'>Kids</Checkbox>
-              <Checkbox value='good_with_cats'>Cats</Checkbox>
-              <Checkbox value='good_with_dogs'>Dogs</Checkbox>
-            </Checkbox.Group>
-          )}
-        </Form.Item>
+        {isCommonPet && (
+          <Form.Item label="Doesn't like to be with">
+            {getFieldDecorator('environment')(
+              <Checkbox.Group>
+                <Checkbox value='good_with_kids'>Kids</Checkbox>
+                <Checkbox value='good_with_cats'>Cats</Checkbox>
+                <Checkbox value='good_with_dogs'>Dogs</Checkbox>
+              </Checkbox.Group>
+            )}
+          </Form.Item>
+        )}
 
         {getFieldValue('attributes').includes('microchip') && (
           <>

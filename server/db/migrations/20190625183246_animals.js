@@ -12,7 +12,7 @@ exports.up = knex =>
     t.string('species').notNullable();
     t.string('gender').notNullable();
     t.string('age').notNullable();
-    t.string('coat_length').notNullable();
+    t.string('coat_length');
     t.string('size').notNullable();
     t.string('image_url').notNullable();
     t.text('description');

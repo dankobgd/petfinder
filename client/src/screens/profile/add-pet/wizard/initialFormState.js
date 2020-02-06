@@ -7,7 +7,6 @@ export default {
     age: { value: undefined },
     primaryBreed: { value: undefined },
     secondaryBreed: { value: undefined },
-    mixedBreed: { value: undefined },
     unknownBreed: { value: undefined },
     coatLength: { value: undefined },
     size: { value: undefined },

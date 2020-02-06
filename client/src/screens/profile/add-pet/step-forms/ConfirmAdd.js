@@ -3,12 +3,12 @@ import { Typography, Result, Icon, Descriptions, Spin, Tag } from 'antd';
 
 const printGoodWith = provided => {
   const source = ['good_with_cats', 'good_with_dogs', 'good_with_kids'];
-  const words = ['Good with Cats', 'Good With Dogs', 'Good With Kids'];
+  const words = ['Cats', 'Dogs', 'Kids'];
   const filtered = source.filter(x => !provided.includes(x));
   const tmp = source.map(x => filtered.indexOf(x));
-  const a = words.filter((_, idx) => idx === tmp[idx]);
+  const goodWithList = words.filter((_, idx) => idx === tmp[idx]);
 
-  return a.map(val => (
+  return goodWithList.map(val => (
     <div key={val}>
       <Tag color='purple' style={{ marginBottom: 6 }}>
         <Typography.Text>{val}</Typography.Text>
@@ -22,7 +22,7 @@ function renderElements(items) {
   return items.map(({ name, value }) => {
     if (name === 'environment') {
       return (
-        <Descriptions.Item label={<Typography.Text strong>Environment</Typography.Text>} key={value}>
+        <Descriptions.Item label={<Typography.Text strong>Good With</Typography.Text>} key={value}>
           {printGoodWith(value)}
         </Descriptions.Item>
       );

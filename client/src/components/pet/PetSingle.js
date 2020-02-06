@@ -204,14 +204,12 @@ function PetSingle({ arr, id }) {
     }
   }
 
-  const attributesList = ['House Trained', 'Declawed', 'Spayed/Neutered', 'Special Needs', 'Vaccinated'];
   const goodWithList = ['Cats', 'Dogs', 'Kids'];
-
+  const attributesList = ['House Trained', 'Declawed', 'Spayed/Neutered', 'Special Needs', 'Vaccinated'];
   const goodWithProvided = pet ? [pet.good_with_cats, pet.good_with_dogs, pet.good_with_kids] : [];
   const attributesProvided = pet
     ? [pet.house_trained, pet.declawed, pet.spayed_neutered, pet.special_needs, pet.vaccinated]
     : [];
-
   const petGoodWith = goodWithList.filter((elm, idx) => goodWithProvided[idx] && elm);
   const petAttributes = attributesList.filter((elm, idx) => attributesProvided[idx] && elm);
 

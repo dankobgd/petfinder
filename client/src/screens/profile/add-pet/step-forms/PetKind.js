@@ -44,12 +44,12 @@ function PetKindForm(props) {
                   </Radio.Button>
                 </Col>
                 <Col xs={24} sm={20} md={8} lg={8} xl={8}>
-                  <Radio.Button value='SmallAndFurry'>
+                  <Radio.Button value='Small & Furry'>
                     <p>Small & Furry </p>
                   </Radio.Button>
                 </Col>
                 <Col xs={24} sm={20} md={8} lg={8} xl={8}>
-                  <Radio.Button value='AquaticAndReptiles'>
+                  <Radio.Button value='Aquatic & Reptiles'>
                     <p>Aquatic & Reptiles</p>
                   </Radio.Button>
                 </Col>

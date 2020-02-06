@@ -121,6 +121,7 @@ code {
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  border-radius: 999px;
 }
 .ant-tag.search-filter-tag > i > svg {
   font-size: 18px;

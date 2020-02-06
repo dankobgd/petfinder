@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Select, Input, Icon, Checkbox, Typography, Radio, Tooltip, Row, Col, Button } from 'antd';
-import { cats, dogs } from '../../data/pets';
+import { Form, Select, Input, Icon, Checkbox, Typography, Radio, Row, Col, Button } from 'antd';
 import { useDispatch } from 'react-redux';
 import { identityActions } from '../../redux/identity';
-import { renderAutocompleteOpts } from '../../data/helpers';
+import { renderAutocompleteOpts, isCommonAnimal } from '../../data/helpers';
 
-const { Option } = Select;
 const verticalGap = { marginBottom: 8 };
 
 function EditPetInfoForm(props) {
@@ -24,10 +22,10 @@ function EditPetInfoForm(props) {
 
   const attrs = ['declawed', 'house_trained', 'special_needs', 'vaccinated', 'spayed_neutered'];
   const envs = ['good_with_kids', 'good_with_cats', 'good_with_dogs'];
-  const petAttrs = [pet.declawed, pet.house_trained, pet.special_needs, pet.vaccinated];
+  const petAttrs = [pet.declawed, pet.house_trained, pet.special_needs, pet.vaccinated, pet.spayed_neutered];
   const petEnvs = [pet.good_with_kids, pet.good_with_cats, pet.good_with_dogs];
   const defaultAttrs = attrs.filter((elm, idx) => petAttrs[idx] && elm);
-  const defaultEnvs = envs.filter((elm, idx) => petEnvs[idx] && elm);
+  const defaultEnvs = envs.filter((elm, idx) => !petEnvs[idx] && elm);
 
   if (pet.chip_id) {
     defaultAttrs.push('microchip');
@@ -43,13 +41,13 @@ function EditPetInfoForm(props) {
       coatLength: pet.coat_length,
       size: pet.size,
       description: pet.description,
-      mixedBreed: pet.mixed_breed,
       unknownBreed: pet.unknown_breed,
       attributes: defaultAttrs,
       environment: defaultEnvs,
       colors: pet.colors ? pet.colors : [],
       tags: pet.tags ? pet.tags : [],
     });
+
     // eslint-disable-next-line
   }, [pet, setFieldsValue]);
 
@@ -66,6 +64,8 @@ function EditPetInfoForm(props) {
       dispatch(identityActions.updatePet(pet.id, values));
     });
   };
+
+  const isCommonPet = isCommonAnimal(pet.type);
 
   return (
     <Form layout={'vertical'} onSubmit={handleFormSubmit}>
@@ -135,37 +135,27 @@ function EditPetInfoForm(props) {
         )}
       </Form.Item>
 
-      <Row>
-        <Col span={12}>
-          <Form.Item>
-            {getFieldDecorator('mixedBreed', {
-              valuePropName: 'checked',
-              initialValue: false,
-            })(<Checkbox>Mixed breed</Checkbox>)}
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item>
-            {getFieldDecorator('unknownBreed', {
-              valuePropName: 'checked',
-              initialValue: false,
-            })(<Checkbox onChange={handleUnknownBreedToggle}>Unknown breed</Checkbox>)}
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Form.Item style={verticalGap} label='Coat Length' hasFeedback className='custom-feedback'>
-        {getFieldDecorator('coatLength', {
-          rules: [{ required: true, message: 'Please select animal coat length' }],
-        })(
-          <Radio.Group placeholder='Select coat length' buttonStyle='solid'>
-            <Radio.Button value='Hairless'>Hairless</Radio.Button>
-            <Radio.Button value='Short'>Short</Radio.Button>
-            <Radio.Button value='Medium'>Medium</Radio.Button>
-            <Radio.Button value='Long'>Long</Radio.Button>
-          </Radio.Group>
-        )}
+      <Form.Item>
+        {getFieldDecorator('unknownBreed', {
+          valuePropName: 'checked',
+          initialValue: false,
+        })(<Checkbox onChange={handleUnknownBreedToggle}>Unknown breed</Checkbox>)}
       </Form.Item>
+
+      {isCommonPet && (
+        <Form.Item style={verticalGap} label='Coat Length' hasFeedback className='custom-feedback'>
+          {getFieldDecorator('coatLength', {
+            rules: [{ required: true, message: 'Please select animal coat length' }],
+          })(
+            <Radio.Group placeholder='Select coat length' buttonStyle='solid'>
+              <Radio.Button value='Hairless'>Hairless</Radio.Button>
+              <Radio.Button value='Short'>Short</Radio.Button>
+              <Radio.Button value='Medium'>Medium</Radio.Button>
+              <Radio.Button value='Long'>Long</Radio.Button>
+            </Radio.Group>
+          )}
+        </Form.Item>
+      )}
 
       <Form.Item style={verticalGap} label='Size when grown' hasFeedback className='custom-feedback'>
         {getFieldDecorator('size', {
@@ -180,17 +170,7 @@ function EditPetInfoForm(props) {
         )}
       </Form.Item>
 
-      <Form.Item
-        label={
-          <span>
-            Animal Color&nbsp;
-            <Tooltip title='select colors by hierarchy in order: primary -> secondary -> tertiary etc'>
-              <Icon type='question-circle-o' />
-            </Tooltip>
-          </span>
-        }
-        hasFeedback
-      >
+      <Form.Item label='select colors' hasFeedback>
         {getFieldDecorator('colors', {
           rules: [{ required: true, message: 'Please select animal colors', type: 'array' }],
         })(
@@ -201,19 +181,7 @@ function EditPetInfoForm(props) {
             optionFilterProp='children'
             filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
           >
-            {getFieldValue('type') === 'Dog'
-              ? dogs.colors.map(dog => (
-                  <Option key={dog} value={dog}>
-                    {dog}
-                  </Option>
-                ))
-              : getFieldValue('type') === 'Cat'
-              ? cats.colors.map(cat => (
-                  <Option key={cat} value={cat}>
-                    {cat}
-                  </Option>
-                ))
-              : null}
+            {renderOpts('colors')}
           </Select>
         )}
       </Form.Item>
@@ -226,17 +194,23 @@ function EditPetInfoForm(props) {
         {getFieldDecorator('attributes')(
           <Checkbox.Group style={{ width: '100%' }}>
             <Row>
-              <Col span={8}>
-                <Checkbox value='declawed'>Declawed</Checkbox>
-              </Col>
-              <Col span={8}>
-                <Checkbox value='house_trained'>House Trained</Checkbox>
-              </Col>
+              {isCommonPet && (
+                <Col span={8}>
+                  <Checkbox value='declawed'>Declawed</Checkbox>
+                </Col>
+              )}
+              {isCommonPet && (
+                <Col span={8}>
+                  <Checkbox value='house_trained'>House Trained</Checkbox>
+                </Col>
+              )}
+              {isCommonPet && (
+                <Col span={8}>
+                  <Checkbox value='spayed_neutered'>Spayed/Neutered</Checkbox>
+                </Col>
+              )}
               <Col span={8}>
                 <Checkbox value='vaccinated'>Vaccinated</Checkbox>
-              </Col>
-              <Col span={8}>
-                <Checkbox value='spayed_neutered'>Spayed/Neutered</Checkbox>
               </Col>
               <Col span={8}>
                 <Checkbox value='special_needs'>Special Needs</Checkbox>
@@ -249,15 +223,17 @@ function EditPetInfoForm(props) {
         )}
       </Form.Item>
 
-      <Form.Item label="Doesn't like to be with">
-        {getFieldDecorator('environment')(
-          <Checkbox.Group>
-            <Checkbox value='good_with_kids'>Kids</Checkbox>
-            <Checkbox value='good_with_cats'>Cats</Checkbox>
-            <Checkbox value='good_with_dogs'>Dogs</Checkbox>
-          </Checkbox.Group>
-        )}
-      </Form.Item>
+      {isCommonPet && (
+        <Form.Item label="Doesn't like to be with">
+          {getFieldDecorator('environment')(
+            <Checkbox.Group>
+              <Checkbox value='good_with_kids'>Kids</Checkbox>
+              <Checkbox value='good_with_cats'>Cats</Checkbox>
+              <Checkbox value='good_with_dogs'>Dogs</Checkbox>
+            </Checkbox.Group>
+          )}
+        </Form.Item>
+      )}
 
       {getFieldValue('attributes') && getFieldValue('attributes').includes('microchip') ? (
         <>

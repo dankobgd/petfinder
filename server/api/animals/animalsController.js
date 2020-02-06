@@ -117,8 +117,9 @@ exports.adoptAnimal = async (req, res, next) => {
 // Update pet
 exports.updateAnimal = async (req, res, next) => {
   const animalId = Number.parseInt(req.params.id, 10);
+  const { petData } = req.body;
   try {
-    const result = await AnimalService.updateAnimal(animalId, req.body.petData);
+    const result = await AnimalService.updateAnimal(animalId, petData);
     res.status(200).json(result);
   } catch (err) {
     next(createError.BadRequest(err.message));

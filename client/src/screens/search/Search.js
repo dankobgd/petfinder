@@ -9,7 +9,7 @@ import { uiActions } from '../../redux/ui';
 import { useSelector, useDispatch } from 'react-redux';
 import PetsList from '../../components/pet/PetsList';
 
-import { renderAutocompleteOpts, getAutocompleteList } from '../../data/helpers';
+import { renderAutocompleteOpts, getAutocompleteList, isCommonAnimal } from '../../data/helpers';
 import { errorActions } from '../../redux/error';
 
 const { Option } = Select;
@@ -192,7 +192,6 @@ function SearchPage() {
 
   const pickedType = formState['type'] || '';
   const pickedSpecies = formState['species'] || '';
-
   const renderOpts = renderAutocompleteOpts(pickedType, pickedSpecies);
   const getAutocompList = getAutocompleteList(pickedType, pickedSpecies);
 
@@ -205,6 +204,8 @@ function SearchPage() {
     dispatch(petsActions.searchPetsByFilter(getQueryString()));
     dispatch(uiActions.persistQueryString(URI));
   };
+
+  const isCommonPet = isCommonAnimal(formState['type']);
 
   return (
     <>
@@ -336,15 +337,17 @@ function SearchPage() {
                     options={['Male', 'Female']}
                   />
                 </Col>
-                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
-                  <label htmlFor='goodWith'>Good With</label>
-                  <MultiSelect
-                    formState={formState}
-                    field='goodWith'
-                    onChange={handleMultiSelect}
-                    options={['Cats', 'Dogs', 'Kids']}
-                  />
-                </Col>
+                {isCommonPet && (
+                  <Col xs={24} sm={12} md={8} lg={6} xl={4}>
+                    <label htmlFor='goodWith'>Good With</label>
+                    <MultiSelect
+                      formState={formState}
+                      field='goodWith'
+                      onChange={handleMultiSelect}
+                      options={['Cats', 'Dogs', 'Kids']}
+                    />
+                  </Col>
+                )}
               </Row>
               <Row gutter={20} style={{ marginTop: '1.5rem' }}>
                 <Col xs={24} sm={12} md={8} lg={6} xl={4}>
@@ -353,18 +356,24 @@ function SearchPage() {
                     formState={formState}
                     field='care'
                     onChange={handleMultiSelect}
-                    options={['House Trained', 'Declawed', 'Special Needs', 'Vaccinated', 'Spayed/Neutered']}
+                    options={
+                      isCommonPet
+                        ? ['House Trained', 'Declawed', 'Special Needs', 'Vaccinated', 'Spayed/Neutered']
+                        : ['Vaccinated', 'Special Needs', 'Spayed/Neutered']
+                    }
                   />
                 </Col>
-                <Col xs={24} sm={12} md={8} lg={6} xl={4}>
-                  <label htmlFor='coatLength'>Coat Length</label>
-                  <MultiSelect
-                    formState={formState}
-                    field='coatLength'
-                    onChange={handleMultiSelect}
-                    options={['Hairless', 'Short', 'Medium', 'Long']}
-                  />
-                </Col>
+                {isCommonPet && (
+                  <Col xs={24} sm={12} md={8} lg={6} xl={4}>
+                    <label htmlFor='coatLength'>Coat Length</label>
+                    <MultiSelect
+                      formState={formState}
+                      field='coatLength'
+                      onChange={handleMultiSelect}
+                      options={['Hairless', 'Short', 'Medium', 'Long']}
+                    />
+                  </Col>
+                )}
                 <Col xs={24} sm={12} md={8} lg={6} xl={4}>
                   <label htmlFor='color'>Color</label>
                   <MultiSelect formState={formState} field='color' onChange={handleMultiSelect} options={cats.colors} />
