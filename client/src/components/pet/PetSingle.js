@@ -414,10 +414,10 @@ function PetSingle({ arr, id }) {
 
                       <div style={{ marginBottom: '1rem' }}>
                         <Txt strong>Status: </Txt>
-                        <Tag color={pet.adopted ? 'Adopted' : 'green'}>{pet.adopted ? 'Adopted' : 'Adoptable'}</Tag>
+                        <Tag color={pet.adopted ? 'magenta' : 'green'}>{pet.adopted ? 'Adopted' : 'Adoptable'}</Tag>
                       </div>
 
-                      {pet && pet.mine && (
+                      {isAuthenticated && pet && pet.mine && (
                         <Tooltip title='Delete pet' placement='bottom'>
                           <Popconfirm
                             title='Are you sure？'
@@ -437,8 +437,15 @@ function PetSingle({ arr, id }) {
                         </Tooltip>
                       )}
 
-                      {!pet.adopted && !pet.mine && (
-                        <Button onClick={handleAdoptPet} type='primary' size='large'>
+                      {isAuthenticated ? (
+                        !pet.adopted &&
+                        !pet.mine && (
+                          <Button onClick={handleAdoptPet} type='primary' size='large'>
+                            Adopt a pet
+                          </Button>
+                        )
+                      ) : (
+                        <Button type='primary' size='large' onClick={() => message.warn('Please login to adopt a pet')}>
                           Adopt a pet
                         </Button>
                       )}
@@ -484,7 +491,7 @@ function PetSingle({ arr, id }) {
 
                 <Col xs={24} sm={24} md={24} lg={10} xl={10}>
                   <Card className='contact-card' title='Adoption Contact Information'>
-                    {pet && pet.mine && (
+                    {isAuthenticated && pet && pet.mine && (
                       <Tooltip title='Edit Contact Info'>
                         <Button
                           type='primary'
