@@ -51,7 +51,7 @@ exports.passwordForgot = async (req, res, next) => {
   }
 
   const token = await generateToken();
-  const resetPasswordURL = `http://localhost:3000/password-reset/${token}`;
+  const resetPasswordURL = `${config.app.siteUrl}/password-reset/${token}`;
   const expires = Date.now() + config.auth.resetPasswordValidFor;
 
   const emailCtx = {

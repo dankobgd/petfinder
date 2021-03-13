@@ -4,10 +4,16 @@ require('dotenv').config({ path: '../.env' });
 module.exports = {
   development: {
     client: 'pg',
-    version: '11',
-    connection: process.env.PG_CONNECTION_STRING,
+    version: '13',
+    connection: {
+      host: process.env.PG_HOST,
+      port: process.env.PG_PORT,
+      user: process.env.PG_USER,
+      password: process.env.PG_PASSWORD,
+      database: process.env.PG_DATABASE,
+    },
     pool: {
-      min: 2,
+      min: 1,
       max: 10,
     },
     migrations: {
@@ -20,10 +26,16 @@ module.exports = {
 
   production: {
     client: 'pg',
-    version: '11',
-    connection: process.env.PG_CONNECTION_STRING,
+    version: '13',
+    connection: {
+      host: process.env.PG_HOST,
+      port: process.env.PG_PORT,
+      user: process.env.PG_USER,
+      password: process.env.PG_PASSWORD,
+      database: process.env.PG_DATABASE,
+    },
     pool: {
-      min: 2,
+      min: 1,
       max: 10,
     },
     migrations: {

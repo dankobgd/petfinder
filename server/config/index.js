@@ -17,7 +17,8 @@ const baseConfig = {
 
   app: {
     env: process.env.NODE_ENV || 'development',
-    port: process.env.PORT || 3001,
+    port: process.env.PORT || 3737,
+    siteUrl: process.env.SITE_URL,
     title: pkg.title,
     version: pkg.version,
     description: pkg.description,
@@ -28,18 +29,6 @@ const baseConfig = {
     verificationRequired: true,
     resetPasswordValidFor: 60 * 60 * 1000, // 1 hour
     jwtSecret: process.env.JWT_SECRET || 'secret',
-    google: {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    },
-    facebook: {
-      clientID: process.env.FB_CLIENT_ID,
-      clientSecret: process.env.FB_CLIENT_SECRET,
-    },
-    github: {
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    },
   },
 
   sessions: {
@@ -56,8 +45,7 @@ const baseConfig = {
   },
 
   email: {
-    enabled: false,
-    transport: 'smtp', // `smtp | mailgun | sendgrid`
+    enabled: process.env.NODE_ENV === 'production',
     from: process.env.EMAIL_FROM,
     signatureAddress: process.env.SIGNATURE_ADDRESS,
     smtp: {
@@ -116,13 +104,6 @@ const productionConfig = {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-    },
-    mailgun: {
-      apiKey: process.env.MAILGUN_API_KEY,
-      domain: process.env.MAILGUN_DOMAIN,
-    },
-    sendgrid: {
-      apiKey: process.env.SENDGRID_API_KEY,
     },
   },
 };

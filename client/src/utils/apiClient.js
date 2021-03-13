@@ -1,8 +1,10 @@
 import axios from 'axios';
 import authHeaderInterceptor from './authorizationHeaderInterceptor';
 
+const baseURL = process.env.BASE_URL;
+
 const client = axios.create({
-  baseURL: 'http://localhost:3001/api/',
+  baseURL: `${baseURL}/api`,
   headers: {
     'Content-type': 'application/json; charset=UTF-8',
     Accept: 'application/json',

@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  # --------------------------------------------------------------------------------
+  petfinder-app:
+    build: .
+    container_name: petfinde-app
+    restart: always
+    ports:
+      - "${PORT}:${PORT}"
+    networks:
+      - petfinder-net
+    depends_on:
+      - petfinder-postgres
+  # --------------------------------------------------------------------------------
+  petfinder-postgres:
+    image: postgres:13-alpine
+    container_name: petfinder-postgres
+    restart: always
+    ports:
+      - ${PG_PORT}:5432
+    environment:
+      - POSTGRES_DB=${PG_DATABASE}
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+    volumes:
+      - petfinder-postgres-data:/var/lib/postgresql/data
+      - ./db/migrations:/migrations
+    networks:
+      - petfinder-net
+  # --------------------------------------------------------------------------------
+
+networks:
+  petfinder-net:
+    driver: bridge
+
+volumes:
+  petfinder-postgres-data:

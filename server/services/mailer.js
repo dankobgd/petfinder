@@ -1,6 +1,4 @@
 const nodemailer = require('nodemailer');
-const sendgrid = require('@sendgrid/mail');
-const mailgun = require('mailgun-js');
 const juice = require('juice');
 const htmlToText = require('html-to-text');
 const compileTemplate = require('../utils/compile-template');
@@ -12,32 +10,13 @@ async function generateHTML(templateName, context = {}) {
   return inlined;
 }
 
-async function sendSMTP(transport, mailOptions) {
+async function sendEmail(transport, mailOptions) {
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport(transport);
 
     transporter.sendMail(mailOptions, (err, info) => {
       if (err) return reject(err);
       return resolve(info);
-    });
-  });
-}
-
-async function sendSendgrid(mailOptions) {
-  return new Promise((resolve, reject) => {
-    sendgrid.setApiKey(config.email.sendgrid.apiKey);
-    return resolve(sendgrid.send(mailOptions));
-  });
-}
-
-async function sendMailgun(mailOptions) {
-  return new Promise((resolve, reject) => {
-    const { apiKey, domain } = config.email.mailgun;
-    const mg = mailgun({ apiKey, domain });
-
-    mg.messages().send(mailOptions, (err, body) => {
-      if (err) return reject(err);
-      return resolve(body);
     });
   });
 }
@@ -62,13 +41,5 @@ module.exports.send = async function(templateName, opts) {
     html,
   };
 
-  if (config.email.transport === 'smtp') {
-    await sendSMTP(config.email.smtp, mailOptions);
-  } else if (config.email.transport === 'mailgun') {
-    await sendMailgun(mailOptions);
-  } else if (config.email.transport === 'sendgrid') {
-    await sendSendgrid(mailOptions);
-  } else {
-    throw new Error('Unsupported email transport provided');
-  }
+  await sendEmail(config.email.smtp, mailOptions);
 };

@@ -11,7 +11,7 @@ function EmailModal(props) {
   const user = useSelector(state => state.identity.user);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && pet) {
       setFieldsValue({
         email: user.email,
       });
